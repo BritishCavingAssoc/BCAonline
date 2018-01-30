@@ -1,0 +1,195 @@
+<?php
+App::uses('AppModel', 'Model');
+
+class ImportedUser extends AppModel
+{
+    public $name = 'ImportedUser';
+    public $displayField = 'id';
+    public $actsAs = array('Csv.Csv' => array('length' => '1000','delimiter' => "\t"));
+
+    public $virtualFields = array(
+        'full_name' => 'TRIM(CONCAT(IFNULL(ImportedUser.forename,""), " ", IFNULL(ImportedUser.surname,"")))'
+    );
+
+    public $validate = array(
+        'class' => array(
+            'rule' => array('inList', array('CIM','DIM','GRP')),
+            'required' => 'create',
+            'allowEmpty' => false,
+            'message' => 'Class must be CIM, DIM or GRP.'
+        ),
+        'forename' => array(
+            'rule' => array('maxlength', 25),
+            'allowEmpty' => true,
+            'message' => 'Forename can not be longer than 25 characters.'
+            ),
+        'surname' => array(
+            'rule' => array('maxlength', 25),
+            'allowEmpty' => true,
+            'message' => 'Surname can not be longer than 25 characters.'
+        ),
+        'bca_no' => array(
+            'rule' => 'numeric',
+            'required' => 'create',
+            'allowEmpty' => false,
+            'message' => 'BCA No. must be a number.'
+        ),
+        'organisation' => array(
+            'rule' => array('maxlength', 50),
+            'allowEmpty' => false,
+            'message' => 'Organisation can not be longer than 50 characters.'
+        ),
+        'position' => array(
+            'rule' => array('maxlength', 25),
+            'allowEmpty' => true,
+            'message' => 'Position can not be longer than 25 characters.'
+        ),
+        'bca_status' => array(
+            'rule' => array('inList', array('Current', 'Overdue', 'Lapsed', 'Resigned', 'Expelled', 'Deceased')),
+            'required' => false,
+            'allowEmpty' => true,
+            'message' => 'BCA Status must be Current, Overdue, Lapsed, Resigned, Expelled, Deceased or blank.'
+        ),
+        'insurance_status' => array(
+            'rule_valid_insurance_status' => array('rule' => 'ruleValidInsuranceStatus'),
+            //'required' => false,
+            //'allowEmpty' => true,
+            //'rule' => array('inList', array('C','NC','STU','AN')),
+            //'message' => 'Insurance Status must be C, NC, STU, AN or blank.'
+        ),
+        'class_code' => array(
+            'rule' => array('maxlength', 10),
+            'allowEmpty' => false,
+            'message' => 'Class Core can not be longer than 10 characters.'
+        ),
+        'email' => array(
+            'email' => array(
+                'rule' => 'email',
+                'required' => false,
+                'allowEmpty' => true,
+                'message' => 'Invalid Email address'
+                ),
+            'maxlength' => array(
+                'rule' => array('maxlength', 50),
+                'message' => 'Email can not be longer than 50 characters.'
+            )
+        ),
+        'date_of_expiry' => array(
+            'rule' => array('date'),
+            'message' => 'Invalid date.'
+        ),
+        'address1' => array(
+            'rule' => array('maxlength', 40),
+            'allowEmpty' => true,
+            'message' => 'Address line 1 can not be longer than 40 characters.'
+        ),
+        'address2' => array(
+            'rule' => array('maxlength', 40),
+            'allowEmpty' => true,
+            'message' => 'Address line 2 can not be longer than 40 characters.'
+        ),
+        'address3' => array(
+            'rule' => array('maxlength', 40),
+            'allowEmpty' => true,
+            'message' => 'Address line 3 can not be longer than 40 characters.'
+        ),
+        'town' => array(
+            'rule' => array('maxlength', 40),
+            'allowEmpty' => true,
+            'message' => 'Town can not be longer than 40 characters.'
+        ),
+        'county' => array(
+            'rule' => array('maxlength', 40),
+            'allowEmpty' => true,
+            'message' => 'County can not be longer than 40 characters.'
+        ),
+        'postcode' => array(
+            'rule' => array('maxlength', '10'),
+            'allowEmpty' => true,
+            'message' => 'Post Code can not be longer than 10 characters.'
+        ),
+        'country' => array(
+            'rule' => array('maxlength', 30),
+            'allowEmpty' => true,
+            'message' => 'Country can not be longer than 30 characters.'
+        ),
+        'website' => array(
+            'website' => array(
+                'rule' => 'url',
+                'required' => false,
+                'allowEmpty' => true,
+                'message' => 'Invalid website address'
+                ),
+            'maxlength' => array(
+                'rule' => array('maxlength', 100),
+                'message' => 'Website can not be longer than 100 characters.'
+            )
+        ),
+        'address_ok' => array(
+            'rule' => array('maxlength', 25),
+            'allowEmpty' => true,
+            'message' => 'Address OK can not be longer than 25 characters.'
+        ),
+        'bca_email_ok' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'BCA Email OK? must be yes, no or blank.'
+        ),
+        'bcra_email_ok' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'BCRA Email OK? must be yes, no or blank.'
+        ),
+        'forename2' => array(
+            'rule' => array('maxlength', 25),
+            'allowEmpty' => true,
+            'message' => 'Forename 2 can not be longer than 25 characters.'
+        ),
+        'surname2' => array(
+            'rule' => array('maxlength', 25),
+            'allowEmpty' => true,
+            'message' => 'Surname 2 can not be longer than 25 characters.'
+        ),
+        'bca_no2' => array(
+            'rule' => 'numeric',
+            'allowEmpty' => true,
+            'message' => 'BCA No. 2 must be a number or blank.'
+        ),
+        'insurance_status2' => array(
+            'rule_valid_insurance_status' => array('rule' => 'ruleValidInsuranceStatus'),
+        )
+    );
+
+    //Class is required but insurance_status(2) is not.
+    public function ruleValidInsuranceStatus($data) {
+
+    if (!isset($this->data[$this->alias]['class'])) return 'Class must be CIM, DIM or GRP.';
+
+        if ($this->data[$this->alias]['class'] == 'GRP') { //If GRP.
+            if (isset($this->data[$this->alias]['insurance_status']) &&
+                !in_array($this->data[$this->alias]['insurance_status'], array('Y', 'N', '')))
+            {
+                return 'Insurance Status for group members must be either Y, N or blank.';
+            }
+            if (isset($this->data[$this->alias]['insurance_status2']) &&
+                !in_array($this->data[$this->alias]['insurance_status2'], array('Y', 'N', '')))
+            {
+                return 'Insurance Status 2 for group members must be either Y, N or blank.';
+            }
+        }
+        else { //else CIM or DIM.
+            if (isset($this->data[$this->alias]['insurance_status']) &&
+                !in_array($this->data[$this->alias]['insurance_status'], array('C','NC','STU','AN', '')))
+            {
+                return 'Insurance Status for individual members must be either C, NC, STU, AN or blank.';
+            }
+            if (isset($this->data[$this->alias]['insurance_status2']) &&
+                !in_array($this->data[$this->alias]['insurance_status2'], array('C','NC','STU','AN', '')))
+            {
+                return 'Insurance Status 2 for individual members must be either C, NC, STU, AN or blank.';
+            }
+        }
+
+        return true;
+    }
+}
