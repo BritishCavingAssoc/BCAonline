@@ -120,6 +120,7 @@
     <h3><?php echo __('BCA Online'); ?></h3>
     <ul>
         <li><?php echo $this->Html->link(__('Add User'), array('action' => 'add')); ?></li>
+        <li><?php echo $this->Html->link(__('Show Mismatched Names'), array('action' => 'report_mismatched_names_uu')); ?></li>
         <li><?php echo $this->Html->link(__('Admin Dashboard'), array('controller' => 'Users','action'=>'dashboard', 'admin' => true)); ?> </li>
     </ul>
 </div>
