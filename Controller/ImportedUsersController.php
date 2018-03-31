@@ -57,32 +57,29 @@ class ImportedUsersController extends AppController {
         )
     );
 
-public function admin_testxls() {
+    public function admin_testxls() {
 
-    $folderToSaveXls = '/';
+        $folderToSaveXls = '/';
 
-    $objPHPExcel = new PHPExcel();
+        $objPHPExcel = new PHPExcel();
 
-    $objPHPExcel->getProperties()->setCreator("David Cooke")
-                         ->setLastModifiedBy("David Cooke")
-                         ->setTitle("PHPExcel Test Document")
-                         ->setSubject("PHPExcel Test Document")
-                         ->setDescription("Test document for PHPExcel, generated using PHP classes.")
-                         ->setKeywords("office PHPExcel php")
-                         ->setCategory("Test result file");
+        $objPHPExcel->getProperties()->setCreator("David Cooke")
+                             ->setLastModifiedBy("David Cooke")
+                             ->setTitle("PHPExcel Test Document")
+                             ->setSubject("PHPExcel Test Document")
+                             ->setDescription("Test document for PHPExcel, generated using PHP classes.")
+                             ->setKeywords("office PHPExcel php")
+                             ->setCategory("Test result file");
 
-    $objPHPExcel->setActiveSheetIndex(0)
-        ->setCellValue('A1', 'Hello')
-        ->setCellValue('B2', 'world!')
-        ->setCellValue('C1', 'Hello')
-        ->setCellValue('D2', 'world!');
+        $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue('A1', 'Hello')
+            ->setCellValue('B2', 'world!')
+            ->setCellValue('C1', 'Hello')
+            ->setCellValue('D2', 'world!');
 
-    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
-    //$objWriter->save( $folderToSaveXls . '/test.xls' );
-    $objWriter->save( 'test.xls' );
-
-
-
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        //$objWriter->save( $folderToSaveXls . '/test.xls' );
+        $objWriter->save( 'test.xls' );
     }
 
 
@@ -589,56 +586,17 @@ public function admin_testxls() {
      *
      * Lists records in the import file that have different names from the master database
      * and are not already in the master database.
+     *
+     * Names for the given BCA no. already in the database will not be reported. I.e. we assumption that names already in the database are
+     * correct. This means only new variations in the current import are reported. This reduces the length of the report considerably.
+     * For example if 23/David Smith/WCC and 23/Dave Smith/BEC are existing records in the database.
+     * Importing 23/David Smith/WCC would be not reported dispite there being a mis-match with the BEC entry.
+     * Importing 23/David Smithson/WCC would be reported as a mis-match.
      */
 
-     /* SELECT DISTINCT u1.bca_no, u2.bca_no, u2.forename, u2.surname, u2.organisation, u2.class, u1.forename, u1.surname, u1.organisation, u1.class
-      * FROM imported_users AS u1, users AS u2
-      * WHERE (((u1.bca_no)=[u2].[bca_no]) AND
-      * ((Exists (SELECT *
-      * FROM users  AS u3
-      * WHERE u1.bca_no=u3.bca_no AND u1.forename=u3.forename AND u1.surname=u3.surname))=False) AND
-      * ((Exists (SELECT *
-      * FROM users  AS u4
-      * WHERE u1.bca_no=u4.bca_no AND (u1.forename<>u4.forename or u1.surname<>u4.surname)))<>False))
-      * ORDER BY u1.bca_no;
-    */
     function admin_report_new_mismatched_names() {
 
-        $mySQL = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname, User.organisation,
-            User.class, ImportedUser.forename, ImportedUser.surname, ImportedUser.organisation, ImportedUser.class
-            FROM imported_users AS ImportedUser, users AS User
-            WHERE
-            (((ImportedUser.bca_no)=[User].[bca_no])
-            AND ((Exists (SELECT *
-            FROM users  AS u3
-            WHERE ImportedUser.bca_no=u3.bca_no AND ImportedUser.forename=u3.forename AND ImportedUser.surname=u3.surname))=False)
-            AND ((Exists (SELECT *
-            FROM users  AS u4
-            WHERE ImportedUser.bca_no=u4.bca_no AND (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname)))<>False))
-            LIMIT 10
-            ORDER BY ImportedUser.bca_no;';
-
-        $mySQL2 = 'SELECT ImportedUser.bca_no FROM imported_users AS ImportedUser,
-        users AS User WHERE ImportedUser.bca_no = User.bca_no LIMIT 10';
-
-        $mySQL3 = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname, User.organisation,
-            User.class, ImportedUser.forename, ImportedUser.surname, ImportedUser.organisation, ImportedUser.class
-            FROM imported_users AS ImportedUser, users AS User
-            WHERE
-            ImportedUser.bca_no=User.bca_no
-            AND Exists (SELECT *
-                FROM users AS u3
-                WHERE ImportedUser.bca_no=u3.bca_no AND
-                    ImportedUser.forename=u3.forename AND
-                    ImportedUser.surname=u3.surname)
-            AND Exists (SELECT *
-                FROM users AS u4
-                WHERE ImportedUser.bca_no=u4.bca_no AND
-                    (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname))
-            LIMIT 10
-            ORDER BY ImportedUser.bca_no;';
-
-        $mySQL4 = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
+        $mySQL = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
                 User.organisation, User.class, User.address1, User.address2, User.email,
                 ImportedUser.forename, ImportedUser.surname,
                 ImportedUser.organisation, ImportedUser.class, ImportedUser.address1,
@@ -660,30 +618,8 @@ public function admin_testxls() {
 
         $db = $this->ImportedUser->getDataSource();
 
-        $mismatchedLines = $db->fetchALL($mySQL4);
+        $mismatchedLines = $db->fetchALL($mySQL);
 
-    /*
-        $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class',
-            'ImportedUser.forename', 'ImportedUser.surname', 'ImportedUser.address1', 'ImportedUser.address2',
-            'User.bca_no', 'User.organisation', 'User.class', 'User.forename', 'User.surname',
-            'User.address1', 'User.address2');
-
-        $joins = array(array('table' => 'users', 'alias' => 'User',
-            'type' => 'inner', 'conditions' => array('ImportedUser.bca_no = User.bca_no')));
-
-        //$order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
-        $order = array('ImportedUser.bca_no');
-
-        $conditions = array('or' => array('ImportedUser.forename <> User.forename', 'ImportedUser.surname <> User.surname'));
-
-        $mismatchedLines = $this->ImportedUser->find('all', array(
-            'joins' => $joins,
-            'fields' => $fields,
-            'conditions' => $conditions,
-            'order' => $order,
-            //'limit' => 10,
-        ));
-*/
         $this->set('mismatchedLines', $mismatchedLines);
 
     }
