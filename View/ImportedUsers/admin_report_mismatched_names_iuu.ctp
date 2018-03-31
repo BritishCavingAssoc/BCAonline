@@ -51,7 +51,7 @@
     <h3><?php echo __('Actions'); ?></h3>
     <ul>
         <li><?php echo $this->Html->link(__('Return'), array('action'=>'index')); ?> </li>
-        <li><?php if ($line_count <> 0) { echo $this->Form->postLink(__('Tidy'), array('action' => 'tidy_mismatched_names'), null,
+        <li><?php if ($line_count <> 0) { echo $this->Form->postLink(__('Tidy'), array('action' => 'tidy_mismatched_names_iuu'), null,
         __('Are you sure you remove all the mismatched records?'));} ?></li>
     </ul>
 </div>

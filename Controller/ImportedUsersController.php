@@ -35,7 +35,10 @@ class ImportedUsersController extends AppController {
         //User Admin role can also do the following.
         if ($this->UserUtilities->hasRole(array('UserAdmin'))) {
             if (in_array($this->action, array('admin_index', 'admin_view', 'admin_add', 'admin_edit', 'admin_delete',
-                    'admin_upload_file', 'admin_process_file', 'admin_update_users', 'admin_delete_all'))) {
+                'admin_delete_all', 'admin_upload_file', 'admin_process_file', 'admin_update_users',
+                'admin_report_repeated_lines','admin_tidy_repeated_lines',
+                'admin_report_mismatched_names_iuu','admin_tidy_mismatched_names_iuu',
+                'admin_report_users_to_be_updated', 'admin_report_users_to_be_added'))){
 
                 return true;
             }
@@ -547,7 +550,7 @@ class ImportedUsersController extends AppController {
      * Deletes the records records from the Import.
      */
 
-    function admin_tidy_repeats() {
+    function admin_tidy_repeated_lines() {
 
         $this->request->onlyAllow('post');
 
@@ -582,7 +585,7 @@ class ImportedUsersController extends AppController {
     }
 
     /**
-     * admin_report_new_mismatched_names
+     * admin_report_mismatched_names_iuu
      *
      * Lists records in the import file that have different names from the master database
      * and are not already in the master database.
@@ -594,7 +597,7 @@ class ImportedUsersController extends AppController {
      * Importing 23/David Smithson/WCC would be reported as a mis-match.
      */
 
-    function admin_report_new_mismatched_names() {
+    function admin_report_mismatched_names_iuu() {
 
         $mySQL = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
                 User.organisation, User.class, User.address1, User.address2, User.email,
@@ -625,45 +628,12 @@ class ImportedUsersController extends AppController {
     }
 
     /**
-     * admin_report_mismatched_names
-     *
-     * Lists records in the import file that have different names from the master database.
-     */
-
-    function admin_report_mismatched_names() {
-
-        $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class',
-            'ImportedUser.forename', 'ImportedUser.surname', 'ImportedUser.address1', 'ImportedUser.address2',
-            'User.bca_no', 'User.organisation', 'User.class', 'User.forename', 'User.surname',
-            'User.address1', 'User.address2');
-
-        $joins = array(array('table' => 'users', 'alias' => 'User',
-            'type' => 'inner', 'conditions' => array('ImportedUser.bca_no = User.bca_no')));
-
-        //$order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
-        $order = array('ImportedUser.bca_no');
-
-        $conditions = array('or' => array('ImportedUser.forename <> User.forename', 'ImportedUser.surname <> User.surname'));
-
-        $mismatchedLines = $this->ImportedUser->find('all', array(
-            'joins' => $joins,
-            'fields' => $fields,
-            'conditions' => $conditions,
-            'order' => $order,
-            //'limit' => 10,
-        ));
-
-        $this->set('mismatchedLines', $mismatchedLines);
-
-    }
-
-    /**
-     * admin_tidy_mismatched_names
+     * admin_tidy_mismatched_names_iuu
      *
      * Deletes the mismatching name records from the Import.
      */
 
-    function admin_tidy_mismatched_names() {
+    function admin_tidy_mismatched_names_iuu() {
 
         $this->request->onlyAllow('post');
 
