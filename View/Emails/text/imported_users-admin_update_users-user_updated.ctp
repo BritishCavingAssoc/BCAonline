@@ -9,6 +9,8 @@ The changes have been made by the BCA Membership Administrator using the informa
 
 If they are incorrect please contact your club in the first instance or the BCA Membership Administrator ({$membership_admin_email}) otherwise.
 
+We may adjust your address in order to harmonize it with the post office address file.
+
 EOT;
 
 echo "\nNOW:-\n";
