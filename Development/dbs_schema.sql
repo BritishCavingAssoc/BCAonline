@@ -118,6 +118,7 @@ CREATE TABLE `users` (
   `insurance_status2` varchar(3) DEFAULT NULL,
   `class_code2` varchar(10) DEFAULT NULL,
   `roles` varchar(250) DEFAULT NULL,
+  `same_person` tinyint(1) NOT NULL DEFAULT '0',
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -129,14 +130,14 @@ CREATE TRIGGER `UsersAfterDelete` AFTER DELETE ON `users` FOR EACH ROW BEGIN
             bca_status, bca_no, class, class_code, insurance_status, date_of_expiry, address1, address2,
             address3, town, county, postcode, country, telephone, website, address_ok, allow_club_updates,
             admin_email_ok, bca_email_ok, bcra_email_ok, forename2, surname2, bca_no2, insurance_status2,
-            class_code2, roles, created, modified)
+            class_code2, roles, same_person, created, modified)
         values
             (now(), user(), 'D', old.id, old.username, old.password, old.active, 
             old.email, old.forename, old.surname, old.organisation, old.short_name, old.position,
             old.bca_status, old.bca_no, old.class, old.class_code, old.insurance_status, old.date_of_expiry, old.address1, old.address2,
             old.address3, old.town, old.county, old.postcode, old.country, old.telephone, old.website, old.address_ok, old.allow_club_updates,
             old.admin_email_ok, old.bca_email_ok, old.bcra_email_ok, old.forename2, old.surname2, old.bca_no2, old.insurance_status2,
-            old.class_code2, old.roles, old.created, old.modified);
+            old.class_code2, old.roles, old.same_person, old.created, old.modified);
      END
 $$
 DELIMITER ;
@@ -148,14 +149,14 @@ CREATE TRIGGER `UsersAfterInsert` AFTER INSERT ON `users` FOR EACH ROW BEGIN
             bca_status, bca_no, class, class_code, insurance_status, date_of_expiry, address1, address2,
             address3, town, county, postcode, country, telephone, website, address_ok, allow_club_updates,
             admin_email_ok, bca_email_ok, bcra_email_ok, forename2, surname2, bca_no2, insurance_status2,
-            class_code2, roles, created, modified)
+            class_code2, roles, same_person, created, modified)
         values
             (now(), user(), 'I',  new.id, new.username, new.password, new.active, 
             new.email, new.forename, new.surname, new.organisation, new.short_name, new.position,
             new.bca_status, new.bca_no, new.class, new.class_code, new.insurance_status, new.date_of_expiry, new.address1, new.address2,
             new.address3, new.town, new.county, new.postcode, new.country, new.telephone, new.website, new.address_ok, new.allow_club_updates,
             new.admin_email_ok, new.bca_email_ok, new.bcra_email_ok, new.forename2, new.surname2, new.bca_no2, new.insurance_status2,
-            new.class_code2, new.roles, new.created, new.modified);
+            new.class_code2, new.roles, new.same_person, new.created, new.modified);
      END
 $$
 DELIMITER ;
@@ -167,14 +168,14 @@ CREATE TRIGGER `UsersAfterUpdate` AFTER UPDATE ON `users` FOR EACH ROW BEGIN
             bca_status, bca_no, class, class_code, insurance_status, date_of_expiry, address1, address2,
             address3, town, county, postcode, country, telephone, website, address_ok, allow_club_updates,
             admin_email_ok, bca_email_ok, bcra_email_ok, forename2, surname2, bca_no2, insurance_status2,
-            class_code2, roles, created, modified)
+            class_code2, roles, same_person, created, modified)
         values
             (now(), user(), 'U',  new.id, new.username, new.password, new.active, 
             new.email, new.forename, new.surname, new.organisation, new.short_name, new.position,
             new.bca_status, new.bca_no, new.class, new.class_code, new.insurance_status, new.date_of_expiry, new.address1, new.address2,
             new.address3, new.town, new.county, new.postcode, new.country, new.telephone, new.website, new.address_ok, new.allow_club_updates,
             new.admin_email_ok, new.bca_email_ok, new.bcra_email_ok, new.forename2, new.surname2, new.bca_no2, new.insurance_status2,
-            new.class_code2, new.roles, new.created, new.modified);
+            new.class_code2, new.roles, new.same_person, new.created, new.modified);
      END
 $$
 DELIMITER ;
@@ -210,16 +211,17 @@ CREATE TABLE `user_audits` (
   `telephone` varchar(50) DEFAULT NULL,
   `website` varchar(100) DEFAULT NULL,
   `address_ok` varchar(25) DEFAULT NULL,
-  `allow_club_updates` tinyint(1) NOT NULL DEFAULT '1',
-  `admin_email_ok` tinyint(1) NOT NULL DEFAULT '1',
-  `bca_email_ok` tinyint(1) NOT NULL DEFAULT '0',
-  `bcra_email_ok` tinyint(1) NOT NULL DEFAULT '0',
+  `allow_club_updates` tinyint(1) DEFAULT NULL,
+  `admin_email_ok` tinyint(1) DEFAULT NULL,
+  `bca_email_ok` tinyint(1) DEFAULT NULL,
+  `bcra_email_ok` tinyint(1) DEFAULT NULL,
   `forename2` varchar(25) DEFAULT NULL,
   `surname2` varchar(25) DEFAULT NULL,
   `bca_no2` int(11) DEFAULT NULL,
   `insurance_status2` varchar(3) DEFAULT NULL,
   `class_code2` varchar(10) DEFAULT NULL,
   `roles` varchar(250) DEFAULT NULL,
+  `same_person` tinyint(1) DEFAULT NULL,
   `created` datetime DEFAULT NULL,
   `modified` datetime DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
