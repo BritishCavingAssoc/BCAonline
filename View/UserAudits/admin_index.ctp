@@ -1,9 +1,9 @@
 <div class="userAudits index">
     <?php echo $this->Session->flash('auth'); ?>
     <h2><?php echo __('User Audits'); ?></h2>
-    
+
     <?php echo $this->Filter->filterForm('UserAudit', array('legend' => 'Search')); ?>
-    
+
     <table cellpadding="0" cellspacing="0">
     <tr>
             <th class="actions"><?php echo __('Compare To'); ?></th>
@@ -42,6 +42,10 @@
             <th><?php echo $this->Paginator->sort('forename2'); ?></th>
             <th><?php echo $this->Paginator->sort('surname2'); ?></th>
             <th><?php echo $this->Paginator->sort('bca_no2'); ?></th>
+            <th><?php echo $this->Paginator->sort('insurance_status2'); ?></th>
+            <th><?php echo $this->Paginator->sort('class_code2'); ?></th>
+            <th><?php echo $this->Paginator->sort('roles'); ?></th>
+            <th><?php echo $this->Paginator->sort('same_person'); ?></th>
             <th><?php echo $this->Paginator->sort('created'); ?></th>
             <th><?php echo $this->Paginator->sort('modified'); ?></th>
     </tr>
@@ -86,6 +90,10 @@
         <td><?php echo h($userAudit['UserAudit']['forename2']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['surname2']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['bca_no2']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['insurance_status2']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['class_code2']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['roles']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['same_person']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['created']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['modified']); ?>&nbsp;</td>
     </tr>

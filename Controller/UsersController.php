@@ -43,7 +43,7 @@ class UsersController extends AppController {
         //User Admin role can also do the following.
         if ($this->UserUtilities->hasRole(array('UserAdmin'))) {
             if (in_array($this->action, array('admin_add', 'admin_edit', 'admin_delete', 'admin_sync_duplicates', 'admin_send_email_update_to_admin',
-                'admin_mark_deceased', 'admin_report_mismatched_names_uu' ))) {
+                'admin_mark_deceased', 'admin_report_mismatched_names_uu', 'admin_mark_same_person' ))) {
                 return true;
             }
         }
@@ -937,21 +937,28 @@ class UsersController extends AppController {
     }
 
     /**
-     * admin_report_mismatched_names_uu
-     *
-     * Compares User records against the other User records with the same BCA No. and lists those where the name doesn't match.
-     */
-
+    * admin_report_mismatched_names_uu
+    *
+    * Compares User records against the other User records with the same BCA No. and lists those where the name doesn't match.
+    */
     function admin_report_mismatched_names_uu() {
 
-        $mySQL = 'SELECT DISTINCT User.bca_no, User.forename, User.surname,
+        // For each BCA#, find the user records where there are other user records with a different name.
+        // If any of those records are not marked as the same person then show all the records otherwise
+        // show none of them.
+
+        $mySQL =
+            'SELECT DISTINCT User.bca_no, User.forename, User.surname,
                     User.organisation, User.class, User.email, User.address1, User.address2, User.email
             FROM users AS User
             WHERE
-                Exists (SELECT u2.bca_no
+                EXISTS (SELECT u2.bca_no
                 FROM users AS u2
                 WHERE User.bca_no = u2.bca_no AND
-                    (User.forename <> u2.forename OR User.surname <> u2.surname))
+                    (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
+                EXISTS (SELECT u3.bca_no
+                FROM users AS u3
+                WHERE User.bca_no = u3.bca_no AND (u3.same_person = 0))
             ORDER BY User.bca_no';
             //LIMIT 10';
 
@@ -963,6 +970,28 @@ class UsersController extends AppController {
 
     }
 
+
+    /**
+    * admin_mark_same_person
+    *
+    * Marks all the records with the same BCA as the same person so they won't appear on the mismatch names report.
+    */
+    function admin_mark_same_person($bca_no = null) {
+
+        if (!is_numeric($bca_no)) { // Make sure it is a number.
+            throw new NotFoundException(__('Not a valid BCA No.'));
+        }
+
+        if ($this->User->MarkSamePerson($bca_no)) {
+            $this->Session->setFlash(__('Updated'), 'default', array('class' => 'success'));
+            return $this->redirect(array('action' => 'report_mismatched_names_uu'));
+        } else {
+            $this->Session->setFlash(__('Not updated'));
+            return $this->redirect(array('action' => 'report_mismatched_names_uu'));
+        }
+
+    }
+
     /**
     * Refreshes the Auth session
     * After https://learntech.imsu.ox.ac.uk/blog/?p=946
@@ -970,7 +999,6 @@ class UsersController extends AppController {
     * @param string $value
     * @return void
     */
-
     protected function _refreshAuth($field = '', $value = '') {
 
         if (!empty($field) && !empty($value)) { //Update just a single field in the Auth session data

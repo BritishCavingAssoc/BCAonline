@@ -17,17 +17,20 @@
     ?></h3>
 
     <table>
-    <tr><th>BCA No.</th><th>User</th></tr>
+    <tr><th>Action</th><th>BCA No.</th><th>User</th></tr>
     <?php $last_bca_no = 0; ?>
     <?php for ($c1 = 0; $c1 < $line_count; $c1++) { ?>
         <?php
             // Separate different members with a blank row.
             if ($last_bca_no != $mismatchedLines[$c1]['User']['bca_no'] && $last_bca_no != 0 ) {
-                echo "<tr><td>&nbsp;</td><td>&nbsp;</td></tr>";
+                echo "<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>";
             };
             $last_bca_no = $mismatchedLines[$c1]['User']['bca_no'];
         ?>
         <tr>
+        <td class="actions">
+            <?php echo $this->Html->link(__('Mark as same person'), array('action' => 'mark_same_person', $mismatchedLines[$c1]['User']['bca_no'])); ?>
+        </td>
         <td>
             <?php echo $mismatchedLines[$c1]['User']['bca_no']; ?>
         </td>
