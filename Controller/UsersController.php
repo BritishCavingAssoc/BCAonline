@@ -978,6 +978,8 @@ class UsersController extends AppController {
     */
     function admin_mark_same_person($bca_no = null) {
 
+        $this->request->onlyAllow('post');
+
         if (!is_numeric($bca_no)) { // Make sure it is a number.
             throw new NotFoundException(__('Not a valid BCA No.'));
         }
