@@ -1,6 +1,6 @@
 <div class="importedUsers form">
     <?php echo $this->Session->flash('auth'); ?>
-    <h2><?php echo __('Report of Mismatched Names'); ?></h2>
+    <h2><?php echo __('Report of Mismatched Imported User Names'); ?></h2>
 
     <p>This report shows the lines in the imported file which have different names in the master database.</p>
     <p>In an ideal world there shouldn't be any but different organisations can record names differently.</p>
