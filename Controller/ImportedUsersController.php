@@ -581,7 +581,7 @@ class ImportedUsersController extends AppController {
             $this->Session->setFlash(__('There was no data to delete.'));
         }
 
-        return $this->redirect(array('action' => 'report_repeats'));
+        return $this->redirect(array('action' => 'report_repeated_lines'));
     }
 
     /**
