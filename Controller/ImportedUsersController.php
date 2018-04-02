@@ -599,7 +599,7 @@ class ImportedUsersController extends AppController {
 
     function admin_report_mismatched_names_iuu() {
 
-        $mySQL = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
+        $mySQL = 'SELECT ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
                 User.organisation, User.class, User.address1, User.address2, User.email,
                 ImportedUser.forename, ImportedUser.surname,
                 ImportedUser.organisation, ImportedUser.class, ImportedUser.address1,
@@ -637,19 +637,26 @@ class ImportedUsersController extends AppController {
 
         $this->request->onlyAllow('post');
 
-        $fields = array('ImportedUser.id');
+        $mySQL =
+            'SELECT ImportedUser.id
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.bca_no=User.bca_no
+            AND Not Exists (SELECT u3.bca_no
+                FROM users AS u3
+                WHERE ImportedUser.bca_no=u3.bca_no AND
+                    ImportedUser.forename=u3.forename AND
+                    ImportedUser.surname=u3.surname)
+            AND Exists (SELECT u4.bca_no
+                FROM users AS u4
+                WHERE ImportedUser.bca_no=u4.bca_no AND
+                    (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname))';
+            //LIMIT 10';
 
-        $joins = array(array('table' => 'users', 'alias' => 'User',
-            'type' => 'inner', 'conditions' => array('ImportedUser.bca_no = User.bca_no')));
+        $db = $this->ImportedUser->getDataSource();
 
-        $conditions = array('ImportedUser.forename <> User.forename', 'ImportedUser.surname <> User.surname');
+        if ($mismatchedLines = $db->fetchALL($mySQL)) {
 
-        if ($mismatchedLines = $this->ImportedUser->find('all', array(
-            'joins' => $joins,
-            'fields' => $fields,
-            'conditions' => $conditions,
-            )))
-        {
             $line_count = count($mismatchedLines);
 
             for ($c1 = 0; $c1 < $line_count; $c1++) {
@@ -662,7 +669,7 @@ class ImportedUsersController extends AppController {
             $this->Session->setFlash(__('There was no data to delete.'));
         }
 
-        return $this->redirect(array('action' => 'report_mismatched_names'));
+        return $this->redirect(array('action' => 'report_mismatched_names_iuu'));
     }
 
     /*
