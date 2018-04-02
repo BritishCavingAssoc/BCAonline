@@ -599,7 +599,7 @@ class ImportedUsersController extends AppController {
 
     function admin_report_mismatched_names_iuu() {
 
-        $mySQL = 'SELECT ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
+        $mySQL = 'SELECT ImportedUser.id, ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
                 User.organisation, User.class, User.address1, User.address2, User.email,
                 ImportedUser.forename, ImportedUser.surname,
                 ImportedUser.organisation, ImportedUser.class, ImportedUser.address1,
@@ -630,7 +630,7 @@ class ImportedUsersController extends AppController {
     /**
      * admin_tidy_mismatched_names_iuu
      *
-     * Deletes the mismatching name records from the Import.
+     * Deletes the mismatching name records from the Imported Users.
      */
 
     function admin_tidy_mismatched_names_iuu() {
@@ -670,6 +670,25 @@ class ImportedUsersController extends AppController {
         }
 
         return $this->redirect(array('action' => 'report_mismatched_names_iuu'));
+    }
+
+    /**
+     * admin_delete_mismatched1
+     *
+     * Deletes a mismatching name record from the Imported User.
+     */
+
+    function admin_delete_mismatched1($id = null, $return_to = 'report_mismatched_names_iuu') {
+
+        $this->request->onlyAllow('post');
+
+        if ($this->ImportedUser->delete($id)) {
+            $this->Session->setFlash(__('The record has been deleted.'), 'default', array('class' => 'success'));
+        } else {
+            $this->Session->setFlash(__('Failed to delete record.'));
+        }
+
+        return $this->redirect(array('action' => $return_to));
     }
 
     /*

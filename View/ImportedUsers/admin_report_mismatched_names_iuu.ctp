@@ -17,9 +17,12 @@
     ?></h3>
 
     <table>
-    <tr><th>BCA No.</th><th>Import</th><th>Master</th></tr>
+    <tr><th>Action</th><th>BCA No.</th><th>Import</th><th>Master</th></tr>
     <?php for ($c1 = 0; $c1 < $line_count; $c1++) { ?>
         <tr>
+        <td class="actions">
+            <?php echo $this->Form->postLink(__('Delete'), array('action' => 'delete_mismatched1', $mismatchedLines[$c1]['ImportedUser']['id'], 'report_mismatched_names_iuu'), null, __('Are you sure you want to remove %s %s (%s) from the import?', $mismatchedLines[$c1]['ImportedUser']['forename'], $mismatchedLines[$c1]['ImportedUser']['surname'], $mismatchedLines[$c1]['ImportedUser']['bca_no'])); ?>
+        </td>
         <td>
             <?php echo $mismatchedLines[$c1]['ImportedUser']['bca_no']; ?>
         </td>
