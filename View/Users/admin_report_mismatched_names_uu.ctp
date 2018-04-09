@@ -29,9 +29,7 @@
         ?>
         <tr>
         <td class="actions">
-            <!-- <?php echo $this->Html->link(__('Mark as same person'), array('action' => 'mark_same_person', $mismatchedLines[$c1]['User']['bca_no'])); ?> -->
-
-            <?php echo $this->Form->postLink(__('Mark as same person'), array('action' => 'mark_same_person', $mismatchedLines[$c1]['User']['bca_no']), null, __('Are you sure you want mark the %s records as the same person?', $mismatchedLines[$c1]['User']['bca_no'])); ?>
+            <?php echo $this->Form->postLink(__('Mark as same person'), array('action' => 'mark_same_person', $mismatchedLines[$c1]['User']['bca_no']), null, __('Do you want mark the %s records as the same person?', $mismatchedLines[$c1]['User']['bca_no'])); ?>
         </td>
         <td>
             <?php echo $mismatchedLines[$c1]['User']['bca_no']; ?>

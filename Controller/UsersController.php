@@ -119,7 +119,6 @@ class UsersController extends AppController {
     *
     * @return void
     */
-
     public function index() {
 
         return $this->redirect(array('action' => 'members_area'));
@@ -764,7 +763,6 @@ class UsersController extends AppController {
     * @param string $id
     * @return void
     */
-
     public function admin_edit($id = null) {
       $this->User->id = $id;
       if (!$this->User->exists()) {
@@ -892,7 +890,6 @@ class UsersController extends AppController {
         }
 
         return $this->redirect(array('action' => 'index'));
-
     }
 
 
@@ -948,8 +945,8 @@ class UsersController extends AppController {
         // show none of them.
 
         $mySQL =
-            'SELECT DISTINCT User.bca_no, User.forename, User.surname,
-                    User.organisation, User.class, User.email, User.address1, User.address2, User.email
+            'SELECT User.bca_no, User.forename, User.surname,
+                    User.organisation, User.class, User.email, User.address1, User.address2
             FROM users AS User
             WHERE
                 EXISTS (SELECT u2.bca_no
@@ -967,7 +964,6 @@ class UsersController extends AppController {
         $mismatchedLines = $db->fetchALL($mySQL);
 
         $this->set('mismatchedLines', $mismatchedLines);
-
     }
 
 
@@ -980,9 +976,9 @@ class UsersController extends AppController {
 
         $this->request->onlyAllow('post');
 
-        if (!is_numeric($bca_no)) { // Make sure it is a number.
-            throw new NotFoundException(__('Not a valid BCA No.'));
-        }
+        // Make sure it is numeric.
+        if (!is_numeric($bca_no)) throw new NotFoundException(__('Not a valid BCA No.'));
+
 
         if ($this->User->MarkSamePerson($bca_no)) {
             $this->Session->setFlash(__('Updated'), 'default', array('class' => 'success'));
@@ -991,7 +987,6 @@ class UsersController extends AppController {
             $this->Session->setFlash(__('Not updated'));
             return $this->redirect(array('action' => 'report_mismatched_names_uu'));
         }
-
     }
 
     /**

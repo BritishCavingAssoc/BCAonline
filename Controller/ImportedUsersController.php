@@ -38,6 +38,7 @@ class ImportedUsersController extends AppController {
                 'admin_delete_all', 'admin_upload_file', 'admin_process_file', 'admin_update_users',
                 'admin_report_repeated_lines','admin_tidy_repeated_lines',
                 'admin_report_mismatched_names_iuu','admin_tidy_mismatched_names_iuu',
+                'admin_report_mismatched_names_iuiu','admin_tidy_mismatched_names_iuiu',
                 'admin_report_users_to_be_updated', 'admin_report_users_to_be_added'))){
 
                 return true;
@@ -207,7 +208,6 @@ class ImportedUsersController extends AppController {
      *
      *
      */
-
     function admin_import_errors() {}
 
     /**
@@ -312,7 +312,6 @@ class ImportedUsersController extends AppController {
      *
      *
      */
-
     function admin_update_users() {
 
         $this->loadModel('User');
@@ -515,7 +514,6 @@ class ImportedUsersController extends AppController {
         $this->Session->setFlash("Processed {$process_count}, added {$add_count} and updated {$update_count} records.", 'default', array('class' => 'success'));
 
         return $this->redirect(array('action' => 'index'));
-
     }
 
     /**
@@ -523,7 +521,6 @@ class ImportedUsersController extends AppController {
      *
      * Lists repeated records in the import file.
      */
-
     function admin_report_repeated_lines() {
 
         $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class', 'COUNT(*) as row_count',
@@ -549,7 +546,6 @@ class ImportedUsersController extends AppController {
      *
      * Deletes the records records from the Import.
      */
-
     function admin_tidy_repeated_lines() {
 
         $this->request->onlyAllow('post');
@@ -596,7 +592,6 @@ class ImportedUsersController extends AppController {
      * Importing 23/David Smith/WCC would be not reported dispite there being a mis-match with the BEC entry.
      * Importing 23/David Smithson/WCC would be reported as a mis-match.
      */
-
     function admin_report_mismatched_names_iuu() {
 
         $mySQL = 'SELECT ImportedUser.id, ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
@@ -624,7 +619,6 @@ class ImportedUsersController extends AppController {
         $mismatchedLines = $db->fetchALL($mySQL);
 
         $this->set('mismatchedLines', $mismatchedLines);
-
     }
 
     /**
@@ -632,7 +626,6 @@ class ImportedUsersController extends AppController {
      *
      * Deletes the mismatching name records from the Imported Users.
      */
-
     function admin_tidy_mismatched_names_iuu() {
 
         $this->request->onlyAllow('post');
@@ -672,15 +665,21 @@ class ImportedUsersController extends AppController {
         return $this->redirect(array('action' => 'report_mismatched_names_iuu'));
     }
 
+
     /**
-     * admin_delete_mismatched1
+     * admin_delete_mismatched_iuu
      *
      * Deletes a mismatching name record from the Imported User.
+     *
+     * The records with the given record id is deleted because we can identify the specific record that is troublesome.
+     * Only 1 record will be deleted. This is different from admin_delete_mismatched_iuiu.
      */
-
-    function admin_delete_mismatched1($id = null, $return_to = 'report_mismatched_names_iuu') {
+    function admin_delete_mismatched_iuu($id = null) {
 
         $this->request->onlyAllow('post');
+
+        // Make sure it is numeric.
+        if (!is_numeric($id)) throw new NotFoundException(__('Not a valid ID No.'));
 
         if ($this->ImportedUser->delete($id)) {
             $this->Session->setFlash(__('The record has been deleted.'), 'default', array('class' => 'success'));
@@ -688,15 +687,110 @@ class ImportedUsersController extends AppController {
             $this->Session->setFlash(__('Failed to delete record.'));
         }
 
-        return $this->redirect(array('action' => $return_to));
+        return $this->redirect(array('action' => 'report_mismatched_names_iuu'));
     }
+
+    /**
+    * admin_report_mismatched_names_iuiu
+    *
+    * Compares Imported User records against the other Imported User records with the same BCA No. and lists those where the name doesn't match.
+    */
+    function admin_report_mismatched_names_iuiu() {
+
+        // For each BCA#, find the imported user records where there are other imported user records with a different name.
+
+        $mySQL =
+            'SELECT ImportedUser.id, ImportedUser.bca_no, ImportedUser.forename, ImportedUser.surname,
+                    ImportedUser.organisation, ImportedUser.class, ImportedUser.email, ImportedUser.address1, ImportedUser.address2
+            FROM imported_users AS ImportedUser
+            WHERE
+                EXISTS (SELECT u2.bca_no
+                FROM imported_users AS u2
+                WHERE ImportedUser.bca_no = u2.bca_no AND
+                    (ImportedUser.forename <> u2.forename OR ImportedUser.surname <> u2.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        $this->set('mismatchedLines', $mismatchedLines);
+    }
+
+
+    /**
+     * admin_tidy_mismatched_names_iuiu
+     *
+     * Deletes the mismatching name records from the Imported Users.
+     */
+    function admin_tidy_mismatched_names_iuiu() {
+
+        $this->request->onlyAllow('post');
+
+        $mySQL =
+            'SELECT  ImportedUser.id
+            FROM imported_users AS ImportedUser
+            WHERE
+                EXISTS (SELECT u2.bca_no
+                FROM imported_users AS u2
+                WHERE ImportedUser.bca_no = u2.bca_no AND
+                    (ImportedUser.forename <> u2.forename OR ImportedUser.surname <> u2.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        if ($mismatchedLines = $db->fetchALL($mySQL)) {
+
+            $line_count = count($mismatchedLines);
+
+            for ($c1 = 0; $c1 < $line_count; $c1++) {
+                $this->ImportedUser->delete($mismatchedLines[$c1]['ImportedUser']['id']);
+            }
+
+            $this->Session->setFlash(__($line_count .' mismatched records have has been deleted.'), 'default', array('class' => 'success'));
+
+        } else {
+            $this->Session->setFlash(__('There was no data to delete.'));
+        }
+
+        return $this->redirect(array('action' => 'report_mismatched_names_iuiu'));
+    }
+
+
+    /**
+     * admin_delete_mismatched_iuiu
+     *
+     * Deletes a mismatching name record from the Imported User.
+     *
+     * All the records with the same BCA# are delete, since they are all new and we don't know which is error.
+     * A minimum of 2 records will be deleted. This is different from admin_delete_mismatched_iuu.
+     */
+    function admin_delete_mismatched_iuiu($bca_no = null) {
+
+        $this->request->onlyAllow('post');
+
+        // Make sure it is numeric.
+        if (!is_numeric($bca_no)) throw new NotFoundException(__('Not a valid BCA No.'));
+
+        $conditions = array('bca_no =' => $bca_no);
+
+        if ($this->ImportedUser->deleteAll($conditions, false)) {
+            $this->Session->setFlash(__('The records have been deleted.'), 'default', array('class' => 'success'));
+        } else {
+            $this->Session->setFlash(__('Failed to delete the records.'));
+        }
+
+        return $this->redirect(array('action' => 'report_mismatched_names_iuiu'));
+    }
+
 
     /*
      * admin_report_users_to_be_updated
      *
      * Shows the users that will be updated by the import.
      */
-
     function admin_report_users_to_be_updated() {
 
         $fields = array(
@@ -754,7 +848,6 @@ class ImportedUsersController extends AppController {
      *
      * Shows the new users that will be added by the import.
      */
-
     function admin_report_users_to_be_added() {
 
         $fields = array(
