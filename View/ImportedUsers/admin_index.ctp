@@ -97,8 +97,8 @@
         <li><?php echo $this->Html->link(__('Upload CSV File'), array('action' => 'upload_file')); ?></li>
         <li><?php echo $this->Html->link(__('Process CSV File'), array('action' => 'process_file')); ?></li>
         <li><?php echo $this->Html->link(__('Show Repeated Lines'), array('action' => 'report_repeated_lines')); ?></li>
-        <li><?php echo $this->Html->link(__('Show Mismatched Names'), array('action' => 'report_mismatched_names_iuu')); ?></li>
-        <!--<li><?php echo $this->Html->link(__('Show Mismatched Names 2'), array('action' => 'report_mismatched_names_uu')); ?></li>-->
+        <li><?php echo $this->Html->link(__('Show Mismatched Names 1'), array('action' => 'report_mismatched_names_iuu')); ?></li>
+        <li><?php echo $this->Html->link(__('Show Mismatched Names 2'), array('action' => 'report_mismatched_names_iuiu')); ?></li>
         <li><?php echo $this->Html->link(__('Show To Be Updated'), array('action' => 'report_users_to_be_updated')); ?></li>
         <li><?php echo $this->Html->link(__('Show To Be Added'), array('action' => 'report_users_to_be_added')); ?></li>
         <!-- <li><?php echo $this->Html->link(__('Update Users'), array('action' => 'update_users')); ?></li> -->
