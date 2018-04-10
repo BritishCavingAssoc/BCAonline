@@ -33,18 +33,18 @@
             $mismatchedLines[$c1]['ImportedUser']['surname'] . " - " .
             $mismatchedLines[$c1]['ImportedUser']['organisation'] . "/" .
             $mismatchedLines[$c1]['ImportedUser']['class']. "/" .
+            $mismatchedLines[$c1]['ImportedUser']['email']. "/" .
             $mismatchedLines[$c1]['ImportedUser']['address1']. "/" .
-            $mismatchedLines[$c1]['ImportedUser']['address2']. "/" .
-            $mismatchedLines[$c1]['ImportedUser']['email']; ?>
+            $mismatchedLines[$c1]['ImportedUser']['address2']; ?>
         </td>
         <td>
         <?php echo $mismatchedLines[$c1]['User']['forename'] . " " .
             $mismatchedLines[$c1]['User']['surname'] . " - " .
             $mismatchedLines[$c1]['User']['organisation'] . "/" .
             $mismatchedLines[$c1]['User']['class'] . "/" .
+            $mismatchedLines[$c1]['User']['email']. "/" .
             $mismatchedLines[$c1]['User']['address1']. "/" .
-            $mismatchedLines[$c1]['User']['address2']. "/" .
-            $mismatchedLines[$c1]['User']['email']; ?>
+            $mismatchedLines[$c1]['User']['address2']; ?>
         </tr>
     <?php } ?>
     </table>
@@ -53,8 +53,9 @@
 <div class="actions">
     <h3><?php echo __('Actions'); ?></h3>
     <ul>
-        <li><?php echo $this->Html->link(__('Return'), array('action'=>'index')); ?> </li>
+        <li><?php echo $this->Html->link(__('Send As Email'), array('action'=>'email_mismatched_names_iuu')); ?> </li>
         <li><?php if ($line_count <> 0) { echo $this->Form->postLink(__('Tidy'), array('action' => 'tidy_mismatched_names_iuu'), null,
         __('Are you sure you remove all the mismatched records?'));} ?></li>
+        <li><?php echo $this->Html->link(__('Return'), array('action'=>'index')); ?> </li>
     </ul>
 </div>
