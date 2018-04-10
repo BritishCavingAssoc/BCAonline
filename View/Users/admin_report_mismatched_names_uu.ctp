@@ -53,6 +53,7 @@
 <div class="actions">
     <h3><?php echo __('Actions'); ?></h3>
     <ul>
+        <li><?php echo $this->Html->link(__('Send As Email'), array('action'=>'email_mismatched_names_uu')); ?> </li>
         <li><?php echo $this->Html->link(__('Return'), array('action'=>'index')); ?> </li>
     </ul>
 </div>

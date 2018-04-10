@@ -43,7 +43,7 @@ class UsersController extends AppController {
         //User Admin role can also do the following.
         if ($this->UserUtilities->hasRole(array('UserAdmin'))) {
             if (in_array($this->action, array('admin_add', 'admin_edit', 'admin_delete', 'admin_sync_duplicates', 'admin_send_email_update_to_admin',
-                'admin_mark_deceased', 'admin_report_mismatched_names_uu', 'admin_mark_same_person' ))) {
+                'admin_mark_deceased', 'admin_report_mismatched_names_uu', 'admin_mark_same_person', 'admin_email_mismatched_names_uu'))) {
                 return true;
             }
         }
@@ -988,6 +988,64 @@ class UsersController extends AppController {
             return $this->redirect(array('action' => 'report_mismatched_names_uu'));
         }
     }
+
+
+    /**
+    * admin_email_mismatched_names_uu
+    *
+    * Email the Mismatching Names report to the current operator.
+    *
+    */
+    function admin_email_mismatched_names_uu() {
+
+        //Get data.
+        $mySQL =
+            'SELECT User.bca_no, User.forename, User.surname,
+                    User.organisation, User.class, User.email, User.address1, User.address2
+            FROM users AS User
+            WHERE
+                EXISTS (SELECT u2.bca_no
+                FROM users AS u2
+                WHERE User.bca_no = u2.bca_no AND
+                    (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
+                EXISTS (SELECT u3.bca_no
+                FROM users AS u3
+                WHERE User.bca_no = u3.bca_no AND (u3.same_person = 0))
+            ORDER BY User.bca_no';
+            //LIMIT 10';
+
+        $db = $this->User->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'mismatchedLines' => $mismatchedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            //'bca_no' => $this->Auth->user('bca_no'),
+            //'to' => $configEmailAddresses['bca_online_admin'],
+            'subject' => 'BCA Online Mismatch User Name (UU) Report.',
+            'template' => 'imported_users-admin_email_mismatched_names_uu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'admin_report_mismatched_names_uu'));
+    }
+
 
     /**
     * Refreshes the Auth session

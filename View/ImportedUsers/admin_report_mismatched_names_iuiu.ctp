@@ -56,8 +56,9 @@
 <div class="actions">
     <h3><?php echo __('Actions'); ?></h3>
     <ul>
-        <li><?php echo $this->Html->link(__('Return'), array('action'=>'index')); ?> </li>
+        <li><?php echo $this->Html->link(__('Send As Email'), array('action'=>'email_mismatched_names_iuiu')); ?> </li>
         <li><?php if ($line_count <> 0) { echo $this->Form->postLink(__('Tidy'), array('action' => 'tidy_mismatched_names_iuiu'), null,
         __('Are you sure you remove all the mismatched records?'));} ?></li>
+        <li><?php echo $this->Html->link(__('Return'), array('action'=>'index')); ?> </li>
     </ul>
 </div>

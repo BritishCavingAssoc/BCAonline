@@ -37,8 +37,8 @@ class ImportedUsersController extends AppController {
             if (in_array($this->action, array('admin_index', 'admin_view', 'admin_add', 'admin_edit', 'admin_delete',
                 'admin_delete_all', 'admin_upload_file', 'admin_process_file', 'admin_update_users',
                 'admin_report_repeated_lines','admin_tidy_repeated_lines',
-                'admin_report_mismatched_names_iuu','admin_tidy_mismatched_names_iuu',
-                'admin_report_mismatched_names_iuiu','admin_tidy_mismatched_names_iuiu',
+                'admin_report_mismatched_names_iuu','admin_tidy_mismatched_names_iuu', 'admin_email_mismatched_names_iuu',
+                'admin_report_mismatched_names_iuiu','admin_tidy_mismatched_names_iuiu', 'admin_email_mismatched_names_iuiu',
                 'admin_report_users_to_be_updated', 'admin_report_users_to_be_added'))){
 
                 return true;
@@ -581,6 +581,60 @@ class ImportedUsersController extends AppController {
     }
 
     /**
+    * admin_email_mismatched_names_iuiu
+    *
+    * Email the Mismatching Names report to the current operator.
+    *
+    */
+    function admin_email_repeated_lines() {
+
+        //Get data.
+        $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class', 'COUNT(*) as row_count',
+            'GROUP_CONCAT(ImportedUser.forename) as forenames', 'GROUP_CONCAT(ImportedUser.surname) as surnames');
+
+        //A condition on an aggregate function must use HAVING.
+        $group = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class HAVING COUNT(*) > 1');
+
+        $order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
+
+        $repeatedLines = $this->ImportedUser->find('all', array(
+            'fields' => $fields,
+            'group' => $group,
+            'order' => $order,
+            //'limit' => 10,
+        ));
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'repeatedLines' => $repeatedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            //'bca_no' => $this->Auth->user('bca_no'),
+            //'to' => $configEmailAddresses['bca_online_admin'],
+            'subject' => 'BCA Online Repeated Lines Report.',
+            'template' => 'imported_users-admin_email_repeated_lines',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'admin_report_repeated_lines'));
+    }
+
+
+
+    /**
      * admin_report_mismatched_names_iuu
      *
      * Lists records in the import file that have different names from the master database
@@ -690,6 +744,69 @@ class ImportedUsersController extends AppController {
         return $this->redirect(array('action' => 'report_mismatched_names_iuu'));
     }
 
+
+    /**
+    * admin_email_mismatched_names_iuu
+    *
+    * Email the Mismatching Names report to the current operator.
+    *
+    */
+    function admin_email_mismatched_names_iuu() {
+
+        //Get data.
+        $mySQL = 'SELECT ImportedUser.id, ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
+                User.organisation, User.class, User.address1, User.address2, User.email,
+                ImportedUser.forename, ImportedUser.surname,
+                ImportedUser.organisation, ImportedUser.class, ImportedUser.address1,
+                ImportedUser.address2, ImportedUser.email
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.bca_no=User.bca_no
+            AND Not Exists (SELECT u3.bca_no
+                FROM users AS u3
+                WHERE ImportedUser.bca_no=u3.bca_no AND
+                    ImportedUser.forename=u3.forename AND
+                    ImportedUser.surname=u3.surname)
+            AND Exists (SELECT u4.bca_no
+                FROM users AS u4
+                WHERE ImportedUser.bca_no=u4.bca_no AND
+                    (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'mismatchedLines' => $mismatchedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            //'bca_no' => $this->Auth->user('bca_no'),
+            //'to' => $configEmailAddresses['bca_online_admin'],
+            'subject' => 'BCA Online Mismatch User Name (IUU) Report.',
+            'template' => 'imported_users-admin_email_mismatched_names_iuu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'admin_report_mismatched_names_iuu'));
+    }
+
+
     /**
     * admin_report_mismatched_names_iuiu
     *
@@ -783,6 +900,60 @@ class ImportedUsersController extends AppController {
         }
 
         return $this->redirect(array('action' => 'report_mismatched_names_iuiu'));
+    }
+
+
+    /**
+    * admin_email_mismatched_names_iuiu
+    *
+    * Email the Mismatching Names report to the current operator.
+    *
+    */
+    function admin_email_mismatched_names_iuiu() {
+
+        //Get data.
+        $mySQL =
+            'SELECT ImportedUser.id, ImportedUser.bca_no, ImportedUser.forename, ImportedUser.surname,
+                    ImportedUser.organisation, ImportedUser.class, ImportedUser.email, ImportedUser.address1, ImportedUser.address2
+            FROM imported_users AS ImportedUser
+            WHERE
+                EXISTS (SELECT u2.bca_no
+                FROM imported_users AS u2
+                WHERE ImportedUser.bca_no = u2.bca_no AND
+                    (ImportedUser.forename <> u2.forename OR ImportedUser.surname <> u2.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'mismatchedLines' => $mismatchedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            //'bca_no' => $this->Auth->user('bca_no'),
+            //'to' => $configEmailAddresses['bca_online_admin'],
+            'subject' => 'BCA Online Mismatch User Name (IUIU) Report.',
+            'template' => 'imported_users-admin_email_mismatched_names_iuiu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'admin_report_mismatched_names_iuiu'));
     }
 
 
