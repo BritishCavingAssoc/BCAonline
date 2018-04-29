@@ -35,7 +35,11 @@ class ImportedUsersController extends AppController {
         //User Admin role can also do the following.
         if ($this->UserUtilities->hasRole(array('UserAdmin'))) {
             if (in_array($this->action, array('admin_index', 'admin_view', 'admin_add', 'admin_edit', 'admin_delete',
-                    'admin_upload_file', 'admin_process_file', 'admin_update_users', 'admin_delete_all'))) {
+                'admin_delete_all', 'admin_upload_file', 'admin_process_file', 'admin_update_users',
+                'admin_report_repeated_lines','admin_tidy_repeated_lines',
+                'admin_report_mismatched_names_iuu','admin_tidy_mismatched_names_iuu', 'admin_email_mismatched_names_iuu',
+                'admin_report_mismatched_names_iuiu','admin_tidy_mismatched_names_iuiu', 'admin_email_mismatched_names_iuiu',
+                'admin_report_users_to_be_updated', 'admin_report_users_to_be_added'))){
 
                 return true;
             }
@@ -57,32 +61,29 @@ class ImportedUsersController extends AppController {
         )
     );
 
-public function admin_testxls() {
+    public function admin_testxls() {
 
-    $folderToSaveXls = '/';
+        $folderToSaveXls = '/';
 
-    $objPHPExcel = new PHPExcel();
+        $objPHPExcel = new PHPExcel();
 
-    $objPHPExcel->getProperties()->setCreator("David Cooke")
-                         ->setLastModifiedBy("David Cooke")
-                         ->setTitle("PHPExcel Test Document")
-                         ->setSubject("PHPExcel Test Document")
-                         ->setDescription("Test document for PHPExcel, generated using PHP classes.")
-                         ->setKeywords("office PHPExcel php")
-                         ->setCategory("Test result file");
+        $objPHPExcel->getProperties()->setCreator("David Cooke")
+                             ->setLastModifiedBy("David Cooke")
+                             ->setTitle("PHPExcel Test Document")
+                             ->setSubject("PHPExcel Test Document")
+                             ->setDescription("Test document for PHPExcel, generated using PHP classes.")
+                             ->setKeywords("office PHPExcel php")
+                             ->setCategory("Test result file");
 
-    $objPHPExcel->setActiveSheetIndex(0)
-        ->setCellValue('A1', 'Hello')
-        ->setCellValue('B2', 'world!')
-        ->setCellValue('C1', 'Hello')
-        ->setCellValue('D2', 'world!');
+        $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue('A1', 'Hello')
+            ->setCellValue('B2', 'world!')
+            ->setCellValue('C1', 'Hello')
+            ->setCellValue('D2', 'world!');
 
-    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
-    //$objWriter->save( $folderToSaveXls . '/test.xls' );
-    $objWriter->save( 'test.xls' );
-
-
-
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        //$objWriter->save( $folderToSaveXls . '/test.xls' );
+        $objWriter->save( 'test.xls' );
     }
 
 
@@ -207,7 +208,6 @@ public function admin_testxls() {
      *
      *
      */
-
     function admin_import_errors() {}
 
     /**
@@ -312,7 +312,6 @@ public function admin_testxls() {
      *
      *
      */
-
     function admin_update_users() {
 
         $this->loadModel('User');
@@ -515,7 +514,6 @@ public function admin_testxls() {
         $this->Session->setFlash("Processed {$process_count}, added {$add_count} and updated {$update_count} records.", 'default', array('class' => 'success'));
 
         return $this->redirect(array('action' => 'index'));
-
     }
 
     /**
@@ -523,7 +521,6 @@ public function admin_testxls() {
      *
      * Lists repeated records in the import file.
      */
-
     function admin_report_repeated_lines() {
 
         $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class', 'COUNT(*) as row_count',
@@ -549,8 +546,7 @@ public function admin_testxls() {
      *
      * Deletes the records records from the Import.
      */
-
-    function admin_tidy_repeats() {
+    function admin_tidy_repeated_lines() {
 
         $this->request->onlyAllow('post');
 
@@ -581,64 +577,78 @@ public function admin_testxls() {
             $this->Session->setFlash(__('There was no data to delete.'));
         }
 
-        return $this->redirect(array('action' => 'report_repeats'));
+        return $this->redirect(array('action' => 'report_repeated_lines'));
     }
 
     /**
-     * admin_report_new_mismatched_names
+    * admin_email_mismatched_names_iuiu
+    *
+    * Email the Mismatching Names report to the current operator.
+    *
+    */
+    function admin_email_repeated_lines() {
+
+        //Get data.
+        $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class', 'COUNT(*) as row_count',
+            'GROUP_CONCAT(ImportedUser.forename) as forenames', 'GROUP_CONCAT(ImportedUser.surname) as surnames');
+
+        //A condition on an aggregate function must use HAVING.
+        $group = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class HAVING COUNT(*) > 1');
+
+        $order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
+
+        $repeatedLines = $this->ImportedUser->find('all', array(
+            'fields' => $fields,
+            'group' => $group,
+            'order' => $order,
+            //'limit' => 10,
+        ));
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'repeatedLines' => $repeatedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            //'bca_no' => $this->Auth->user('bca_no'),
+            //'to' => $configEmailAddresses['bca_online_admin'],
+            'subject' => 'BCA Online Repeated Lines Report.',
+            'template' => 'imported_users-admin_email_repeated_lines',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'admin_report_repeated_lines'));
+    }
+
+
+
+    /**
+     * admin_report_mismatched_names_iuu
      *
      * Lists records in the import file that have different names from the master database
      * and are not already in the master database.
+     *
+     * Names for the given BCA no. already in the database will not be reported. I.e. we assumption that names already in the database are
+     * correct. This means only new variations in the current import are reported. This reduces the length of the report considerably.
+     * For example if 23/David Smith/WCC and 23/Dave Smith/BEC are existing records in the database.
+     * Importing 23/David Smith/WCC would be not reported dispite there being a mis-match with the BEC entry.
+     * Importing 23/David Smithson/WCC would be reported as a mis-match.
      */
+    function admin_report_mismatched_names_iuu() {
 
-     /* SELECT DISTINCT u1.bca_no, u2.bca_no, u2.forename, u2.surname, u2.organisation, u2.class, u1.forename, u1.surname, u1.organisation, u1.class
-      * FROM imported_users AS u1, users AS u2
-      * WHERE (((u1.bca_no)=[u2].[bca_no]) AND
-      * ((Exists (SELECT *
-      * FROM users  AS u3
-      * WHERE u1.bca_no=u3.bca_no AND u1.forename=u3.forename AND u1.surname=u3.surname))=False) AND
-      * ((Exists (SELECT *
-      * FROM users  AS u4
-      * WHERE u1.bca_no=u4.bca_no AND (u1.forename<>u4.forename or u1.surname<>u4.surname)))<>False))
-      * ORDER BY u1.bca_no;
-    */
-    function admin_report_new_mismatched_names() {
-
-        $mySQL = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname, User.organisation,
-            User.class, ImportedUser.forename, ImportedUser.surname, ImportedUser.organisation, ImportedUser.class
-            FROM imported_users AS ImportedUser, users AS User
-            WHERE
-            (((ImportedUser.bca_no)=[User].[bca_no])
-            AND ((Exists (SELECT *
-            FROM users  AS u3
-            WHERE ImportedUser.bca_no=u3.bca_no AND ImportedUser.forename=u3.forename AND ImportedUser.surname=u3.surname))=False)
-            AND ((Exists (SELECT *
-            FROM users  AS u4
-            WHERE ImportedUser.bca_no=u4.bca_no AND (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname)))<>False))
-            LIMIT 10
-            ORDER BY ImportedUser.bca_no;';
-
-        $mySQL2 = 'SELECT ImportedUser.bca_no FROM imported_users AS ImportedUser,
-        users AS User WHERE ImportedUser.bca_no = User.bca_no LIMIT 10';
-
-        $mySQL3 = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname, User.organisation,
-            User.class, ImportedUser.forename, ImportedUser.surname, ImportedUser.organisation, ImportedUser.class
-            FROM imported_users AS ImportedUser, users AS User
-            WHERE
-            ImportedUser.bca_no=User.bca_no
-            AND Exists (SELECT *
-                FROM users AS u3
-                WHERE ImportedUser.bca_no=u3.bca_no AND
-                    ImportedUser.forename=u3.forename AND
-                    ImportedUser.surname=u3.surname)
-            AND Exists (SELECT *
-                FROM users AS u4
-                WHERE ImportedUser.bca_no=u4.bca_no AND
-                    (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname))
-            LIMIT 10
-            ORDER BY ImportedUser.bca_no;';
-
-        $mySQL4 = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
+        $mySQL = 'SELECT ImportedUser.id, ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
                 User.organisation, User.class, User.address1, User.address2, User.email,
                 ImportedUser.forename, ImportedUser.surname,
                 ImportedUser.organisation, ImportedUser.class, ImportedUser.address1,
@@ -660,90 +670,40 @@ public function admin_testxls() {
 
         $db = $this->ImportedUser->getDataSource();
 
-        $mismatchedLines = $db->fetchALL($mySQL4);
+        $mismatchedLines = $db->fetchALL($mySQL);
 
-    /*
-        $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class',
-            'ImportedUser.forename', 'ImportedUser.surname', 'ImportedUser.address1', 'ImportedUser.address2',
-            'User.bca_no', 'User.organisation', 'User.class', 'User.forename', 'User.surname',
-            'User.address1', 'User.address2');
-
-        $joins = array(array('table' => 'users', 'alias' => 'User',
-            'type' => 'inner', 'conditions' => array('ImportedUser.bca_no = User.bca_no')));
-
-        //$order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
-        $order = array('ImportedUser.bca_no');
-
-        $conditions = array('or' => array('ImportedUser.forename <> User.forename', 'ImportedUser.surname <> User.surname'));
-
-        $mismatchedLines = $this->ImportedUser->find('all', array(
-            'joins' => $joins,
-            'fields' => $fields,
-            'conditions' => $conditions,
-            'order' => $order,
-            //'limit' => 10,
-        ));
-*/
         $this->set('mismatchedLines', $mismatchedLines);
-
     }
 
     /**
-     * admin_report_mismatched_names
+     * admin_tidy_mismatched_names_iuu
      *
-     * Lists records in the import file that have different names from the master database.
+     * Deletes the mismatching name records from the Imported Users.
      */
-
-    function admin_report_mismatched_names() {
-
-        $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class',
-            'ImportedUser.forename', 'ImportedUser.surname', 'ImportedUser.address1', 'ImportedUser.address2',
-            'User.bca_no', 'User.organisation', 'User.class', 'User.forename', 'User.surname',
-            'User.address1', 'User.address2');
-
-        $joins = array(array('table' => 'users', 'alias' => 'User',
-            'type' => 'inner', 'conditions' => array('ImportedUser.bca_no = User.bca_no')));
-
-        //$order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
-        $order = array('ImportedUser.bca_no');
-
-        $conditions = array('or' => array('ImportedUser.forename <> User.forename', 'ImportedUser.surname <> User.surname'));
-
-        $mismatchedLines = $this->ImportedUser->find('all', array(
-            'joins' => $joins,
-            'fields' => $fields,
-            'conditions' => $conditions,
-            'order' => $order,
-            //'limit' => 10,
-        ));
-
-        $this->set('mismatchedLines', $mismatchedLines);
-
-    }
-
-    /**
-     * admin_tidy_mismatched_names
-     *
-     * Deletes the mismatching name records from the Import.
-     */
-
-    function admin_tidy_mismatched_names() {
+    function admin_tidy_mismatched_names_iuu() {
 
         $this->request->onlyAllow('post');
 
-        $fields = array('ImportedUser.id');
+        $mySQL =
+            'SELECT ImportedUser.id
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.bca_no=User.bca_no
+            AND Not Exists (SELECT u3.bca_no
+                FROM users AS u3
+                WHERE ImportedUser.bca_no=u3.bca_no AND
+                    ImportedUser.forename=u3.forename AND
+                    ImportedUser.surname=u3.surname)
+            AND Exists (SELECT u4.bca_no
+                FROM users AS u4
+                WHERE ImportedUser.bca_no=u4.bca_no AND
+                    (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname))';
+            //LIMIT 10';
 
-        $joins = array(array('table' => 'users', 'alias' => 'User',
-            'type' => 'inner', 'conditions' => array('ImportedUser.bca_no = User.bca_no')));
+        $db = $this->ImportedUser->getDataSource();
 
-        $conditions = array('ImportedUser.forename <> User.forename', 'ImportedUser.surname <> User.surname');
+        if ($mismatchedLines = $db->fetchALL($mySQL)) {
 
-        if ($mismatchedLines = $this->ImportedUser->find('all', array(
-            'joins' => $joins,
-            'fields' => $fields,
-            'conditions' => $conditions,
-            )))
-        {
             $line_count = count($mismatchedLines);
 
             for ($c1 = 0; $c1 < $line_count; $c1++) {
@@ -756,15 +716,252 @@ public function admin_testxls() {
             $this->Session->setFlash(__('There was no data to delete.'));
         }
 
-        return $this->redirect(array('action' => 'report_mismatched_names'));
+        return $this->redirect(array('action' => 'report_mismatched_names_iuu'));
     }
+
+
+    /**
+     * admin_delete_mismatched_iuu
+     *
+     * Deletes a mismatching name record from the Imported User.
+     *
+     * The records with the given record id is deleted because we can identify the specific record that is troublesome.
+     * Only 1 record will be deleted. This is different from admin_delete_mismatched_iuiu.
+     */
+    function admin_delete_mismatched_iuu($id = null) {
+
+        $this->request->onlyAllow('post');
+
+        // Make sure it is numeric.
+        if (!is_numeric($id)) throw new NotFoundException(__('Not a valid ID No.'));
+
+        if ($this->ImportedUser->delete($id)) {
+            $this->Session->setFlash(__('The record has been deleted.'), 'default', array('class' => 'success'));
+        } else {
+            $this->Session->setFlash(__('Failed to delete record.'));
+        }
+
+        return $this->redirect(array('action' => 'report_mismatched_names_iuu'));
+    }
+
+
+    /**
+    * admin_email_mismatched_names_iuu
+    *
+    * Email the Mismatching Names report to the current operator.
+    *
+    */
+    function admin_email_mismatched_names_iuu() {
+
+        //Get data.
+        $mySQL = 'SELECT ImportedUser.id, ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
+                User.organisation, User.class, User.address1, User.address2, User.email,
+                ImportedUser.forename, ImportedUser.surname,
+                ImportedUser.organisation, ImportedUser.class, ImportedUser.address1,
+                ImportedUser.address2, ImportedUser.email
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.bca_no=User.bca_no
+            AND Not Exists (SELECT u3.bca_no
+                FROM users AS u3
+                WHERE ImportedUser.bca_no=u3.bca_no AND
+                    ImportedUser.forename=u3.forename AND
+                    ImportedUser.surname=u3.surname)
+            AND Exists (SELECT u4.bca_no
+                FROM users AS u4
+                WHERE ImportedUser.bca_no=u4.bca_no AND
+                    (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'mismatchedLines' => $mismatchedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            //'bca_no' => $this->Auth->user('bca_no'),
+            //'to' => $configEmailAddresses['bca_online_admin'],
+            'subject' => 'BCA Online Mismatch User Name (IUU) Report.',
+            'template' => 'imported_users-admin_email_mismatched_names_iuu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'admin_report_mismatched_names_iuu'));
+    }
+
+
+    /**
+    * admin_report_mismatched_names_iuiu
+    *
+    * Compares Imported User records against the other Imported User records with the same BCA No. and lists those where the name doesn't match.
+    */
+    function admin_report_mismatched_names_iuiu() {
+
+        // For each BCA#, find the imported user records where there are other imported user records with a different name.
+
+        $mySQL =
+            'SELECT ImportedUser.id, ImportedUser.bca_no, ImportedUser.forename, ImportedUser.surname,
+                    ImportedUser.organisation, ImportedUser.class, ImportedUser.email, ImportedUser.address1, ImportedUser.address2
+            FROM imported_users AS ImportedUser
+            WHERE
+                EXISTS (SELECT u2.bca_no
+                FROM imported_users AS u2
+                WHERE ImportedUser.bca_no = u2.bca_no AND
+                    (ImportedUser.forename <> u2.forename OR ImportedUser.surname <> u2.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        $this->set('mismatchedLines', $mismatchedLines);
+    }
+
+
+    /**
+     * admin_tidy_mismatched_names_iuiu
+     *
+     * Deletes the mismatching name records from the Imported Users.
+     */
+    function admin_tidy_mismatched_names_iuiu() {
+
+        $this->request->onlyAllow('post');
+
+        $mySQL =
+            'SELECT  ImportedUser.id
+            FROM imported_users AS ImportedUser
+            WHERE
+                EXISTS (SELECT u2.bca_no
+                FROM imported_users AS u2
+                WHERE ImportedUser.bca_no = u2.bca_no AND
+                    (ImportedUser.forename <> u2.forename OR ImportedUser.surname <> u2.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        if ($mismatchedLines = $db->fetchALL($mySQL)) {
+
+            $line_count = count($mismatchedLines);
+
+            for ($c1 = 0; $c1 < $line_count; $c1++) {
+                $this->ImportedUser->delete($mismatchedLines[$c1]['ImportedUser']['id']);
+            }
+
+            $this->Session->setFlash(__($line_count .' mismatched records have has been deleted.'), 'default', array('class' => 'success'));
+
+        } else {
+            $this->Session->setFlash(__('There was no data to delete.'));
+        }
+
+        return $this->redirect(array('action' => 'report_mismatched_names_iuiu'));
+    }
+
+
+    /**
+     * admin_delete_mismatched_iuiu
+     *
+     * Deletes a mismatching name record from the Imported User.
+     *
+     * All the records with the same BCA# are delete, since they are all new and we don't know which is error.
+     * A minimum of 2 records will be deleted. This is different from admin_delete_mismatched_iuu.
+     */
+    function admin_delete_mismatched_iuiu($bca_no = null) {
+
+        $this->request->onlyAllow('post');
+
+        // Make sure it is numeric.
+        if (!is_numeric($bca_no)) throw new NotFoundException(__('Not a valid BCA No.'));
+
+        $conditions = array('bca_no =' => $bca_no);
+
+        if ($this->ImportedUser->deleteAll($conditions, false)) {
+            $this->Session->setFlash(__('The records have been deleted.'), 'default', array('class' => 'success'));
+        } else {
+            $this->Session->setFlash(__('Failed to delete the records.'));
+        }
+
+        return $this->redirect(array('action' => 'report_mismatched_names_iuiu'));
+    }
+
+
+    /**
+    * admin_email_mismatched_names_iuiu
+    *
+    * Email the Mismatching Names report to the current operator.
+    *
+    */
+    function admin_email_mismatched_names_iuiu() {
+
+        //Get data.
+        $mySQL =
+            'SELECT ImportedUser.id, ImportedUser.bca_no, ImportedUser.forename, ImportedUser.surname,
+                    ImportedUser.organisation, ImportedUser.class, ImportedUser.email, ImportedUser.address1, ImportedUser.address2
+            FROM imported_users AS ImportedUser
+            WHERE
+                EXISTS (SELECT u2.bca_no
+                FROM imported_users AS u2
+                WHERE ImportedUser.bca_no = u2.bca_no AND
+                    (ImportedUser.forename <> u2.forename OR ImportedUser.surname <> u2.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'mismatchedLines' => $mismatchedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            //'bca_no' => $this->Auth->user('bca_no'),
+            //'to' => $configEmailAddresses['bca_online_admin'],
+            'subject' => 'BCA Online Mismatch User Name (IUIU) Report.',
+            'template' => 'imported_users-admin_email_mismatched_names_iuiu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'admin_report_mismatched_names_iuiu'));
+    }
+
 
     /*
      * admin_report_users_to_be_updated
      *
      * Shows the users that will be updated by the import.
      */
-
     function admin_report_users_to_be_updated() {
 
         $fields = array(
@@ -822,7 +1019,6 @@ public function admin_testxls() {
      *
      * Shows the new users that will be added by the import.
      */
-
     function admin_report_users_to_be_added() {
 
         $fields = array(

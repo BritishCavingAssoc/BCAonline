@@ -45,6 +45,7 @@
             <th><?php echo $this->Paginator->sort('bca_email_ok');?></th>
             <th><?php echo $this->Paginator->sort('bcra_email_ok');?></th>
             <th><?php echo $this->Paginator->sort('roles');?></th>
+            <th><?php echo $this->Paginator->sort('same_person');?></th>
 
             <th><?php echo $this->Paginator->sort('created');?></th>
             <th><?php echo $this->Paginator->sort('modified');?></th>
@@ -95,6 +96,7 @@
         <td><?php echo h($user['User']['bca_email_ok']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['bcra_email_ok']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['roles']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['same_person']); ?>&nbsp;</td>
 
         <td><?php echo h($user['User']['created']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['modified']); ?>&nbsp;</td>
@@ -120,6 +122,7 @@
     <h3><?php echo __('BCA Online'); ?></h3>
     <ul>
         <li><?php echo $this->Html->link(__('Add User'), array('action' => 'add')); ?></li>
+        <li><?php echo $this->Html->link(__('Show Mismatched Names'), array('action' => 'report_mismatched_names_uu')); ?></li>
         <li><?php echo $this->Html->link(__('Admin Dashboard'), array('controller' => 'Users','action'=>'dashboard', 'admin' => true)); ?> </li>
     </ul>
 </div>
