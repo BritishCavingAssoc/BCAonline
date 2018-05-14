@@ -35,15 +35,14 @@ class UsersController extends AppController {
 
         //Role Enquiry/Manager/Admin can do the following.
         if ($this->UserUtilities->hasRole(array('UserEnquiry', 'UserManager', 'UserAdmin'))) {
-            if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view' ))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view'))) {
                 return true;
             }
         }
 
         //User Admin role can also do the following.
         if ($this->UserUtilities->hasRole(array('UserAdmin'))) {
-            if (in_array($this->action, array('admin_add', 'admin_edit', 'admin_delete', 'admin_sync_duplicates', 'admin_send_email_update_to_admin',
-                'admin_mark_deceased', 'admin_report_mismatched_names_uu', 'admin_mark_same_person', 'admin_email_mismatched_names_uu'))) {
+            if (in_array($this->action, array('admin_add', 'admin_edit', 'admin_delete', 'admin_sync_duplicates', 'admin_send_email_update_to_admin'))) {
                 return true;
             }
         }
@@ -119,6 +118,7 @@ class UsersController extends AppController {
     *
     * @return void
     */
+
     public function index() {
 
         return $this->redirect(array('action' => 'members_area'));
@@ -763,6 +763,7 @@ class UsersController extends AppController {
     * @param string $id
     * @return void
     */
+
     public function admin_edit($id = null) {
       $this->User->id = $id;
       if (!$this->User->exists()) {
@@ -890,8 +891,48 @@ class UsersController extends AppController {
         }
 
         return $this->redirect(array('action' => 'index'));
+
     }
 
+    /**
+    * Refreshes the Auth session
+    * After https://learntech.imsu.ox.ac.uk/blog/?p=946
+    * @param string $field
+    * @param string $value
+    * @return void
+    */
+
+    protected function _refreshAuth($field = '', $value = '') {
+
+        if (!empty($field) && !empty($value)) { //Update just a single field in the Auth session data
+
+            $this->Session->write(AuthComponent::$sessionKey .'.'. $field, $value);
+        } else {
+
+            if (!isset($this->User)) {
+                $this->loadModel('User'); //Load the User model, if it is not already loaded
+            }
+
+            $this->User->contain();
+            $user = $this->User->read(false, $this->Auth->user('id')); //Get the user's data
+            unset($user['User']['password']); //Don't save password in the session unhashed.
+            $this->Auth->login($user['User']); //Must have user data at top level of array that is passed to login method
+        }
+    }
+
+    /*
+    * /
+    public function admin_test ($user_id = null) {
+
+        //$result = DATABASE_CONFIG::$default;
+        //$result = $this->User->getDataSource();
+        App::uses('ConnectionManager', 'Model');
+        $dataSource = ConnectionManager::getDataSource('default');
+        $username = $dataSource->config['password'];
+
+        debug($username); die();
+    }
+    /* */
 
     /**
     * admin_mark_deceased method
@@ -932,161 +973,6 @@ class UsersController extends AppController {
             return $this->redirect(array('action' => 'view', $id));
         }
     }
-
-    /**
-    * admin_report_mismatched_names_uu
-    *
-    * Compares User records against the other User records with the same BCA No. and lists those where the name doesn't match.
-    */
-    function admin_report_mismatched_names_uu() {
-
-        // For each BCA#, find the user records where there are other user records with a different name.
-        // If any of those records are not marked as the same person then show all the records otherwise
-        // show none of them.
-
-        $mySQL =
-            'SELECT User.bca_no, User.forename, User.surname,
-                    User.organisation, User.class, User.email, User.address1, User.address2
-            FROM users AS User
-            WHERE
-                EXISTS (SELECT u2.bca_no
-                FROM users AS u2
-                WHERE User.bca_no = u2.bca_no AND
-                    (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
-                EXISTS (SELECT u3.bca_no
-                FROM users AS u3
-                WHERE User.bca_no = u3.bca_no AND (u3.same_person = 0))
-            ORDER BY User.bca_no';
-            //LIMIT 10';
-
-        $db = $this->User->getDataSource();
-
-        $mismatchedLines = $db->fetchALL($mySQL);
-
-        $this->set('mismatchedLines', $mismatchedLines);
-    }
-
-
-    /**
-    * admin_mark_same_person
-    *
-    * Marks all the records with the same BCA as the same person so they won't appear on the mismatch names report.
-    */
-    function admin_mark_same_person($bca_no = null) {
-
-        $this->request->onlyAllow('post');
-
-        // Make sure it is numeric.
-        if (!is_numeric($bca_no)) throw new NotFoundException(__('Not a valid BCA No.'));
-
-
-        if ($this->User->MarkSamePerson($bca_no)) {
-            $this->Session->setFlash(__('Updated'), 'default', array('class' => 'success'));
-            return $this->redirect(array('action' => 'report_mismatched_names_uu'));
-        } else {
-            $this->Session->setFlash(__('Not updated'));
-            return $this->redirect(array('action' => 'report_mismatched_names_uu'));
-        }
-    }
-
-
-    /**
-    * admin_email_mismatched_names_uu
-    *
-    * Email the Mismatching Names report to the current operator.
-    *
-    */
-    function admin_email_mismatched_names_uu() {
-
-        //Get data.
-        $mySQL =
-            'SELECT User.bca_no, User.forename, User.surname,
-                    User.organisation, User.class, User.email, User.address1, User.address2
-            FROM users AS User
-            WHERE
-                EXISTS (SELECT u2.bca_no
-                FROM users AS u2
-                WHERE User.bca_no = u2.bca_no AND
-                    (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
-                EXISTS (SELECT u3.bca_no
-                FROM users AS u3
-                WHERE User.bca_no = u3.bca_no AND (u3.same_person = 0))
-            ORDER BY User.bca_no';
-            //LIMIT 10';
-
-        $db = $this->User->getDataSource();
-
-        $mismatchedLines = $db->fetchALL($mySQL);
-
-        //Send email.
-        $this->loadmodel('SentEmail');
-
-        $viewVars = array(
-            'full_name' => $this->Auth->user('full_name'),
-            'mismatchedLines' => $mismatchedLines,
-        );
-
-        $email = array(
-            'user_id' => $this->Auth->user('id'),
-            //'bca_no' => $this->Auth->user('bca_no'),
-            //'to' => $configEmailAddresses['bca_online_admin'],
-            'subject' => 'BCA Online Mismatch User Name (UU) Report.',
-            'template' => 'imported_users-admin_email_mismatched_names_uu',
-            'forceSend' => true,
-            'save' => false,
-            'viewVars' => $viewVars,
-        );
-
-        if(!$this->SentEmail->send($email)) {
-            $this->Session->setFlash(__('The email was not sent.'));
-        } else {
-            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
-        }
-
-        return $this->redirect(array('action' => 'admin_report_mismatched_names_uu'));
-    }
-
-
-    /**
-    * Refreshes the Auth session
-    * After https://learntech.imsu.ox.ac.uk/blog/?p=946
-    * @param string $field
-    * @param string $value
-    * @return void
-    */
-    protected function _refreshAuth($field = '', $value = '') {
-
-        if (!empty($field) && !empty($value)) { //Update just a single field in the Auth session data
-
-            $this->Session->write(AuthComponent::$sessionKey .'.'. $field, $value);
-        } else {
-
-            if (!isset($this->User)) {
-                $this->loadModel('User'); //Load the User model, if it is not already loaded
-            }
-
-            $this->User->contain();
-            $user = $this->User->read(false, $this->Auth->user('id')); //Get the user's data
-            unset($user['User']['password']); //Don't save password in the session unhashed.
-            $this->Auth->login($user['User']); //Must have user data at top level of array that is passed to login method
-        }
-    }
-
-    /*
-    * /
-    public function admin_test ($user_id = null) {
-
-        //$result = DATABASE_CONFIG::$default;
-        //$result = $this->User->getDataSource();
-        App::uses('ConnectionManager', 'Model');
-        $dataSource = ConnectionManager::getDataSource('default');
-        $username = $dataSource->config['password'];
-
-        debug($username); die();
-    }
-    /* */
-
-
 }
 
 

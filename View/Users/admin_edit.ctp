@@ -40,7 +40,6 @@
         echo $this->Form->input('bca_email_ok');
         echo $this->Form->input('bcra_email_ok');
         echo $this->Form->input('roles');
-        echo $this->Form->input('same_person');
 
     ?>
     </fieldset>

@@ -292,7 +292,7 @@ class User extends AppModel
     public function ruleValidInsuranceStatus($data) {
 
     if (!isset($this->data[$this->alias]['class'])) return 'Class must be CIM, DIM or GRP.';
-
+        
         if ($this->data[$this->alias]['class'] == 'GRP') { //If GRP.
             if (isset($this->data[$this->alias]['insurance_status']) &&
                 !in_array($this->data[$this->alias]['insurance_status'], array('Y', 'N', '')))
@@ -432,29 +432,6 @@ class User extends AppModel
             'bca_no' => $user['User']['bca_no'],
             'isEmailable' => $isEmailable);
     }
-
-    /*
-    * Marks all the records with the same BCA as the same person.
-    *
-    * Returns true on success, false on failure.
-    */
-
-    public function MarkSamePerson($bca_no = null) {
-
-        //if (empty($bca_no)) {throw new InternalErrorException(__('No BCA No. supplied.'))};
-
-        // Make sure it is a number.
-        //if (!is_numeric($bca_no)) {
-        //    throw new InternalErrorException(__('Not a valid BCA No.'))};
-
-        $fields = array('User.same_person' => true);
-
-        //Don't bother to update records where same_person is already true - saves space in the audit table.
-        $conditions = array('User.bca_no =' => $bca_no, 'User.same_person !=' => true);
-
-        return $this->updateALL($fields, $conditions);
-    }
-
 
     /*
     * Creates a new user name from bca_no.
