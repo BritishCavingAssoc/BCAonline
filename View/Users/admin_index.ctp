@@ -38,8 +38,10 @@
             <th><?php echo $this->Paginator->sort('country');?></th>
             <th><?php echo $this->Paginator->sort('telephone');?></th>
             <th><?php echo $this->Paginator->sort('website');?></th>
-            <th><?php echo $this->Paginator->sort('address_ok');?></th>
+            <th><?php echo $this->Paginator->sort('Gender');?></th>
+            <th><?php echo $this->Paginator->sort('Year Of Birth');?></th>
 
+            <th><?php echo $this->Paginator->sort('address_ok');?></th>
             <th><?php echo $this->Paginator->sort('allow_club_updates');?></th>
             <th><?php echo $this->Paginator->sort('admin_email_ok');?></th>
             <th><?php echo $this->Paginator->sort('bca_email_ok');?></th>
@@ -89,8 +91,10 @@
         <td><?php echo h($user['User']['country']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['telephone']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['website']); ?>&nbsp;</td>
-        <td><?php echo h($user['User']['address_ok']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['gender']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['year_of_birth']); ?>&nbsp;</td>
 
+        <td><?php echo h($user['User']['address_ok']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['allow_club_updates']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['admin_email_ok']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['bca_email_ok']); ?>&nbsp;</td>

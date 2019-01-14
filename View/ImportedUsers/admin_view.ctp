@@ -102,6 +102,16 @@
 			<?php echo h($importedUser['ImportedUser']['website']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Gender'); ?></dt>
+		<dd>
+			<?php echo h($importedUser['ImportedUser']['gender']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Year of Birth'); ?></dt>
+		<dd>
+			<?php echo h($importedUser['ImportedUser']['year_of_birth']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Address Ok'); ?></dt>
 		<dd>
 			<?php echo h($importedUser['ImportedUser']['address_ok']); ?>
