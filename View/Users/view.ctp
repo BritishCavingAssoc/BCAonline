@@ -94,6 +94,13 @@
             <dd>
                 <?php echo h($user['User']['telephone']); ?> &nbsp;
             </dd>
+            <dt>&nbsp;</dt>
+            <dd>&nbsp;</dd>
+
+            <dt><?php echo __('Year of Birth'); ?></dt>
+            <dd>
+                <?php echo h($user['User']['year_of_birth']); ?> &nbsp;
+            </dd>
             <!--
             <dt><?php echo __('Roles'); ?></dt>
             <dd>
