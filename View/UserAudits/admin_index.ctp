@@ -12,16 +12,16 @@
             <th><?php echo $this->Paginator->sort('audit_user'); ?></th>
             <th><?php echo $this->Paginator->sort('audit_type'); ?></th>
             <th><?php echo $this->Paginator->sort('user_id'); ?></th>
+            <th><?php echo $this->Paginator->sort('bca_no'); ?></th>
             <th><?php echo $this->Paginator->sort('username'); ?></th>
-            <th><?php echo $this->Paginator->sort('active'); ?></th>
             <th><?php echo $this->Paginator->sort('email'); ?></th>
+            <th><?php echo $this->Paginator->sort('active'); ?></th>
             <th><?php echo $this->Paginator->sort('forename'); ?></th>
             <th><?php echo $this->Paginator->sort('surname'); ?></th>
             <th><?php echo $this->Paginator->sort('organisation'); ?></th>
             <th><?php echo $this->Paginator->sort('short_name'); ?></th>
             <th><?php echo $this->Paginator->sort('position'); ?></th>
             <th><?php echo $this->Paginator->sort('bca_status'); ?></th>
-            <th><?php echo $this->Paginator->sort('bca_no'); ?></th>
             <th><?php echo $this->Paginator->sort('class'); ?></th>
             <th><?php echo $this->Paginator->sort('class_code'); ?></th>
             <th><?php echo $this->Paginator->sort('insurance_status'); ?></th>
@@ -34,6 +34,9 @@
             <th><?php echo $this->Paginator->sort('postcode'); ?></th>
             <th><?php echo $this->Paginator->sort('country'); ?></th>
             <th><?php echo $this->Paginator->sort('telephone'); ?></th>
+            <th><?php echo $this->Paginator->sort('website'); ?></th>
+            <th><?php echo $this->Paginator->sort('gender'); ?></th>
+            <th><?php echo $this->Paginator->sort('year_of_birth'); ?></th>
             <th><?php echo $this->Paginator->sort('address_ok'); ?></th>
             <th><?php echo $this->Paginator->sort('allow_club_updates'); ?></th>
             <th><?php echo $this->Paginator->sort('admin_email_ok'); ?></th>
@@ -60,16 +63,16 @@
         <td><?php echo h($userAudit['UserAudit']['audit_user']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['audit_type']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['user_id']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['bca_no']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['username']); ?>&nbsp;</td>
-        <td><?php echo h($userAudit['UserAudit']['active']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['email']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['active']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['forename']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['surname']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['organisation']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['short_name']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['position']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['bca_status']); ?>&nbsp;</td>
-        <td><?php echo h($userAudit['UserAudit']['bca_no']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['class_code']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['class']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['insurance_status']); ?>&nbsp;</td>
@@ -82,6 +85,9 @@
         <td><?php echo h($userAudit['UserAudit']['postcode']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['country']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['telephone']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['website']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['gender']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['year_of_birth']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['address_ok']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['allow_club_updates']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['admin_email_ok']); ?>&nbsp;</td>

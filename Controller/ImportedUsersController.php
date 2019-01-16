@@ -966,15 +966,21 @@ class ImportedUsersController extends AppController {
 
         $fields = array(
             'ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class',
-            'ImportedUser.class_code', 'ImportedUser.bca_status', 'ImportedUser.insurance_status',
+            'ImportedUser.class_code',
+            'ImportedUser.bca_status',
+            'ImportedUser.insurance_status',
             'ImportedUser.date_of_expiry',
             'ImportedUser.email', 'ImportedUser.forename', 'ImportedUser.surname',
             'ImportedUser.address1', 'ImportedUser.address2', 'ImportedUser.address3', 'ImportedUser.town',
             'ImportedUser.county', 'ImportedUser.postcode', 'ImportedUser.country',
-            'User.bca_no', 'User.organisation', 'User.class', 'User.class_code', 'User.bca_status',
+            'ImportedUser.gender', 'ImportedUser.year_of_birth',
+            'User.bca_no', 'User.organisation', 'User.class', 'User.class_code',
+            'User.bca_status',
             'User.insurance_status',
-            'User.date_of_expiry', 'User.email', 'User.forename', 'User.surname', 'User.address1',
+            'User.date_of_expiry',
+            'User.email', 'User.forename', 'User.surname', 'User.address1',
             'User.address2', 'User.address3', 'User.town', 'User.county', 'User.postcode', 'User.country',
+            'User.gender', 'User.year_of_birth',
         );
 
         $joins = array(array('table' => 'users', 'alias' => 'User',
@@ -1000,7 +1006,10 @@ class ImportedUsersController extends AppController {
             'ImportedUser.town <> User.town',
             'ImportedUser.county <> User.county',
             'ImportedUser.postcode <> User.postcode',
-            'ImportedUser.country <> User.country',)
+            'ImportedUser.country <> User.country',
+            'ImportedUser.gender <> User.gender',
+            'ImportedUser.year_of_birth <> User.year_of_birth',
+            )
         );
 
         $updatedLines = $this->ImportedUser->find('all', array(
@@ -1027,6 +1036,7 @@ class ImportedUsersController extends AppController {
             'ImportedUser.email', 'ImportedUser.forename', 'ImportedUser.surname',
             'ImportedUser.address1', 'ImportedUser.address2', 'ImportedUser.address3', 'ImportedUser.town',
             'ImportedUser.county', 'ImportedUser.postcode', 'ImportedUser.country',
+            'ImportedUser.gender', 'ImportedUser.year_of_birth',
             'User.bca_no',
         );
 

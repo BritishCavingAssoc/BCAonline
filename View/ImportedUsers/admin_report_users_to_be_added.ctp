@@ -32,6 +32,8 @@
             <th><?php echo 'county'; ?></th>
             <th><?php echo 'postcode'; ?></th>
             <th><?php echo 'country'; ?></th>
+            <th><?php echo 'gender'; ?></th>
+            <th><?php echo 'year_of_birth'; ?></th>
     </tr>
     <?php foreach ($addedLines as $addedLine): ?>
     <tr>
@@ -51,6 +53,8 @@
         <td><?php if(!empty($addedLine['ImportedUser']['county'])) echo h($addedLine['ImportedUser']['county']); ?>&nbsp;</td>
         <td><?php if(!empty($addedLine['ImportedUser']['postcode'])) echo h($addedLine['ImportedUser']['postcode']); ?>&nbsp;</td>
         <td><?php if(!empty($addedLine['ImportedUser']['country'])) echo h($addedLine['ImportedUser']['country']); ?>&nbsp;</td>
+        <td><?php if(!empty($addedLine['ImportedUser']['gender'])) echo h($addedLine['ImportedUser']['gender']); ?>&nbsp;</td>
+        <td><?php if(!empty($addedLine['ImportedUser']['year_of_birth'])) echo h($addedLine['ImportedUser']['year_of_birth']); ?>&nbsp;</td>
     </tr>
     <?php endforeach; ?>
     </table>

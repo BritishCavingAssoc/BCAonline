@@ -37,7 +37,7 @@ class ImportedUser extends AppModel
         'organisation' => array(
             'rule' => array('maxlength', 50),
             'allowEmpty' => false,
-            'message' => 'Organisation can not be longer than 50 characters.'
+            'message' => 'Organisation can not be missing or longer than 50 characters.'
         ),
         'position' => array(
             'rule' => array('maxlength', 25),
@@ -52,15 +52,11 @@ class ImportedUser extends AppModel
         ),
         'insurance_status' => array(
             'rule_valid_insurance_status' => array('rule' => 'ruleValidInsuranceStatus'),
-            //'required' => false,
-            //'allowEmpty' => true,
-            //'rule' => array('inList', array('C','NC','STU','AN')),
-            //'message' => 'Insurance Status must be C, NC, STU, AN or blank.'
         ),
         'class_code' => array(
             'rule' => array('maxlength', 10),
             'allowEmpty' => false,
-            'message' => 'Class Core can not be longer than 10 characters.'
+            'message' => 'Class Code can not be missing or longer than 10 characters.'
         ),
         'email' => array(
             'email' => array(
@@ -125,6 +121,17 @@ class ImportedUser extends AppModel
                 'message' => 'Website can not be longer than 100 characters.'
             )
         ),
+        'gender' => array(
+            'rule' => array('inList', array('M','F','T','')),
+            'required' => 'create',
+            'allowEmpty' => true,
+            'message' => 'Gender must be M, F, T or blank.'
+        ),
+        'year_of_birth' => array(
+            'rule' => array('range', 1899, 2021),
+            'allowEmpty' => true,
+            'message' => 'Year of Birth must be after 1900 and not in the future.'
+        ),
         'address_ok' => array(
             'rule' => array('maxlength', 25),
             'allowEmpty' => true,
@@ -165,7 +172,8 @@ class ImportedUser extends AppModel
 
     if (!isset($this->data[$this->alias]['class'])) return 'Class must be CIM, DIM or GRP.';
 
-        if ($this->data[$this->alias]['class'] == 'GRP') { //If GRP.
+        //If GRP.
+        if ($this->data[$this->alias]['class'] == 'GRP') {
             if (isset($this->data[$this->alias]['insurance_status']) &&
                 !in_array($this->data[$this->alias]['insurance_status'], array('Y', 'N', '')))
             {
@@ -177,16 +185,16 @@ class ImportedUser extends AppModel
                 return 'Insurance Status 2 for group members must be either Y, N or blank.';
             }
         }
-        else { //else CIM or DIM.
+        else { //CIM or DIM.
             if (isset($this->data[$this->alias]['insurance_status']) &&
-                !in_array($this->data[$this->alias]['insurance_status'], array('C','NC','STU','AN', '')))
+                !in_array($this->data[$this->alias]['insurance_status'], array('C','NC','STU','U18','AN','')))
             {
-                return 'Insurance Status for individual members must be either C, NC, STU, AN or blank.';
+                return 'Insurance Status for individual members must be either C, NC, STU, U18, AN or blank.';
             }
             if (isset($this->data[$this->alias]['insurance_status2']) &&
-                !in_array($this->data[$this->alias]['insurance_status2'], array('C','NC','STU','AN', '')))
+                !in_array($this->data[$this->alias]['insurance_status2'], array('C','NC','STU','U18','AN', '')))
             {
-                return 'Insurance Status 2 for individual members must be either C, NC, STU, AN or blank.';
+                return 'Insurance Status 2 for individual members must be either C, NC, STU, U18, AN or blank.';
             }
         }
 

@@ -21,7 +21,8 @@
             array('options'=>array('CIM'=>'CIM', 'DIM'=>'DIM', 'GRP'=>'GRP'), 'empty'=>'Select'));
         echo $this->Form->input('class_code');
         echo $this->Form->input('insurance_status',
-            array('options'=>array('C'=>'Caver', 'NC'=>'Non-Caver', 'AN'=>'Another Route', 'Y'=>'Yes', 'N'=>'No'), 'empty'=>'Select'));
+            array('options'=>array('C'=>'Caver', 'NC'=>'Non-Caver', 'STU'=>'Full Time Student', 'U18'=>'Under 18', 'AN'=>'Another Route',
+            'Y'=>'Yes', 'N'=>'No'), 'empty'=>'Select'));
         echo $this->Form->input('date_of_expiry', array('empty' => true));
 
         echo $this->Form->input('address1');
@@ -33,6 +34,10 @@
         echo $this->Form->input('country');
         echo $this->Form->input('telephone');
         echo $this->Form->input('website');
+
+        echo $this->Form->input('gender',
+            array('options'=>array('M'=>'Male', 'F'=>'Female', 'T'=>'Trans.'), 'empty'=>'Select'));
+        echo $this->Form->input('year_of_birth');
 
         echo $this->Form->input('address_ok');
         echo $this->Form->input('allow_club_updates');

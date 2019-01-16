@@ -28,6 +28,8 @@
             <th><?php echo $this->Paginator->sort('postcode'); ?></th>
             <th><?php echo $this->Paginator->sort('country'); ?></th>
             <th><?php echo $this->Paginator->sort('website'); ?></th>
+            <th><?php echo $this->Paginator->sort('gender'); ?></th>
+            <th><?php echo $this->Paginator->sort('year_of_birth'); ?></th>
             <th><?php echo $this->Paginator->sort('address_ok'); ?></th>
             <th><?php echo $this->Paginator->sort('bca_email_ok'); ?></th>
             <th><?php echo $this->Paginator->sort('bcra_email_ok'); ?></th>
@@ -64,6 +66,8 @@
         <td><?php echo h($importedUser['ImportedUser']['postcode']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['country']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['website']); ?>&nbsp;</td>
+        <td><?php echo h($importedUser['ImportedUser']['gender']); ?>&nbsp;</td>
+        <td><?php echo h($importedUser['ImportedUser']['year_of_birth']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['address_ok']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['bca_email_ok']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['bcra_email_ok']); ?>&nbsp;</td>

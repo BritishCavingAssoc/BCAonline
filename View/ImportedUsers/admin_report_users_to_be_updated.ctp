@@ -33,6 +33,8 @@
             <th><?php echo 'county'; ?></th>
             <th><?php echo 'postcode'; ?></th>
             <th><?php echo 'country'; ?></th>
+            <th><?php echo 'gender'; ?></th>
+            <th><?php echo 'year_of_birth'; ?></th>
     </tr>
     <?php foreach ($updatedLines as $updatedLine): ?>
     <tr>
@@ -53,6 +55,8 @@
         <td><?php if(!empty($updatedLine['User']['county'])) echo h($updatedLine['User']['county']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['postcode'])) echo h($updatedLine['User']['postcode']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['country'])) echo h($updatedLine['User']['country']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['gender'])) echo h($updatedLine['User']['gender']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['year_of_birth'])) echo h($updatedLine['User']['year_of_birth']); ?>&nbsp;</td>
     </tr>
     <tr class='bold'>
         <td>&nbsp;</td>
@@ -73,20 +77,24 @@
                 echo h($updatedLine['ImportedUser']['class_code']);
             } else { echo "Cleared"; }?>&nbsp;</td>
 
-        <td><?php if($updatedLine['ImportedUser']['bca_status'] != $updatedLine['User']['bca_status'])
-            if(!empty($updatedLine['ImportedUser']['bca_status'])) {
-                echo h($updatedLine['ImportedUser']['bca_status']);
-            } else { echo "Cleared"; }?>&nbsp;</td>
+        <td><?php if (isset($updatedLine['ImportedUser']['bca_status']) && isset($updatedLine['User']['bca_status'])) {
+            if($updatedLine['ImportedUser']['bca_status'] != $updatedLine['User']['bca_status']) {
+                if(!empty($updatedLine['ImportedUser']['bca_status'])) {
+                    echo h($updatedLine['ImportedUser']['bca_status']);
+                } else { echo "Cleared"; }
+            }} ?>&nbsp;</td>
 
         <td><?php if($updatedLine['ImportedUser']['insurance_status'] != $updatedLine['User']['insurance_status'])
             if(!empty($updatedLine['ImportedUser']['insurance_status'])) {
                 echo h($updatedLine['ImportedUser']['insurance_status']);
             } else { echo "Cleared"; }?>&nbsp;</td>
 
-        <td><?php if($updatedLine['ImportedUser']['date_of_expiry'] != $updatedLine['User']['date_of_expiry'])
-            if(!empty($updatedLine['ImportedUser']['date_of_expiry'])) {
-                echo h($updatedLine['ImportedUser']['date_of_expiry']);
-            } else { echo "Cleared"; }?>&nbsp;</td>
+        <td><?php if (isset($updatedLine['ImportedUser']['date_of_expiry']) && isset($updatedLine['User']['date_of_expiry'])) {
+            if($updatedLine['ImportedUser']['date_of_expiry'] != $updatedLine['User']['date_of_expiry']) {
+                if(!empty($updatedLine['ImportedUser']['date_of_expiry'])) {
+                    echo h($updatedLine['ImportedUser']['date_of_expiry']);
+                } else { echo "Cleared"; }
+            }} ?>&nbsp;</td>
 
         <td><?php if($updatedLine['ImportedUser']['email'] != $updatedLine['User']['email'])
             if(!empty($updatedLine['ImportedUser']['email'])) {
@@ -126,6 +134,16 @@
         <td><?php if($updatedLine['ImportedUser']['country'] != $updatedLine['User']['country'])
             if(!empty($updatedLine['ImportedUser']['country'])) {
                 echo h($updatedLine['ImportedUser']['country']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['gender'] != $updatedLine['User']['gender'])
+            if(!empty($updatedLine['ImportedUser']['gender'])) {
+                echo h($updatedLine['ImportedUser']['gender']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['year_of_birth'] != $updatedLine['User']['year_of_birth'])
+            if(!empty($updatedLine['ImportedUser']['year_of_birth'])) {
+                echo h($updatedLine['ImportedUser']['year_of_birth']);
             } else { echo "Cleared"; }?>&nbsp;</td>
     </tr>
     <?php endforeach; ?>
