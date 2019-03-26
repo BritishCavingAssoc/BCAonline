@@ -33,17 +33,32 @@ class UsersController extends AppController {
             return true;
         }
 
-        //Role Enquiry/Manager/Admin can do the following.
-        if ($this->UserUtilities->hasRole(array('UserEnquiry', 'UserManager', 'UserAdmin'))) {
-            if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view' ))) {
+        //Role Enquiry can do the following.
+        if ($this->UserUtilities->hasRole(array('UserEnquiry'))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view'))) {
+                return true;
+            }
+        }
+
+        //Role Manager can do the following.
+        if ($this->UserUtilities->hasRole(array('UserManager'))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view'))) {
+                return true;
+            }
+        }
+
+        //Role MailingLists can do the following.
+        if ($this->UserUtilities->hasRole(array('UserMailingLists'))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_individuals', 'admin_mailing_list_groups'))) {
                 return true;
             }
         }
 
         //User Admin role can also do the following.
         if ($this->UserUtilities->hasRole(array('UserAdmin'))) {
-            if (in_array($this->action, array('admin_add', 'admin_edit', 'admin_delete', 'admin_sync_duplicates', 'admin_send_email_update_to_admin',
-                'admin_mark_deceased', 'admin_report_mismatched_names_uu', 'admin_mark_same_person', 'admin_email_mismatched_names_uu', 'admin_lapse_users'))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view', 'admin_add', 'admin_edit', 'admin_delete', 'admin_sync_duplicates',
+                'admin_send_email_update_to_admin', 'admin_mark_deceased', 'admin_report_mismatched_names_uu', 'admin_mark_same_person', 'admin_email_mismatched_names_uu',
+                'admin_lapse_users', 'admin_mailing_list_individuals', 'admin_mailing_list_groups'))) {
                 return true;
             }
         }
@@ -1125,6 +1140,32 @@ class UsersController extends AppController {
 
         $this->Session->setFlash($message);
         return $this->redirect(array('action'=>'dashboard'));
+    }
+
+    /**
+    * Mailing List of individuals for newsletter
+    */
+    public function admin_mailing_list_individuals() {
+
+        $fields = array('DISTINCT email', 'full_name');
+        $conditions = array('User.class' => array('CIM', 'DIM'), 'User.bca_status' => array('Current', 'Overdue'), 'User.bca_email_ok <>' => 0, 'User.email <>' => ''   );
+
+        $result = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => array('User.email'), 'recursive' => -1));
+
+        $this->set('users', $result);
+    }
+
+    /**
+    * Mailing List of clubs/groups for newsletter
+    */
+    public function admin_mailing_list_groups() {
+
+        $fields = array('DISTINCT email', 'full_name');
+        $conditions = array('User.class' => array('GRP'), 'User.bca_status' => array('Current', 'Overdue'), 'User.bca_email_ok <>' => 0, 'User.email <>' => ''   );
+
+        $result = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => array('User.email'), 'recursive' => -1));
+
+        $this->set('users', $result);
     }
 
 }
