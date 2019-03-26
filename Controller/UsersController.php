@@ -43,7 +43,7 @@ class UsersController extends AppController {
         //User Admin role can also do the following.
         if ($this->UserUtilities->hasRole(array('UserAdmin'))) {
             if (in_array($this->action, array('admin_add', 'admin_edit', 'admin_delete', 'admin_sync_duplicates', 'admin_send_email_update_to_admin',
-                'admin_mark_deceased', 'admin_report_mismatched_names_uu', 'admin_mark_same_person', 'admin_email_mismatched_names_uu'))) {
+                'admin_mark_deceased', 'admin_report_mismatched_names_uu', 'admin_mark_same_person', 'admin_email_mismatched_names_uu', 'admin_lapse_users'))) {
                 return true;
             }
         }
@@ -1086,6 +1086,46 @@ class UsersController extends AppController {
     }
     /* */
 
+
+    /**
+    * admin_lapse_users
+    *
+    * Lapses CIMs and DIMs that haven't renewed.
+    *
+    * @return void
+    */
+    public function admin_lapse_users () {
+
+        //Mark 'Lapsed' old DIMs who haven't been caught by DG's routines. DIM are normally his responsibility.
+        //Current or Overdue DIMs who date of expiry is more than 11 months ago.
+        $fields = array('User.bca_status' => "'Lapsed'");
+        $conditions = array('User.class' => 'DIM', 'User.bca_status' => array('Current', 'Overdue'), 'User.date_of_expiry <' => date('Y-m-d', strtotime('-11 months')));
+        $this->User->updateAll($fields, $conditions);
+        $rows = $this->User->getAffectedRows();
+        $message = "DIMs lapsed: ".$rows." ";
+
+
+        //Mark 'Lapsed' CIMs more than 3 months expired.
+        //Current or Overdue CIMs who date of expiry is more than 3 months ago.
+        $fields = array('User.bca_status' => "'Lapsed'");
+        $conditions = array('User.class' => 'CIM', 'User.bca_status' => array('Current', 'Overdue'), 'User.date_of_expiry <' => date('Y-m-d', strtotime('-3 months')));
+        $this->User->updateAll($fields, $conditions);
+        $rows = $this->User->getAffectedRows();
+        $message = $message."CIMs lapsed: ".$rows." ";
+
+        /* Don't implement Overdue yet
+        //Mark 'Overdue' remaining expired CIMs.
+        //Current CIMs whose date of expiry before today.
+        $fields = array('User.bca_status' => "'Overdue'");
+        $conditions = array('User.class' => 'CIM', 'User.bca_status' => 'Current', 'User.date_of_expiry <' => date('Y-m-d'));
+        $this->User->updateAll($fields, $conditions);
+        $rows = $this->User->getAffectedRows();
+        $message = $message."CIMs overdue: ".$rows;
+        */
+
+        $this->Session->setFlash($message);
+        return $this->redirect(array('action'=>'dashboard'));
+    }
 
 }
 
