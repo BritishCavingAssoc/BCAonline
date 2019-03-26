@@ -123,7 +123,6 @@ class ImportedUser extends AppModel
         ),
         'gender' => array(
             'rule' => array('inList', array('M','F','T','')),
-            'required' => 'create',
             'allowEmpty' => true,
             'message' => 'Gender must be M, F, T or blank.'
         ),
