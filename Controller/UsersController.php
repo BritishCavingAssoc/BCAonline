@@ -713,7 +713,112 @@ class UsersController extends AppController {
         return $this->redirect($this->Auth->logout());
     }
 
-    public function admin_dashboard() {}
+    /**
+    * admin_dashboard
+    *
+    */
+    public function admin_dashboard() {
+
+        // Display a summary of totals.
+        // Initialise all table cells. Current Individual Members.
+        $line = array('C' => 0, 'NC' => 0, 'STU' => 0, 'U18' => 0, 'BCA' => 0, 'BCRA' => 0);
+
+        $table1 = array(
+            'Title' => array('C' => 'C', 'NC' => 'NC', 'STU' => 'STU', 'U18' => 'U18', 'BCA' => 'Total BCA', 'BCRA' => 'Of Which BCRA'),
+            'Totals' => $line,
+            'CIM' => $line,
+            'DIM' => $line
+        );
+
+        // Gather data. Individuals
+        $fields = array('User.class', 'User.insurance_status', 'COUNT(User.id) as my_count');
+        $group = array('User.class', 'User.insurance_status');
+        $conditions = array('User.class' => array('CIM', 'DIM'), 'User.bca_status' => array('Current', 'Overdue'), 'NOT' => array('User.insurance_status' => array('AN')));
+
+        $result = $this->User->find('all', array('fields' => $fields, 'group' => $group, 'conditions' => $conditions, 'recursive' => -1));
+
+        // Update the table with the values.
+        for ($i=0; $i < count($result); $i++) {
+
+            // Add a new line if necessary.
+            if (empty($table1[$result[$i]['User']['class']])) { $table1[$result[$i]['User']['class']] = $line;}
+
+            $table1[$result[$i]['User']['class']][$result[$i]['User']['insurance_status']] += $result[$i][0]['my_count'];
+            $table1[$result[$i]['User']['class']]['BCA'] += $result[$i][0]['my_count'];
+
+            $table1['Totals'][$result[$i]['User']['insurance_status']] += $result[$i][0]['my_count'];
+            $table1['Totals']['BCA'] += $result[$i][0]['my_count'];
+        }
+
+
+        // Initialise all table cells. Current Group Members.
+        $line = array('PL' => 0, 'NPL' => 0, 'BCA' => 0, 'BCRA' => 0);
+
+        $table2 = array(
+            'Title' => array('PL' => 'PL', 'NPL' => 'No PL', 'BCA' => 'Total BCA', 'BCRA' => 'Of Which BCRA'),
+            'Totals' => $line,
+            'Clubs' => $line
+        );
+
+        // Gather data. Group
+        $fields = array('User.class', 'User.class_code', 'COUNT(User.id) as my_count');
+        $group = array('User.class', 'User.class_code');
+        $conditions = array('User.class' => array('GRP'), 'User.class_code' => array('Current', 'Overdue'));
+
+        $result = $this->User->find('all', array('fields' => $fields, 'group' => $group, 'conditions' => $conditions, 'recursive' => -1));
+
+        // Update the table with the values.
+        for ($i=0; $i < count($result); $i++) {
+
+            // Add a new line if necessary.
+            if (empty($table2[$result[$i]['User']['class']])) { $table2[$result[$i]['User']['class']] = $line;}
+
+            $table2[$result[$i]['User']['class']][$result[$i]['User']['insurance_status']] += $result[$i][0]['my_count'];
+            $table2[$result[$i]['User']['class']]['BCA'] += $result[$i][0]['my_count'];
+
+            $table2['Totals'][$result[$i]['User']['insurance_status']] += $result[$i][0]['my_count'];
+            $table2['Totals']['BCA'] += $result[$i][0]['my_count'];
+        }
+
+        // Initialise table cells. All members by status.
+        $line = array('Current' => 0, 'Overdue' => 0, 'Lapsed' => 0, 'Resigned' => 0, 'Deceased' => 0, 'Total' => 0, 'AN' => 0);
+
+        $table3 = array(
+            'Title' => array('Current' => 'Current', 'Overdue' => 'Overdue', 'Lapsed' => 'Lapsed', 'Resigned' => 'Resigned', 'Deceased' => 'Deceased', 'Total' => 'Total', 'AN' => 'AN'),
+            'Totals' => $line
+        );
+
+        // Gather data.
+        $fields = array('year(User.date_of_expiry) as my_year', 'User.bca_status', 'User.insurance_status', 'COUNT(User.id) as my_count');
+        $group = array('year(User.date_of_expiry)', 'User.bca_status', 'User.insurance_status');
+        $order = array('year(User.date_of_expiry) desc');
+
+        $result = $this->User->find('all', array('fields' => $fields, 'group' => $group, 'order' => $order, 'recursive' => -1));
+
+        // Update the table with the values.
+        for ($i=0; $i < count($result); $i++) {
+
+            // Add a new line if necessary.
+            if (empty($table3[$result[$i][0]['my_year']])) { $table3[$result[$i][0]['my_year']] = $line;}
+
+            // If not insurance status AN (ANother Route).
+            if ($result[$i]['User']['insurance_status'] <> 'AN') {
+                $table3[$result[$i][0]['my_year']][$result[$i]['User']['bca_status']] += $result[$i][0]['my_count'];
+                $table3[$result[$i][0]['my_year']]['Total'] += $result[$i][0]['my_count'];
+
+                $table3['Totals'][$result[$i]['User']['bca_status']] += $result[$i][0]['my_count'];
+                $table3['Totals']['Total'] += $result[$i][0]['my_count'];
+            } else {
+                $table3[$result[$i][0]['my_year']]['AN'] += $result[$i][0]['my_count'];
+                $table3['Totals']['AN'] += $result[$i][0]['my_count'];
+            }
+        }
+
+        $this->set('table1', $table1);
+        $this->set('table2', $table2);
+        $this->set('table3', $table3);
+
+    }
 
     /**
     * admin_index method
