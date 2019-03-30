@@ -752,18 +752,17 @@ class UsersController extends AppController {
 
 
         // Initialise all table cells. Current Group Members.
-        $line = array('PL' => 0, 'NPL' => 0, 'BCA' => 0, 'BCRA' => 0);
+        $line = array('Y' => 0, 'N' => 0, 'BCA' => 0, 'BCRA' => 0);
 
         $table2 = array(
-            'Title' => array('PL' => 'PL', 'NPL' => 'No PL', 'BCA' => 'Total BCA', 'BCRA' => 'Of Which BCRA'),
-            'Totals' => $line,
-            'Clubs' => $line
+            'Title' => array('Y' => 'PL', 'N' => 'No PL', 'BCA' => 'Total BCA', 'BCRA' => 'Of Which BCRA'),
+            'Totals' => $line
         );
 
         // Gather data. Group
-        $fields = array('User.class', 'User.class_code', 'COUNT(User.id) as my_count');
-        $group = array('User.class', 'User.class_code');
-        $conditions = array('User.class' => array('GRP'), 'User.class_code' => array('Current', 'Overdue'));
+        $fields = array('User.class_code', 'User.insurance_status', 'COUNT(User.id) as my_count');
+        $group = array('User.class_code', 'User.insurance_status');
+        $conditions = array('User.class' => array('GRP'), 'User.bca_status' => array('Current', 'Overdue'));
 
         $result = $this->User->find('all', array('fields' => $fields, 'group' => $group, 'conditions' => $conditions, 'recursive' => -1));
 
@@ -771,10 +770,10 @@ class UsersController extends AppController {
         for ($i=0; $i < count($result); $i++) {
 
             // Add a new line if necessary.
-            if (empty($table2[$result[$i]['User']['class']])) { $table2[$result[$i]['User']['class']] = $line;}
+            if (empty($table2[$result[$i]['User']['class_code']])) { $table2[$result[$i]['User']['class_code']] = $line;}
 
-            $table2[$result[$i]['User']['class']][$result[$i]['User']['insurance_status']] += $result[$i][0]['my_count'];
-            $table2[$result[$i]['User']['class']]['BCA'] += $result[$i][0]['my_count'];
+            $table2[$result[$i]['User']['class_code']][$result[$i]['User']['insurance_status']] += $result[$i][0]['my_count'];
+            $table2[$result[$i]['User']['class_code']]['BCA'] += $result[$i][0]['my_count'];
 
             $table2['Totals'][$result[$i]['User']['insurance_status']] += $result[$i][0]['my_count'];
             $table2['Totals']['BCA'] += $result[$i][0]['my_count'];
