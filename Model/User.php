@@ -68,9 +68,9 @@ class User extends AppModel
             'message' => 'Short Name can not be longer than 20 characters.'
         ),
         'position' => array(
-            'rule' => array('maxlength', 25),
+            'rule' => array('maxlength', 50),
             'allowEmpty' => true,
-            'message' => 'Position can not be longer than 25 characters.'
+            'message' => 'Position can not be longer than 50 characters.'
         ),
         'bca_status' => array(
             'rule' => array('inList', array('Current', 'Overdue', 'Lapsed', 'Resigned', 'Expelled', 'Deceased')),
@@ -189,6 +189,36 @@ class User extends AppModel
             'rule' => 'boolean',
             'allowEmpty' => true,
             'message' => 'BCRA Email OK? must be yes, no or blank.'
+        ),
+        'bcra_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'BCRA Member? must be yes, no or blank.'
+        ),
+        'ccc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CCC Member? must be yes, no or blank.'
+        ),
+        'cscc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CSCC Member? must be yes, no or blank.'
+        ),
+        'cncc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CNCC Member? must be yes, no or blank.'
+        ),
+        'dca_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCA Member? must be yes, no or blank.'
+        ),
+        'dcuc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCUC Member? must be yes, no or blank.'
         ),
         'forename2' => array(
             'rule' => array('maxlength', 25),

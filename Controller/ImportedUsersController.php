@@ -250,6 +250,11 @@ class ImportedUsersController extends AppController {
         }
     }
 
+    /**
+     * admin_process_file
+     *
+     * Process the CIM import file.
+     */
     function admin_process_file() {
 
         //Give ourselves plenty of time and memory.
@@ -307,6 +312,7 @@ class ImportedUsersController extends AppController {
         return $this->redirect(array('action' => 'index'));
     }
 
+
     /**
      * admin_update_users
      *
@@ -358,6 +364,210 @@ class ImportedUsersController extends AppController {
                     if ($user['User']['bca_status'] == 'Deceased'){
                         continue;
                     }
+
+                    //Don't update or compare these fields because they can overwrite changes made online.
+                    unset($importedUser['ImportedUser']['bca_email_ok']);
+                    unset($importedUser['ImportedUser']['bcra_email_ok']);
+
+                    //Find the values in ImportedUser that aren't in User. Case insensitive. DEV!!! Might have trouble with integers.
+                    if($changes = array_udiff_assoc($importedUser['ImportedUser'], $user['User'], 'strcasecmp')) {
+
+                        //The import can not clear the email address of an active user but can update it.
+                        if ($user['User']['active'] && isset($changes['email']) && empty($changes['email'])) {
+                            unset($changes['email'], $importedUser['ImportedUser']['email']);
+                        }
+
+                        // If email address has changed send a notification to the old address.
+                        // NB Before save() so isEmailable() isn't affected by the update.
+                        if (isset($changes['email'])) {
+
+                            $viewVars = array(
+                                'full_name' => $user['User']['full_name'],
+                                'new_email' => $changes['email'],
+                                'bca_online_admin_email' => $configEmailAddresses['bca_online_admin'],
+                            );
+
+                            $email = array(
+                                'user_id' => $user['User']['id'],
+                                //'to' => $user['User']['email'],
+                                'subject' => 'Your BCA Online email address has been changed. (Ref: '. $user['User']['bca_no'] . ')',
+                                'template' => 'imported_users-admin_update_users-email_updated',
+                                'viewVars' => $viewVars,
+                            );
+
+                            $this->SentEmail->send($email);
+                        }
+
+                        //Update User if any changes.
+                        if (!empty($changes)) {
+                            $importedUser['ImportedUser']['id'] = $user['User']['id'];
+                            $this->User->clear();
+
+                            if(!$this->User->save($importedUser['ImportedUser'])) {
+
+                                //Save errors to display at end of batch.
+                                $updateErrors[] = array(
+                                    'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
+                                    'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
+                                    'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                                    'validation_error' => $this->User->validationErrors);
+
+                                continue;
+
+                            } else {
+                                //Keep total of records updated.
+                                $update_count++;
+                            }
+
+                            //// Send email to notify user of import changes.
+
+                            //Check for notifyable changes not including changes of case.
+                            $changes2 = array_udiff_assoc($importedUser['ImportedUser'], $user['User'], 'strcasecmp');
+
+                            //Don't want these to show up in the notification emails.
+                            unset($changes2['full_name']); //Virtual field.
+                            unset($changes2['bca_status']); //Change of status is normally notified by another route.
+                            unset($changes2['date_of_expiry'], $changes2['address_ok']);
+                            unset($changes2['forename2'], $changes2['surname2'], $changes2['bca_no2']);
+                            unset($changes2['insurance_status2'], $changes2['class_code2']); //!!!DEV These should be removed when gone from table.
+
+                            //Add in whole address if any part has changed.
+                            if(array_key_exists('address1', $changes2) || array_key_exists('address2', $changes2) ||
+                                array_key_exists('address3', $changes2) || array_key_exists('town', $changes2) ||
+                                array_key_exists('county', $changes2) || array_key_exists('postcode', $changes2) ||
+                                array_key_exists('country', $changes2)) {
+
+                                //Add in keys to be used below.
+                                $changes2['address1'] = $changes2['address2'] = $changes2['address3'] = $changes2['town'] = "";
+                                $changes2['county'] = $changes2['postcode'] = $changes2['country'] = "";
+                            }
+
+                            //Find the corresponding current values in the right order (as per database).
+                            $email_changes = array_intersect_key($importedUser['ImportedUser'], $changes2);
+
+                            //Find the corresponding previous values.
+                            $email_previous = array_intersect_key($user['User'], $changes2);
+
+                            if (!empty($email_changes)) {
+                                $viewVars = array(
+                                    'full_name' => $importedUser['ImportedUser']['full_name'],
+                                    'membership_admin_email' => $configEmailAddresses['membership_admin'],
+                                    'changes' => $email_changes,
+                                    'previous' => $email_previous,
+                                );
+
+                                $email = array(
+                                    'user_id' => $user['User']['id'],
+                                    'subject' => 'Your BCA Online profile has been updated. (Ref: '. $user['User']['bca_no'] . ')',
+                                    'template' => 'imported_users-admin_update_users-user_updated',
+                                    'viewVars' => $viewVars,
+                                );
+
+                                $this->SentEmail->send($email);
+                            }
+                        }
+                    }
+
+                } else {
+                    //Add new user.
+
+                    // Set username (bca_no padded with leading zeros).
+                    $importedUser['ImportedUser']['username'] = User::MakeUserName($importedUser['ImportedUser']['bca_no']);
+
+                    if (empty($importedUser['ImportedUser']['username'])) {
+
+                        //Save errors to display at end of batch.
+                        $updateErrors[] = array(
+                            'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
+                            'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
+                            'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                            'validation_error' => 'Empty username');
+
+                        continue;
+                    }
+
+                    $this->User->create();
+                    if(!$this->User->save($importedUser['ImportedUser'])) {
+
+                        //Save errors to display at end of batch.
+                        $updateErrors[] = array(
+                            'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
+                            'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
+                            'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                            'validation_error' => $this->User->validationErrors);
+
+                        continue;
+
+                    } else {
+                        //Keep total of records added.
+                        $add_count++;
+                    }
+
+                    // NB no notifying email for new users. User needs to activate account before receiving emails.
+                }
+            }
+
+            //Display any errors and stop processing.
+            if (!empty($updateErrors)) {
+                $this->set('updateErrors', $updateErrors);
+                $this->Session->setFlash(__('Saving of the data failed.'));
+                return $this->render();
+            }
+
+            $c1++; //Do next batch.
+        }
+
+        $this->Session->setFlash("Processed {$process_count}, added {$add_count} and updated {$update_count} records.", 'default', array('class' => 'success'));
+
+        return $this->redirect(array('action' => 'index'));
+    }
+
+    /**
+     * admin_update_groups
+     *
+     *
+     */
+    function admin_update_groups() {
+
+        $this->loadModel('User');
+        $this->loadModel('SentEmail');
+
+        //Get email config.
+        if(!$configEmailAddresses = Configure::read('EmailAddresses')) {
+            throw new NotFoundException(__('Invalid email configuration'));
+        }
+
+        $process_count = $add_count = $update_count = $c1 = $c2 = 0;
+        $batch_size = 100;
+
+        while ($importedUsers = $this->ImportedUser->find('all',
+            array('order' => 'id', 'offset' => $c1 * $batch_size, 'limit' => $batch_size, 'recursive' => -1))) {
+
+            set_time_limit(120); //Reset PHPs timeout counter.
+
+            $batchCount = count($importedUsers);
+
+            for ($c2 = 0; $c2 < $batchCount; $c2++) {
+
+                $importedUser = $importedUsers[$c2];
+
+                $process_count++;
+
+                //Don't add, update or compare these fields.
+                unset($importedUser['ImportedUser']['id']);
+                unset($importedUser['ImportedUser']['created']);
+                unset($importedUser['ImportedUser']['modified']);
+
+                //Find corresponding User.
+                //NB These 3 criteria should give a unique match.
+                $conditions = array(
+                    'User.class' => $importedUser['ImportedUser']['class'],
+                    'User.bca_no' => $importedUser['ImportedUser']['bca_no'],
+                    'User.organisation' => $importedUser['ImportedUser']['organisation']
+                );
+
+                //If User exists.
+                if ($user = $this->User->find('first', array('conditions' => $conditions, 'contain' => false))) {
 
                     //Don't update or compare these fields because they can overwrite changes made online.
                     unset($importedUser['ImportedUser']['bca_email_ok']);

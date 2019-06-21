@@ -143,7 +143,13 @@ class UsersController extends AppController {
 
         //Pass some useful info to the view.
         $this->set('bca_no', $this->Auth->user('bca_no'));
-        $this->set('full_name', $this->Auth->user('full_name'));
+
+        if ($this->Auth->user('class') == 'GRP') {
+            $this->set('full_name', $this->Auth->user('organisation') . ' (' . $this->Auth->user('full_name') . ')');
+        } else {
+            $this->set('full_name', $this->Auth->user('full_name'));
+        }
+
 
         //"Diary Admin" button shown if user is this list.
         $event_admins = array(15404, 486, 1072, 5658); //List of authorised BCA members (Admin, Damian Weare, David Cooke, David Gibson).
@@ -200,7 +206,7 @@ class UsersController extends AppController {
 
                 //Find all users with the given email address.
                 if(!$users = $this->User->find('all', array(
-                    'fields' => array('id', 'bca_no', 'username', 'full_name'),
+                    'fields' => array('id', 'bca_no', 'username', 'full_name', 'class', 'organisation'),
                     'conditions' => array('User.email' => $this->request->data['User']['email']),
                     'contain' => false))
                 ) {
@@ -229,8 +235,14 @@ class UsersController extends AppController {
                         //E.g. http://members.british-caving.org.uk/users/password_reset/372d46769cbef5adcd196c820776987ae0c1fd74
                         $token_url = "{$base_url}users/password_reset/{$token_code}";
 
+                        if ($user['User']['class'] == 'GRP') {
+                            $full_name = $user['User']['organisation'] . ' (' . $user['User']['full_name'] . ')';
+                        } else {
+                            $full_name = $user['User']['full_name'];
+                        }
+
                         $myViewVars[] = array(
-                            'full_name' => $user['User']['full_name'],
+                            'full_name' => $full_name,
                             'username' => $user['User']['username'],
                             'token_url' => $token_url,
                             'bca_online_admin_email' => Configure::read('EmailAddresses.bca_online_admin'),

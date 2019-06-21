@@ -40,9 +40,9 @@ class ImportedUser extends AppModel
             'message' => 'Organisation can not be missing or longer than 50 characters.'
         ),
         'position' => array(
-            'rule' => array('maxlength', 25),
+            'rule' => array('maxlength', 50),
             'allowEmpty' => true,
-            'message' => 'Position can not be longer than 25 characters.'
+            'message' => 'Position can not be longer than 50 characters.'
         ),
         'bca_status' => array(
             'rule' => array('inList', array('Current', 'Overdue', 'Lapsed', 'Resigned', 'Expelled', 'Deceased')),
@@ -109,6 +109,11 @@ class ImportedUser extends AppModel
             'allowEmpty' => true,
             'message' => 'Country can not be longer than 30 characters.'
         ),
+        'telephone' => array(
+            'rule' => array('maxlength', 20),
+            'allowEmpty' => true,
+            'message' => 'Telephone can not be longer than 20 characters.'
+        ),
         'website' => array(
             'website' => array(
                 'rule' => 'url',
@@ -145,6 +150,36 @@ class ImportedUser extends AppModel
             'rule' => 'boolean',
             'allowEmpty' => true,
             'message' => 'BCRA Email OK? must be yes, no or blank.'
+        ),
+        'bcra_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'BCRA Member? must be yes, no or blank.'
+        ),
+        'ccc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CCC Member? must be yes, no or blank.'
+        ),
+        'cscc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CSCC Member? must be yes, no or blank.'
+        ),
+        'cncc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CNCC Member? must be yes, no or blank.'
+        ),
+        'dca_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCA Member? must be yes, no or blank.'
+        ),
+        'dcuc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCUC Member? must be yes, no or blank.'
         ),
         'forename2' => array(
             'rule' => array('maxlength', 25),
