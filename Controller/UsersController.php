@@ -1258,7 +1258,7 @@ class UsersController extends AppController {
     */
     public function admin_mailing_list_individuals() {
 
-        $fields = array('DISTINCT email', 'full_name');
+        $fields = array('DISTINCT email', 'bca_no', 'full_name');
         $conditions = array('User.class' => array('CIM', 'DIM'), 'User.bca_status' => array('Current', 'Overdue'), 'User.bca_email_ok <>' => 0, 'User.email <>' => ''   );
 
         $result = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => array('User.email'), 'recursive' => -1));
@@ -1271,8 +1271,8 @@ class UsersController extends AppController {
     */
     public function admin_mailing_list_groups() {
 
-        $fields = array('DISTINCT email', 'full_name');
-        $conditions = array('User.class' => array('GRP'), 'User.bca_status' => array('Current', 'Overdue'), 'User.bca_email_ok <>' => 0, 'User.email <>' => ''   );
+        $fields = array('DISTINCT email', 'bca_no', 'organisation');
+        $conditions = array('User.class' => array('GRP'), 'User.bca_status' => array('Current', 'Overdue'),  'User.email <>' => ''   );
 
         $result = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => array('User.email'), 'recursive' => -1));
 

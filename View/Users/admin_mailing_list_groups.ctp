@@ -9,10 +9,10 @@
 <?php echo "Number of records = ". count($users); ?>
 
 <textarea readonly rows="30">
-email,FULLNAME
+email,foreign key,FULLNAME
 <?php foreach ($users as $user):
 
-    echo h($user['User']['email']).",".h($user['User']['full_name'])."\n";
+    echo h($user['User']['email']).",".h($user['User']['bca_no']).",".h($user['User']['organisation'])."\n";
 
 endforeach; ?>
 </textarea>
