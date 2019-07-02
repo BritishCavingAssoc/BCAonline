@@ -19,7 +19,6 @@ class UsersController extends AppController {
     public function beforeFilter() {
         parent::beforeFilter();
 
-        //$this->Auth->allow(); // Allow all to public.
         $this->Auth->allow('request_login_details', 'details_found','details_not_found', 'password_reset', 'password_reset_failed');
     }
 
@@ -49,7 +48,9 @@ class UsersController extends AppController {
 
         //Role MailingLists can do the following.
         if ($this->UserUtilities->hasRole(array('UserMailingLists'))) {
-            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_individuals', 'admin_mailing_list_groups'))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups',
+                'admin_mailing_list_ballot'))) {
+
                 return true;
             }
         }
@@ -58,7 +59,8 @@ class UsersController extends AppController {
         if ($this->UserUtilities->hasRole(array('UserAdmin'))) {
             if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view', 'admin_add', 'admin_edit', 'admin_delete', 'admin_sync_duplicates',
                 'admin_send_email_update_to_admin', 'admin_mark_deceased', 'admin_report_mismatched_names_uu', 'admin_mark_same_person', 'admin_email_mismatched_names_uu',
-                'admin_lapse_users', 'admin_mailing_list_individuals', 'admin_mailing_list_groups'))) {
+                'admin_lapse_users', 'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups', 'admin_mailing_list_ballot'))) {
+
                 return true;
             }
         }
@@ -1247,6 +1249,11 @@ class UsersController extends AppController {
     }
 
     /**
+    * Mailing Lists front page.
+    */
+    public function admin_mailing_list_index() {}
+
+    /**
     * Mailing List of individuals for newsletter
     */
     public function admin_mailing_list_individuals() {
@@ -1270,6 +1277,116 @@ class UsersController extends AppController {
         $result = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => array('User.email'), 'recursive' => -1));
 
         $this->set('users', $result);
+    }
+
+    /**
+    * Mailing List for a ballot
+    */
+    public function admin_mailing_list_ballot() {
+
+        ini_set('max_execution_time', 60);
+
+        //Find all current voting bca members.
+        //ie WHERE (class = 'CIM' or class = 'DIM' or (class = 'GRP' AND (class_code = 'GRP' or class_code = 'ACB'))) AND bca_status = 'Current'
+
+        $fields = array('bca_no', 'class', 'class_code', 'full_name', 'organisation', 'email', 'address1', 'address2', 'address3',
+            'town', 'county', 'postcode', 'country');
+
+        $conditions =
+            array('OR' =>
+                array(
+                    'class' => array('CIM', 'DIM'),
+                    array('class' => 'GRP', 'Class_code' => array('GRP', 'ACB'))
+                ),
+                'bca_status' => array('Current'),
+
+            );
+
+        $order = array('bca_no');
+
+        $users = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => $order, 'recursive' => -1));
+
+        //debug($users); die();
+
+        //Some members join by more than one organisation and end up with more than one record. There should only be one.
+        //If email address is present in one record make sure it is present in all the duplicates for that member.
+        //Then remove any duplicates. The any address and/or email should be valid for all so it doesn't matter which we delete.
+
+        //Work through all users. $users is ordered by bca_no.
+        $no_users = count($users);
+        $c1 = 0;
+        while ($c1 < $no_users) {
+
+            //If a block of duplicates find the first email address.
+            $my_email = '';
+            $c2 = 0;
+            do {
+                if (trim($users[$c1+$c2]['User']['email']) != '') $my_email = trim($users[$c1+$c2]['User']['email']);
+
+                $c2++;
+                if ($c1+$c2 >= $no_users) break; //Don't exceed the $users array's index.
+
+            } while ($users[$c1+$c2]['User']['bca_no'] == $users[$c1]['User']['bca_no'] && $my_email == '');
+
+            //If found an email address, assign it to any records in the block missing an email address.
+            if ($my_email != '') {
+                $c2 = 0;
+                do {
+                    if (trim($users[$c1+$c2]['User']['email']) == '') $users[$c1+$c2]['User']['email'] = $my_email;
+
+                    $c2++;
+                    if ($c1+$c2 >= $no_users) break; //Don't exceed the $users array's index.
+
+                } while ($users[$c1+$c2]['User']['bca_no'] == $users[$c1]['User']['bca_no']);
+            }
+
+            //Start on next block;
+            $c1 += $c2;
+        }
+
+        for ($c1 = 0; $c1 < $no_users; $c1++) {
+
+            //Add unique no.
+            $ballot_id = sha1(uniqid());
+            $users[$c1]['User']['ballot_id'] = substr($ballot_id,0,3)."-".substr($ballot_id,3,3)."-".substr($ballot_id,6,3);
+
+            //Set house as either be house of individuals (IND) or house of groups (GRP).
+            if (in_array($users[$c1]['User']['class'], array('CIM', 'DIM'))) {
+                $users[$c1]['User']['house'] = 'IND';
+            } else {
+                $users[$c1]['User']['house'] = 'GRP';
+            }
+        }
+
+        //Check no duplicate ballot id.
+        $duplicates = false;
+        for ($c1 =0; $c1 < $no_users - 1; $c1++) {
+
+            for ($c2 = $c1+1; $c2 < $no_users; $c2++) {
+
+                if ($users[$c1]['User']['ballot_id'] == $users[$c2]['User']['ballot_id']) {
+                    $duplicates = true;
+                    break;
+                }
+
+            }
+            if ($duplicates) break;
+        }
+
+        //Remove duplicates BCA members
+        for ($my_bca_no = '', $c1 = 0; $c1 < $no_users; $c1++) {
+
+            if ($users[$c1]['User']['bca_no'] == $my_bca_no) {
+                unset($users[$c1]);
+            } else {
+                $my_bca_no = $users[$c1]['User']['bca_no'];
+            }
+        }
+
+        $this->set('duplicates', $duplicates);
+        $this->set('users', $users);
+
+        ini_set('max_execution_time', 30);
     }
 
 }
