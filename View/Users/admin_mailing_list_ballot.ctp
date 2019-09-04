@@ -16,7 +16,7 @@
 
     } else {
 
-        echo "email|FULLNAME|organisation|ballot_id|address1|address2|address3|town|county|postcode|country|house\n";
+        echo "email|FULLNAME|organisation|ballot_id|address1|address2|address3|town|county|postcode|country|house|occurance\n";
 
         foreach ($users as $user):
 
@@ -34,6 +34,7 @@
             h($user['User']['postcode'])."|".
             h($user['User']['country'])."|".
             h($user['User']['house'])."|".
+            h($user['User']['occurance'])."|".
             "\n";
 
         endforeach;
