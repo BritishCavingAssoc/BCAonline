@@ -76,7 +76,7 @@
         <?php echo $this->Menu->item(null, $this->Html->link(__('Sent Emails'), array('controller' => 'SentEmails','action' => 'index', 'admin' => true))); ?>
         <?php echo $this->Menu->item('UserAdmin', $this->Html->link(__('Tokens'), array('controller' => 'Tokens','action' => 'index', 'admin' => true))); ?>
         <?php echo $this->Menu->item(null, $this->Html->link(__('Members Area'), array('controller' => 'Users','action'=>'members_area', 'admin' => false))); ?>
-        <?php echo $this->Menu->item(array('UserAdmin','UserMailingLists'), $this->Html->link(__('Mailing Lists'), array('controller' => 'Users','action'=>'mailing_list_individuals', 'admin' => true))); ?>
+        <?php echo $this->Menu->item(array('UserAdmin','UserMailingLists'), $this->Html->link(__('Mailing Lists'), array('controller' => 'Users','action'=>'mailing_list_index', 'admin' => true))); ?>
         <?php echo $this->Menu->item(null, $this->Html->link(__('Logout'), array('controller' => 'Users','action'=>'logout', 'admin' => false))); ?>
     </ul>
 </div>

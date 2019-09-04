@@ -24,9 +24,9 @@ class ImportedUser extends AppModel
             'message' => 'Forename can not be longer than 25 characters.'
             ),
         'surname' => array(
-            'rule' => array('maxlength', 25),
+            'rule' => array('maxlength', 30),
             'allowEmpty' => true,
-            'message' => 'Surname can not be longer than 25 characters.'
+            'message' => 'Surname can not be longer than 30 characters.'
         ),
         'bca_no' => array(
             'rule' => 'numeric',
@@ -75,9 +75,9 @@ class ImportedUser extends AppModel
             'message' => 'Invalid date.'
         ),
         'address1' => array(
-            'rule' => array('maxlength', 40),
+            'rule' => array('maxlength', 60),
             'allowEmpty' => true,
-            'message' => 'Address line 1 can not be longer than 40 characters.'
+            'message' => 'Address line 1 can not be longer than 60 characters.'
         ),
         'address2' => array(
             'rule' => array('maxlength', 40),
