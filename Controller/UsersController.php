@@ -28,7 +28,7 @@ class UsersController extends AppController {
 
         //Logged in users can do the following.
         if (in_array($this->action, array('index', 'view', 'password_update', 'members_area', 'nosubscription', 'email_preferences',
-            'email_update', 'profile_faq'))) {
+            'email_update', 'profile_faq', 'become_admin'))) {
             return true;
         }
 
@@ -1424,6 +1424,76 @@ class UsersController extends AppController {
         ini_set('max_execution_time', 30);
     }
 
+    /**
+    * Become as though logged in as user.
+    * Only the Admin role can do this in debugging mode.
+    * Useful for testing.
+    */
+    public function admin_become_user ($id = null) {
+
+        if (Configure::read('debug') == 0) {
+            throw new BadRequestException(__('Only available in debug mode'));
+        }
+
+        if (!$this->User->exists($id)) {
+            throw new NotFoundException(__('Invalid user'));
+        }
+
+        //Remember the current user id.
+        $admin_id = $this->Auth->user('id');
+
+        //Get details of the new user.
+        $user_info = $this->User->find('first', array('conditions' =>array('User.id' => $id), 'contain' => false));
+
+        //Login as new user.
+        //Remember former Admin user id in the Session.
+        // - Used to swap back to.
+        // - Used to check if in swapped state.
+        if (!empty($user_info)) {
+            if ($this->Auth->login($user_info['User'])) {
+
+                //Don't overwrite the Admin id if it already exists. This is the one we want to return to.
+                //Allows swap to a sucession of user before swapping back to Admin.
+                if (!$this->Session->check('Auth.Admin.id')) {
+                    $this->Session->write('Auth.Admin.id', $admin_id);
+                }
+                $this->Session->setFlash(__('Swap successful.'), 'default', array('class' => 'success'));
+                return $this->redirect(array('action'=>'members_area', 'admin' => false));
+            }
+        }
+        $this->Session->setFlash(__('Failed to swap user.'));
+        return $this->redirect(array('action'=>'index'));
+    }
+
+    /**
+    * Swap back to previous Admin user after being logged in as another user.
+    */
+    public function become_admin () {
+
+        //Recover original Admin id.
+        $admin_id = $this->Session->read('Auth.Admin.id');
+
+        if (!$this->User->exists($admin_id)) {
+            throw new NotFoundException(__('Invalid user'));
+        }
+
+        //Get details of the new user.
+        $user_info = $this->User->find('first', array('conditions' =>array('User.id' => $admin_id), 'contain' => false));
+
+        //Login as former Admin.
+        if (!empty($user_info)) {
+            if ($this->Auth->login($user_info['User'])) {
+
+                //Remove Admin id from Session. No longer in swapped state.
+                $this->Session->delete('Auth.Admin.id');
+
+                $this->Session->setFlash(__('Swap successful.'), 'default', array('class' => 'success'));
+                return $this->redirect(array('action'=>'members_area', 'admin' => false));
+            }
+        }
+        $this->Session->setFlash(__('Failed to swap user.'));
+        return $this->redirect(array('action'=>'members_area', 'admin' => false));
+    }
 }
 
 
