@@ -1373,13 +1373,36 @@ class UsersController extends AppController {
             if ($duplicates) break;
         }
 
-        //Remove duplicates BCA members
+        //Remove duplicates BCA members.
         for ($my_bca_no = '', $c1 = 0; $c1 < $no_users; $c1++) {
 
             if ($users[$c1]['User']['bca_no'] == $my_bca_no) {
                 unset($users[$c1]);
             } else {
                 $my_bca_no = $users[$c1]['User']['bca_no'];
+            }
+        }
+
+        //Sort users into email address order.
+        usort($users,
+            function($a, $b) {
+                return strcmp($a['User']['email'], $b['User']['email']);
+            }
+        );
+
+        //Add occurance count of each email address.
+        $no_users = count($users);
+        $occurance = 1;
+        $last_email = '';
+        for ($c1 = 0; $c1 < $no_users; $c1++) {
+
+            //If email is '' or different from the previous row then reset the occurance to 1.
+            if ($users[$c1]['User']['email'] == '' || strcmp($users[$c1]['User']['email'], $last_email) != 0) {
+                $last_email = $users[$c1]['User']['email'];
+                $users[$c1]['User']['occurance'] = $occurance = 1;
+            } else {
+                $occurance++;
+                $users[$c1]['User']['occurance'] = $occurance;
             }
         }
 
