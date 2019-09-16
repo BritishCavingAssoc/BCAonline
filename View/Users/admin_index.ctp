@@ -18,10 +18,9 @@
 
             <th><?php echo $this->Paginator->sort('forename');?></th>
             <th><?php echo $this->Paginator->sort('surname');?></th>
-            <th><?php echo $this->Paginator->sort('full_name');?></th>
-            <th><?php echo $this->Paginator->sort('organisation');?></th>
             <th><?php echo $this->Paginator->sort('short_name');?></th>
             <th><?php echo $this->Paginator->sort('position');?></th>
+            <th><?php echo $this->Paginator->sort('organisation');?></th>
 
             <th><?php echo $this->Paginator->sort('bca_status');?></th>
             <th><?php echo $this->Paginator->sort('class');?></th>
@@ -49,6 +48,13 @@
             <th><?php echo $this->Paginator->sort('roles');?></th>
             <th><?php echo $this->Paginator->sort('same_person');?></th>
 
+            <th><?php echo $this->Paginator->sort('bcra_member');?></th>
+            <th><?php echo $this->Paginator->sort('ccc_member');?></th>
+            <th><?php echo $this->Paginator->sort('cncc_member');?></th>
+            <th><?php echo $this->Paginator->sort('cscc_member');?></th>
+            <th><?php echo $this->Paginator->sort('dca_member');?></th>
+            <th><?php echo $this->Paginator->sort('dcuc_member');?></th>
+
             <th><?php echo $this->Paginator->sort('created');?></th>
             <th><?php echo $this->Paginator->sort('modified');?></th>
     </tr>
@@ -71,10 +77,9 @@
 
         <td><?php echo h($user['User']['forename']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['surname']); ?>&nbsp;</td>
-        <td><?php echo h($user['User']['full_name']); ?>&nbsp;</td>
-        <td><?php echo h($user['User']['organisation']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['short_name']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['position']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['organisation']); ?>&nbsp;</td>
 
         <td><?php echo h($user['User']['bca_status']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['class']); ?>&nbsp;</td>
@@ -101,6 +106,13 @@
         <td><?php echo h($user['User']['bcra_email_ok']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['roles']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['same_person']); ?>&nbsp;</td>
+
+        <td><?php echo h($user['User']['bcra_member']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['ccc_member']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['cncc_member']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['cscc_member']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['dca_member']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['dcuc_member']); ?>&nbsp;</td>
 
         <td><?php echo h($user['User']['created']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['modified']); ?>&nbsp;</td>

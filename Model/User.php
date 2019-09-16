@@ -10,7 +10,8 @@ class User extends AppModel
     public $actsAs = array('Containable');
 
     public $virtualFields = array(
-        'full_name' => 'TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,"")))'
+        'full_name' => 'TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,"")))',
+        'id_name' => 'IF(User.class = "GRP", TRIM(IFNULL(User.Organisation,"")), TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,""))))'
     );
 
     public function beforeSave($options = array()) {
@@ -366,7 +367,7 @@ class User extends AppModel
     /**
     * syncDuplicates method
     *
-    * Make password, email & email preferences the same for all user records with the same bca_no and email
+    * Make password, email & email preferences the same for all user records with the same bca_no
     * as the primary id user.
     * Send one notifying email to each unique email address.
     *
@@ -384,7 +385,7 @@ class User extends AppModel
 
         //Get the up to date primary user.
         if (!$primary_user = $this->find('first', array(
-            'fields' => array('id', 'bca_no', 'username', 'full_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
+            'fields' => array('id', 'bca_no', 'username', 'id_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
             'conditions' => array('User.id' => $id),
             'contain' => false))
         ) {
@@ -397,7 +398,7 @@ class User extends AppModel
 
         //Find the other users with the same bca_no.
         if(!$users = $this->find('all', array(
-            'fields' => array('id', 'bca_no', 'username', 'full_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
+            'fields' => array('id', 'bca_no', 'username', 'id_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
             'conditions' => array('User.bca_no' => $primary_user['User']['bca_no']),
             'contain' => false))
         ) {
@@ -435,7 +436,7 @@ class User extends AppModel
                         'id' => $users[$i]['User']['id'],
                         'bca_no' => $users[$i]['User']['bca_no'],
                         'email' => $users[$i]['User']['email'],
-                        'full_name' => $users[$i]['User']['full_name'],
+                        'id_name' => $users[$i]['User']['id_name'],
                     );
                 }
 

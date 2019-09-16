@@ -40,14 +40,6 @@
         <dd>
             <?php echo h($user['User']['surname']); ?> &nbsp;
         </dd>
-        <dt><?php echo __('Full Name'); ?></dt>
-        <dd>
-            <?php echo h($user['User']['full_name']); ?> &nbsp;
-        </dd>
-        <dt><?php echo __('Organisation'); ?></dt>
-        <dd>
-            <?php echo h($user['User']['organisation']); ?> &nbsp;
-        </dd>
         <dt><?php echo __('Short Name'); ?></dt>
         <dd>
             <?php echo h($user['User']['short_name']); ?> &nbsp;
@@ -55,6 +47,10 @@
         <dt><?php echo __('Position'); ?></dt>
         <dd>
             <?php echo h($user['User']['position']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('Organisation'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['organisation']); ?> &nbsp;
         </dd>
         <dt>&nbsp;</dt>
         <dd>&nbsp;</dd>
@@ -156,6 +152,34 @@
         <dd>
             <?php echo h($user['User']['same_person']); ?> &nbsp;
         </dd>
+        <dt>&nbsp;</dt>
+        <dd>&nbsp;</dd>
+        <dt><?php echo __('BCRA Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['bcra_member']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('CCC Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['ccc_member']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('CNCC Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['cncc_member']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('CSCC Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['cscc_member']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('DCA Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['dca_member']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('DCUC Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['dcuc_member']); ?> &nbsp;
+        </dd>
+        <dt>&nbsp;</dt>
+        <dd>&nbsp;</dd>
         <dt><?php echo __('Created'); ?></dt>
         <dd>
             <?php echo h($user['User']['created']); ?> &nbsp;

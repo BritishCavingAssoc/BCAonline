@@ -16,25 +16,35 @@
     ?></h3>
     <table cellpadding="0" cellspacing="0">
     <tr>
-            <th><?php echo 'class'; ?></th>
-            <th><?php echo 'organisation'; ?></th>
-            <th><?php echo 'bca_no'; ?></th>
-            <th><?php echo 'forename'; ?></th>
-            <th><?php echo 'surname'; ?></th>
-            <th><?php echo 'class_code'; ?></th>
-            <th><?php echo 'bca_status'; ?></th>
-            <th><?php echo 'insurance_status'; ?></th>
-            <th><?php echo 'date_of_expiry'; ?></th>
-            <th><?php echo 'email'; ?></th>
-            <th><?php echo 'address1'; ?></th>
-            <th><?php echo 'address2'; ?></th>
-            <th><?php echo 'address3'; ?></th>
-            <th><?php echo 'town'; ?></th>
-            <th><?php echo 'county'; ?></th>
-            <th><?php echo 'postcode'; ?></th>
-            <th><?php echo 'country'; ?></th>
-            <th><?php echo 'gender'; ?></th>
-            <th><?php echo 'year_of_birth'; ?></th>
+            <th><?php echo 'Class'; ?></th>
+            <th><?php echo 'Organisation'; ?></th>
+            <th><?php echo 'BCA No'; ?></th>
+            <th><?php echo 'Forename'; ?></th>
+            <th><?php echo 'Surname'; ?></th>
+            <th><?php echo 'Position'; ?></th>
+            <th><?php echo 'Class Code'; ?></th>
+            <th><?php echo 'BCA Status'; ?></th>
+            <th><?php echo 'Insurance Status'; ?></th>
+            <th><?php echo 'Date of Expiry'; ?></th>
+            <th><?php echo 'Email'; ?></th>
+            <th><?php echo 'Address1'; ?></th>
+            <th><?php echo 'Address2'; ?></th>
+            <th><?php echo 'Address3'; ?></th>
+            <th><?php echo 'Town'; ?></th>
+            <th><?php echo 'County'; ?></th>
+            <th><?php echo 'Postcode'; ?></th>
+            <th><?php echo 'Country'; ?></th>
+            <th><?php echo 'Telephone'; ?></th>
+            <th><?php echo 'Website'; ?></th>
+            <th><?php echo 'Gender'; ?></th>
+            <th><?php echo 'Year of Birth'; ?></th>
+            <th><?php echo 'BCRA Member'; ?></th>
+            <th><?php echo 'CCC Member'; ?></th>
+            <th><?php echo 'CNCC Member'; ?></th>
+            <th><?php echo 'CSCC Member'; ?></th>
+            <th><?php echo 'DCA Member'; ?></th>
+            <th><?php echo 'DCUC Member'; ?></th>
+            <th><?php echo 'Address OK'; ?></th>
     </tr>
     <?php foreach ($updatedLines as $updatedLine): ?>
     <tr>
@@ -43,6 +53,7 @@
         <td><?php if(!empty($updatedLine['User']['bca_no'])) echo h($updatedLine['User']['bca_no']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['forename'])) echo h($updatedLine['User']['forename']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['surname'])) echo h($updatedLine['User']['surname']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['position'])) echo h($updatedLine['User']['position']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['class_code'])) echo h($updatedLine['User']['class_code']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['bca_status'])) echo h($updatedLine['User']['bca_status']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['insurance_status'])) echo h($updatedLine['User']['insurance_status']); ?>&nbsp;</td>
@@ -55,8 +66,17 @@
         <td><?php if(!empty($updatedLine['User']['county'])) echo h($updatedLine['User']['county']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['postcode'])) echo h($updatedLine['User']['postcode']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['country'])) echo h($updatedLine['User']['country']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['telephone'])) echo h($updatedLine['User']['telephone']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['website'])) echo h($updatedLine['User']['website']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['gender'])) echo h($updatedLine['User']['gender']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['year_of_birth'])) echo h($updatedLine['User']['year_of_birth']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['bcra_member'])) echo h($updatedLine['User']['bcra_member']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['ccc_member'])) echo h($updatedLine['User']['ccc_member']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['cncc_member'])) echo h($updatedLine['User']['cncc_member']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['cscc_member'])) echo h($updatedLine['User']['cscc_member']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['dca_member'])) echo h($updatedLine['User']['dca_member']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['dcuc_member'])) echo h($updatedLine['User']['dcuc_member']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['address_ok'])) echo h($updatedLine['User']['address_ok']); ?>&nbsp;</td>
     </tr>
     <tr class='bold'>
         <td>&nbsp;</td>
@@ -70,6 +90,11 @@
         <td><?php if($updatedLine['ImportedUser']['surname'] != $updatedLine['User']['surname'])
             if(!empty($updatedLine['ImportedUser']['surname'])) {
                 echo h($updatedLine['ImportedUser']['surname']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['position'] != $updatedLine['User']['position'])
+            if(!empty($updatedLine['ImportedUser']['position'])) {
+                echo h($updatedLine['ImportedUser']['position']);
             } else { echo "Cleared"; }?>&nbsp;</td>
 
         <td><?php if($updatedLine['ImportedUser']['class_code'] != $updatedLine['User']['class_code'])
@@ -136,6 +161,16 @@
                 echo h($updatedLine['ImportedUser']['country']);
             } else { echo "Cleared"; }?>&nbsp;</td>
 
+        <td><?php if($updatedLine['ImportedUser']['telephone'] != $updatedLine['User']['telephone'])
+            if(!empty($updatedLine['ImportedUser']['telephone'])) {
+                echo h($updatedLine['ImportedUser']['telephone']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['website'] != $updatedLine['User']['website'])
+            if(!empty($updatedLine['ImportedUser']['website'])) {
+                echo h($updatedLine['ImportedUser']['website']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
         <td><?php if($updatedLine['ImportedUser']['gender'] != $updatedLine['User']['gender'])
             if(!empty($updatedLine['ImportedUser']['gender'])) {
                 echo h($updatedLine['ImportedUser']['gender']);
@@ -144,6 +179,41 @@
         <td><?php if($updatedLine['ImportedUser']['year_of_birth'] != $updatedLine['User']['year_of_birth'])
             if(!empty($updatedLine['ImportedUser']['year_of_birth'])) {
                 echo h($updatedLine['ImportedUser']['year_of_birth']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['bcra_member'] != $updatedLine['User']['bcra_member'])
+            if(!empty($updatedLine['ImportedUser']['bcra_member'])) {
+                echo h($updatedLine['ImportedUser']['bcra_member']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['ccc_member'] != $updatedLine['User']['ccc_member'])
+            if(!empty($updatedLine['ImportedUser']['ccc_member'])) {
+                echo h($updatedLine['ImportedUser']['ccc_member']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['cncc_member'] != $updatedLine['User']['cncc_member'])
+            if(!empty($updatedLine['ImportedUser']['cncc_member'])) {
+                echo h($updatedLine['ImportedUser']['cncc_member']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['cscc_member'] != $updatedLine['User']['cscc_member'])
+            if(!empty($updatedLine['ImportedUser']['cscc_member'])) {
+                echo h($updatedLine['ImportedUser']['cscc_member']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['dca_member'] != $updatedLine['User']['dca_member'])
+            if(!empty($updatedLine['ImportedUser']['dca_member'])) {
+                echo h($updatedLine['ImportedUser']['dca_member']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['dcuc_member'] != $updatedLine['User']['dcuc_member'])
+            if(!empty($updatedLine['ImportedUser']['dcuc_member'])) {
+                echo h($updatedLine['ImportedUser']['dcuc_member']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['address_ok'] != $updatedLine['User']['address_ok'])
+            if(!empty($updatedLine['ImportedUser']['address_ok'])) {
+                echo h($updatedLine['ImportedUser']['address_ok']);
             } else { echo "Cleared"; }?>&nbsp;</td>
     </tr>
     <?php endforeach; ?>

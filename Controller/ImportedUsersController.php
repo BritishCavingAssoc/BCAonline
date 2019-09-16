@@ -382,7 +382,7 @@ class ImportedUsersController extends AppController {
                         if (isset($changes['email'])) {
 
                             $viewVars = array(
-                                'full_name' => $user['User']['full_name'],
+                                'id_name' => $user['User']['id_name'],
                                 'new_email' => $changes['email'],
                                 'bca_online_admin_email' => $configEmailAddresses['bca_online_admin'],
                             );
@@ -409,7 +409,7 @@ class ImportedUsersController extends AppController {
                                 $updateErrors[] = array(
                                     'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
                                     'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
-                                    'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                                    'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
                                     'validation_error' => $this->User->validationErrors);
 
                                 continue;
@@ -426,6 +426,7 @@ class ImportedUsersController extends AppController {
 
                             //Don't want these to show up in the notification emails.
                             unset($changes2['full_name']); //Virtual field.
+                            unset($changes2['id_name']); //Virtual field.
                             unset($changes2['bca_status']); //Change of status is normally notified by another route.
                             unset($changes2['date_of_expiry'], $changes2['address_ok']);
                             unset($changes2['forename2'], $changes2['surname2'], $changes2['bca_no2']);
@@ -450,7 +451,7 @@ class ImportedUsersController extends AppController {
 
                             if (!empty($email_changes)) {
                                 $viewVars = array(
-                                    'full_name' => $importedUser['ImportedUser']['full_name'],
+                                    'id_name' => $importedUser['ImportedUser']['id_name'],
                                     'membership_admin_email' => $configEmailAddresses['membership_admin'],
                                     'changes' => $email_changes,
                                     'previous' => $email_previous,
@@ -480,7 +481,7 @@ class ImportedUsersController extends AppController {
                         $updateErrors[] = array(
                             'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
                             'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
-                            'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                            'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
                             'validation_error' => 'Empty username');
 
                         continue;
@@ -493,7 +494,7 @@ class ImportedUsersController extends AppController {
                         $updateErrors[] = array(
                             'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
                             'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
-                            'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                            'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
                             'validation_error' => $this->User->validationErrors);
 
                         continue;
@@ -586,7 +587,7 @@ class ImportedUsersController extends AppController {
                         if (isset($changes['email'])) {
 
                             $viewVars = array(
-                                'full_name' => $user['User']['full_name'],
+                                'id_name' => $user['User']['id_name'],
                                 'new_email' => $changes['email'],
                                 'bca_online_admin_email' => $configEmailAddresses['bca_online_admin'],
                             );
@@ -613,7 +614,7 @@ class ImportedUsersController extends AppController {
                                 $updateErrors[] = array(
                                     'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
                                     'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
-                                    'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                                    'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
                                     'validation_error' => $this->User->validationErrors);
 
                                 continue;
@@ -630,6 +631,7 @@ class ImportedUsersController extends AppController {
 
                             //Don't want these to show up in the notification emails.
                             unset($changes2['full_name']); //Virtual field.
+                            unset($changes2['id_name']); //Virtual field.
                             unset($changes2['bca_status']); //Change of status is normally notified by another route.
                             unset($changes2['date_of_expiry'], $changes2['address_ok']);
                             unset($changes2['forename2'], $changes2['surname2'], $changes2['bca_no2']);
@@ -654,7 +656,7 @@ class ImportedUsersController extends AppController {
 
                             if (!empty($email_changes)) {
                                 $viewVars = array(
-                                    'full_name' => $importedUser['ImportedUser']['full_name'],
+                                    'id_name' => $importedUser['ImportedUser']['id_name'],
                                     'membership_admin_email' => $configEmailAddresses['membership_admin'],
                                     'changes' => $email_changes,
                                     'previous' => $email_previous,
@@ -684,7 +686,7 @@ class ImportedUsersController extends AppController {
                         $updateErrors[] = array(
                             'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
                             'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
-                            'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                            'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
                             'validation_error' => 'Empty username');
 
                         continue;
@@ -697,7 +699,7 @@ class ImportedUsersController extends AppController {
                         $updateErrors[] = array(
                             'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
                             'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
-                            'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                            'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
                             'validation_error' => $this->User->validationErrors);
 
                         continue;
@@ -1175,22 +1177,64 @@ class ImportedUsersController extends AppController {
     function admin_report_users_to_be_updated() {
 
         $fields = array(
-            'ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class',
+            'ImportedUser.class',
+            'ImportedUser.bca_no',
+            'ImportedUser.organisation',
+            'ImportedUser.forename',
+            'ImportedUser.surname',
+            'ImportedUser.position',
             'ImportedUser.class_code',
             'ImportedUser.bca_status',
             'ImportedUser.insurance_status',
             'ImportedUser.date_of_expiry',
-            'ImportedUser.email', 'ImportedUser.forename', 'ImportedUser.surname',
-            'ImportedUser.address1', 'ImportedUser.address2', 'ImportedUser.address3', 'ImportedUser.town',
-            'ImportedUser.county', 'ImportedUser.postcode', 'ImportedUser.country',
-            'ImportedUser.gender', 'ImportedUser.year_of_birth',
-            'User.bca_no', 'User.organisation', 'User.class', 'User.class_code',
+            'ImportedUser.email',
+            'ImportedUser.address1',
+            'ImportedUser.address2',
+            'ImportedUser.address3',
+            'ImportedUser.town',
+            'ImportedUser.county',
+            'ImportedUser.postcode',
+            'ImportedUser.country',
+            'ImportedUser.telephone',
+            'ImportedUser.website',
+            'ImportedUser.gender',
+            'ImportedUser.year_of_birth',
+            'ImportedUser.bcra_member',
+            'ImportedUser.ccc_member',
+            'ImportedUser.cncc_member',
+            'ImportedUser.cscc_member',
+            'ImportedUser.dca_member',
+            'ImportedUser.dcuc_member',
+            'ImportedUser.address_ok',
+            'User.class',
+            'User.bca_no',
+            'User.organisation',
+            'User.forename',
+            'User.surname',
+            'User.position',
+            'User.class_code',
             'User.bca_status',
             'User.insurance_status',
             'User.date_of_expiry',
-            'User.email', 'User.forename', 'User.surname', 'User.address1',
-            'User.address2', 'User.address3', 'User.town', 'User.county', 'User.postcode', 'User.country',
-            'User.gender', 'User.year_of_birth',
+            'User.email',
+            'User.address1',
+            'User.address2',
+            'User.address3',
+            'User.town',
+            'User.county',
+            'User.postcode',
+            'User.country',
+            'User.telephone',
+            'User.website',
+            'User.gender',
+            'User.year_of_birth',
+            'User.bcra_member',
+            'User.ccc_member',
+            'User.cncc_member',
+            'User.cscc_member',
+            'User.dca_member',
+            'User.dcuc_member',
+            'User.address_ok',
         );
 
         $joins = array(array('table' => 'users', 'alias' => 'User',
@@ -1203,13 +1247,14 @@ class ImportedUsersController extends AppController {
         $order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
 
         $conditions = array('or' => array(
+            'ImportedUser.forename <> User.forename',
+            'ImportedUser.surname <> User.surname',
+            'ImportedUser.position <> User.position',
             'ImportedUser.class_code <> User.class_code',
             'ImportedUser.bca_status <> User.bca_status',
             'ImportedUser.insurance_status <> User.insurance_status',
             'ImportedUser.date_of_expiry <> User.date_of_expiry',
             'ImportedUser.email <> User.email',
-            'ImportedUser.forename <> User.forename',
-            'ImportedUser.surname <> User.surname',
             'ImportedUser.address1 <> User.address1',
             'ImportedUser.address2 <> User.address2',
             'ImportedUser.address3 <> User.address3',
@@ -1217,8 +1262,17 @@ class ImportedUsersController extends AppController {
             'ImportedUser.county <> User.county',
             'ImportedUser.postcode <> User.postcode',
             'ImportedUser.country <> User.country',
+            'ImportedUser.telephone <> User.telephone',
+            'ImportedUser.website <> User.website',
             'ImportedUser.gender <> User.gender',
             'ImportedUser.year_of_birth <> User.year_of_birth',
+            'ImportedUser.bcra_member <> User.bcra_member',
+            'ImportedUser.ccc_member <> User.ccc_member',
+            'ImportedUser.cncc_member <> User.cncc_member',
+            'ImportedUser.cscc_member <> User.cscc_member',
+            'ImportedUser.dca_member <> User.dca_member',
+            'ImportedUser.dcuc_member <> User.dcuc_member',
+            'ImportedUser.address_ok <> User.address_ok',
             )
         );
 
@@ -1241,12 +1295,37 @@ class ImportedUsersController extends AppController {
     function admin_report_users_to_be_added() {
 
         $fields = array(
-            'ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class',
-            'ImportedUser.class_code', 'ImportedUser.insurance_status', 'ImportedUser.date_of_expiry',
-            'ImportedUser.email', 'ImportedUser.forename', 'ImportedUser.surname',
-            'ImportedUser.address1', 'ImportedUser.address2', 'ImportedUser.address3', 'ImportedUser.town',
-            'ImportedUser.county', 'ImportedUser.postcode', 'ImportedUser.country',
-            'ImportedUser.gender', 'ImportedUser.year_of_birth',
+            'ImportedUser.class',
+            'ImportedUser.bca_no',
+            'ImportedUser.organisation',
+            'ImportedUser.forename',
+            'ImportedUser.surname',
+            'ImportedUser.position',
+            'ImportedUser.class_code',
+            'ImportedUser.bca_status',
+            'ImportedUser.insurance_status',
+            'ImportedUser.date_of_expiry',
+            'ImportedUser.email',
+            'ImportedUser.address1',
+            'ImportedUser.address2',
+            'ImportedUser.address3',
+            'ImportedUser.town',
+            'ImportedUser.county',
+            'ImportedUser.postcode',
+            'ImportedUser.country',
+            'ImportedUser.telephone',
+            'ImportedUser.website',
+            'ImportedUser.gender',
+            'ImportedUser.year_of_birth',
+            'ImportedUser.bcra_member',
+            'ImportedUser.ccc_member',
+            'ImportedUser.cncc_member',
+            'ImportedUser.cscc_member',
+            'ImportedUser.dca_member',
+            'ImportedUser.dcuc_member',
+            'ImportedUser.bca_email_ok',
+            'ImportedUser.bcra_email_ok',
+            'ImportedUser.address_ok',
             'User.bca_no',
         );
 

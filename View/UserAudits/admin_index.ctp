@@ -42,6 +42,12 @@
             <th><?php echo $this->Paginator->sort('admin_email_ok'); ?></th>
             <th><?php echo $this->Paginator->sort('bca_email_ok'); ?></th>
             <th><?php echo $this->Paginator->sort('bcra_email_ok'); ?></th>
+            <th><?php echo $this->Paginator->sort('bcra_member'); ?></th>
+            <th><?php echo $this->Paginator->sort('ccc_member'); ?></th>
+            <th><?php echo $this->Paginator->sort('cncc_member'); ?></th>
+            <th><?php echo $this->Paginator->sort('cscc_member'); ?></th>
+            <th><?php echo $this->Paginator->sort('dca_member'); ?></th>
+            <th><?php echo $this->Paginator->sort('dcuc_member'); ?></th>
             <th><?php echo $this->Paginator->sort('forename2'); ?></th>
             <th><?php echo $this->Paginator->sort('surname2'); ?></th>
             <th><?php echo $this->Paginator->sort('bca_no2'); ?></th>
@@ -93,6 +99,12 @@
         <td><?php echo h($userAudit['UserAudit']['admin_email_ok']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['bca_email_ok']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['bcra_email_ok']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['bcra_member']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['ccc_member']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['cncc_member']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['cscc_member']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['dca_member']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['dcuc_member']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['forename2']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['surname2']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['bca_no2']); ?>&nbsp;</td>

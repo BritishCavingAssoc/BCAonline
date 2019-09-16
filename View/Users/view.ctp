@@ -8,7 +8,7 @@
         echo "<p>For more information see ". $this->Html->link(__('Profile FAQ'), array('action'=>'profile_faq')) .".</p>";
         echo "<p>If you have any questions please contact the " . $this->Html->link(__('Members\'s Area Administrator'),
             'mailto:members.area@british-caving.org.uk?subject=Members Area query from ' .
-            $full_name . ' (Ref: ' . $bca_no . ')', array('class' =>'view')) . ".</p>";
+            $id_name . ' (Ref: ' . $bca_no . ')', array('class' =>'view')) . ".</p>";
     }
     ?>
     <?php
@@ -53,6 +53,10 @@
             <dd>
                 <?php echo h($user['User']['insurance_status']); ?> &nbsp;
             </dd>
+            <!-- <dt><?php echo __('BCRA Member'); ?></dt>
+            <dd>
+                <?php echo h($user['User']['bcra_member']); ?> &nbsp;
+            </dd> -->
             <dt><?php echo __('Expiry Date'); ?></dt>
             <dd>
                 <?php
@@ -104,25 +108,7 @@
             <dd>
                 <?php echo h($user['User']['year_of_birth']); ?> &nbsp;
             </dd>
-            <!--
-            <dt><?php echo __('Roles'); ?></dt>
-            <dd>
-                <?php echo h($user['User']['roles']); ?> &nbsp;
-            </dd>
 
-            <dt>&nbsp;</dt>
-            -->
-            <!--
-            <dt><?php echo __('Created'); ?></dt>
-            <dd>
-                <?php echo h($user['User']['created']); ?> &nbsp;
-            </dd>
-
-            <dt><?php echo __('Last Modified'); ?></dt>
-            <dd>
-                <?php echo h($user['User']['modified']); echo __(' GMT'); ?> &nbsp;
-            </dd>
-            -->
         </dl>
     <?php
     endforeach; ?>

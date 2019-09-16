@@ -8,7 +8,8 @@ class ImportedUser extends AppModel
     public $actsAs = array('Csv.Csv' => array('length' => '1000','delimiter' => "\t"));
 
     public $virtualFields = array(
-        'full_name' => 'TRIM(CONCAT(IFNULL(ImportedUser.forename,""), " ", IFNULL(ImportedUser.surname,"")))'
+        'full_name' => 'TRIM(CONCAT(IFNULL(ImportedUser.forename,""), " ", IFNULL(ImportedUser.surname,"")))',
+        'id_name' => 'IF(ImportedUser.class = "GRP", TRIM(IFNULL(ImportedUser.Organisation,"")), TRIM(CONCAT(IFNULL(ImportedUser.forename,""), " ", IFNULL(ImportedUser.surname,""))))'
     );
 
     public $validate = array(

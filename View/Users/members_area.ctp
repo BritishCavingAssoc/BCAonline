@@ -1,6 +1,6 @@
 <div class="users view">
 <?php echo $this->Session->flash('auth'); ?>
-<h2><?php echo $full_name;?></h2>
+<h2><?php echo $id_name;?></h2>
 
   <p>Welcome to your personal area of the BCA website.</p>
   <p>Currently we are focusing on using email to improve communications with our members.</p>

@@ -145,13 +145,7 @@ class UsersController extends AppController {
 
         //Pass some useful info to the view.
         $this->set('bca_no', $this->Auth->user('bca_no'));
-
-        if ($this->Auth->user('class') == 'GRP') {
-            $this->set('full_name', $this->Auth->user('organisation') . ' (' . $this->Auth->user('full_name') . ')');
-        } else {
-            $this->set('full_name', $this->Auth->user('full_name'));
-        }
-
+        $this->set('id_name', $this->Auth->user('id_name'));
 
         //"Diary Admin" button shown if user is this list.
         $event_admins = array(15404, 486, 1072, 5658); //List of authorised BCA members (Admin, Damian Weare, David Cooke, David Gibson).
@@ -192,7 +186,7 @@ class UsersController extends AppController {
         //Set useful info for the view.
         $this->set('user_count', count($users)); //Sometimes there is more than one User record for a given BCA No.
         $this->set('users', $users);
-        $this->set('full_name', $this->Auth->user('full_name'));
+        $this->set('id_name', $this->Auth->user('id_name'));
         $this->set('bca_no', $this->Auth->user('bca_no'));
 
         if ($this->Auth->user('class') == 'GRP') {
@@ -208,7 +202,7 @@ class UsersController extends AppController {
 
                 //Find all users with the given email address.
                 if(!$users = $this->User->find('all', array(
-                    'fields' => array('id', 'bca_no', 'username', 'full_name', 'class', 'organisation'),
+                    'fields' => array('id', 'bca_no', 'username', 'id_name', 'class', 'organisation'),
                     'conditions' => array('User.email' => $this->request->data['User']['email']),
                     'contain' => false))
                 ) {
@@ -237,14 +231,8 @@ class UsersController extends AppController {
                         //E.g. http://members.british-caving.org.uk/users/password_reset/372d46769cbef5adcd196c820776987ae0c1fd74
                         $token_url = "{$base_url}users/password_reset/{$token_code}";
 
-                        if ($user['User']['class'] == 'GRP') {
-                            $full_name = $user['User']['organisation'] . ' (' . $user['User']['full_name'] . ')';
-                        } else {
-                            $full_name = $user['User']['full_name'];
-                        }
-
                         $myViewVars[] = array(
-                            'full_name' => $full_name,
+                            'id_name' => $user['User']['id_name'],
                             'username' => $user['User']['username'],
                             'token_url' => $token_url,
                             'bca_online_admin_email' => Configure::read('EmailAddresses.bca_online_admin'),
@@ -326,7 +314,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $this->Auth->user('email'),
                             'password_changed' => false,
@@ -374,6 +362,8 @@ class UsersController extends AppController {
             throw new NotFoundException(__('Invalid user'));
         }
 
+        $this->set('id_name', $this->Auth->user('id_name')); //For view heading.
+
         //Populate view.
         if (!$this->request->is('post')) {
 
@@ -383,9 +373,8 @@ class UsersController extends AppController {
             $this->request->data['User']['email_old'] = $this->request->data['User']['email']; //Keep old email address for the email.
 
             unset($this->request->data['User']['email']); //Don't show existing email.
-        }
-        //Process submitted view data.
-        else {
+
+        } else { //Process submitted view data.
 
             //Sanity checks.
             if ($this->request->data['User']['email'] != $this->request->data['User']['email_confirm']) {
@@ -412,7 +401,7 @@ class UsersController extends AppController {
                 }
 
                 $viewVars = array(
-                    'full_name' => $this->Auth->user('full_name'),
+                    'id_name' => $this->Auth->user('id_name'),
                     'new_email' => $this->Auth->user('email'),
                     'bca_online_admin_email' => $configEmailAddresses['bca_online_admin'],
                 );
@@ -438,7 +427,7 @@ class UsersController extends AppController {
                 //Let Membership Administrator know.
                 $viewVars = array(
                     'bca_no' => $this->Auth->user('bca_no'),
-                    'full_name' => $this->Auth->user('full_name'),
+                    'id_name' => $this->Auth->user('id_name'),
                     'organisation' => $this->Auth->user('organisation'),
                     'class' => $this->Auth->user('class'),
                     'new_email' => $this->Auth->user('email'),
@@ -464,7 +453,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $this->Auth->user('email'),
                             'password_changed' => false,
@@ -519,7 +508,7 @@ class UsersController extends AppController {
             throw new NotFoundException(__('Invalid user'));
         }
 
-        $this->set('full_name', $user['User']['full_name']); //For view.
+        $this->set('id_name', $user['User']['id_name']); //For view.
 
         if ($this->request->is('post')) {
 
@@ -538,7 +527,7 @@ class UsersController extends AppController {
 
                 //Send and save a copy of the confirmation email.
                 $viewVars = array(
-                    'full_name' => $user['User']['full_name'],
+                    'id_name' => $user['User']['id_name'],
                     'bca_online_admin_email' => $configEmailAddresses['bca_online_admin']
                 );
 
@@ -563,7 +552,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $user['User']['email'],
                             'password_changed' => true,
@@ -623,7 +612,7 @@ class UsersController extends AppController {
                 }
 
                 $viewVars = array(
-                    'full_name' => $this->Auth->user('full_name'),
+                    'id_name' => $this->Auth->user('id_name'),
                     'bca_online_admin_email' => $configEmailAddresses['bca_online_admin']
                 );
 
@@ -648,7 +637,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $this->Auth->user('email'),
                             'password_changed' => true,
@@ -675,7 +664,7 @@ class UsersController extends AppController {
             }
         }
 
-        $this->set('full_name', $this->Auth->user('full_name')); //For view heading.
+        $this->set('id_name', $this->Auth->user('id_name')); //For view heading.
     }
 
 
@@ -1317,8 +1306,6 @@ class UsersController extends AppController {
         $order = array('bca_no');
 
         $users = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => $order, 'recursive' => -1));
-
-        //debug($users); die();
 
         //Some members join by more than one organisation and end up with more than one record. There should only be one.
         //If email address is present in one record make sure it is present in all the duplicates for that member.
