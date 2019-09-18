@@ -477,23 +477,22 @@ class User extends AppModel
     }
 
     /*
-    * Marks all the records with the same BCA as the same person.
+    * Marks all the individual user records with the same BCA as the same person.
     *
     * Returns true on success, false on failure.
     */
 
     public function MarkSamePerson($bca_no = null) {
 
-        //if (empty($bca_no)) {throw new InternalErrorException(__('No BCA No. supplied.'))};
-
         // Make sure it is a number.
-        //if (!is_numeric($bca_no)) {
-        //    throw new InternalErrorException(__('Not a valid BCA No.'))};
+        if (empty($bca_no) || !is_numeric($bca_no)) {
+            throw new InternalErrorException(__('Not a valid BCA No.'));
+        }
 
         $fields = array('User.same_person' => true);
 
         //Don't bother to update records where same_person is already true - saves space in the audit table.
-        $conditions = array('User.bca_no =' => $bca_no, 'User.same_person !=' => true);
+        $conditions = array('User.bca_no =' => $bca_no, 'User.class' => array('CIM', 'DIM'),  'User.same_person !=' => true);
 
         return $this->updateALL($fields, $conditions);
     }

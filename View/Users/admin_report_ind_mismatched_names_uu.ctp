@@ -1,6 +1,6 @@
 <div class="Users form">
     <?php echo $this->Session->flash('auth'); ?>
-    <h2><?php echo __('Report of Mismatched User Names'); ?></h2>
+    <h2><?php echo __('Report of Mismatched User Names for Individual Members'); ?></h2>
 
     <p>This report shows the user records where the name doesn't match their other user records.</p>
     <p>In an ideal world there shouldn't be any but different organisations can record names differently.</p>
@@ -53,7 +53,7 @@
 <div class="actions">
     <h3><?php echo __('Actions'); ?></h3>
     <ul>
-        <li><?php echo $this->Html->link(__('Send As Email'), array('action'=>'email_mismatched_names_uu')); ?> </li>
+        <li><?php echo $this->Html->link(__('Send As Email'), array('action'=>'email_ind_mismatched_names_uu')); ?> </li>
         <li><?php echo $this->Html->link(__('Return'), array('action'=>'index')); ?> </li>
     </ul>
 </div>

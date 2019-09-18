@@ -114,16 +114,25 @@
             __('Are you sure you want to delete all?')); ?></li>
         <li><?php echo $this->Html->link(__('Upload CSV File'), array('action' => 'upload_file')); ?></li>
         <li><?php echo $this->Html->link(__('Process CSV File'), array('action' => 'process_file')); ?></li>
-        <li><?php echo $this->Html->link(__('Show Repeated Lines'), array('action' => 'report_repeated_lines')); ?></li>
-        <li><?php echo $this->Html->link(__('Show Mismatched Names 1'), array('action' => 'report_mismatched_names_iuu')); ?></li>
-        <li><?php echo $this->Html->link(__('Show Mismatched Names 2'), array('action' => 'report_mismatched_names_iuiu')); ?></li>
-        <li><?php echo $this->Html->link(__('Show To Be Updated'), array('action' => 'report_users_to_be_updated')); ?></li>
-        <li><?php echo $this->Html->link(__('Show To Be Added'), array('action' => 'report_users_to_be_added')); ?></li>
+        <li>&nbsp;</li>
+        <li><?php echo $this->Html->link(__('Show Multiclass Users'), array('action' => 'report_multiclass_users_iuu')); ?></li>
+        <li><strong>Individual:</strong></li>
+        <li><?php echo $this->Html->link(__('Show Repeated Lines'), array('action' => 'report_ind_repeated_lines')); ?></li>
+        <li><?php echo $this->Html->link(__('Show Mismatched Names 1'), array('action' => 'report_ind_mismatched_names_iuu')); ?></li>
+        <li><?php echo $this->Html->link(__('Show Mismatched Names 2'), array('action' => 'report_ind_mismatched_names_iuiu')); ?></li>
+        <li><?php echo $this->Html->link(__('Show To Be Updated'), array('action' => 'report_ind_to_be_updated')); ?></li>
+        <li><?php echo $this->Html->link(__('Show To Be Added'), array('action' => 'report_ind_to_be_added')); ?></li>
+        <li><?php echo $this->Form->postLink(__('Update CIMs/DIMs'), array('action' => 'update_users'), null,
+            __('Are you sure you want to update the CIMs/DIMs?')); ?></li>
+        <li><strong>Group:</strong></li>
+        <li><?php echo $this->Html->link(__('Show Repeated Lines'), array('action' => 'report_group_repeated_lines')); ?></li>
+        <li><?php echo $this->Html->link(__('Show Mismatched Names 1'), array('action' => 'report_group_mismatched_names_iuu')); ?></li>
+        <li><?php echo $this->Html->link(__('Show To Be Updated'), array('action' => 'report_groups_to_be_updated')); ?></li>
+        <li><?php echo $this->Html->link(__('Show To Be Added'), array('action' => 'report_groups_to_be_added')); ?></li>
         <!-- <li><?php echo $this->Html->link(__('Update Users'), array('action' => 'update_users')); ?></li> -->
-        <li><?php echo $this->Form->postLink(__('Update CIMs'), array('action' => 'update_users'), null,
-            __('Are you sure you want to update the CIMs?')); ?></li>
         <li><?php echo $this->Form->postLink(__('Update GRPs'), array('action' => 'update_groups'), null,
             __('Are you sure you want to update the GRPs?')); ?></li>
+        <li>&nbsp;</li>
         <li><?php echo $this->Html->link(__('Add Imported User'), array('action' => 'add')); ?></li>
         <li><?php echo $this->Html->link(__('Admin Dashboard'), array('controller' => 'Users','action'=>'dashboard', 'admin' => true)); ?> </li>
     </ul>

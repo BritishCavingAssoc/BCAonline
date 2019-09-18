@@ -1056,11 +1056,11 @@ class UsersController extends AppController {
     }
 
     /**
-    * admin_report_mismatched_names_uu
+    * admin_report_ind_mismatched_names_uu
     *
-    * Compares User records against the other User records with the same BCA No. and lists those where the name doesn't match.
+    * For individuals, compares User records against the other User records with the same BCA No. and lists those where the name doesn't match.
     */
-    function admin_report_mismatched_names_uu() {
+    function admin_report_ind_mismatched_names_uu() {
 
         // For each BCA#, find the user records where there are other user records with a different name.
         // If any of those records are not marked as the same person then show all the records otherwise
@@ -1071,13 +1071,17 @@ class UsersController extends AppController {
                     User.organisation, User.class, User.email, User.address1, User.address2
             FROM users AS User
             WHERE
+                (User.class = \'CIM\' OR User.class = \'DIM\') AND
                 EXISTS (SELECT u2.bca_no
-                FROM users AS u2
-                WHERE User.bca_no = u2.bca_no AND
-                    (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
+                    FROM users AS u2
+                    WHERE User.bca_no = u2.bca_no AND
+                        (u2.class = \'CIM\' OR u2.class = \'DIM\') AND
+                        (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
                 EXISTS (SELECT u3.bca_no
-                FROM users AS u3
-                WHERE User.bca_no = u3.bca_no AND (u3.same_person = 0))
+                    FROM users AS u3
+                    WHERE User.bca_no = u3.bca_no AND
+                        (u3.class = \'CIM\' OR u3.class = \'DIM\') AND
+                        (u3.same_person = 0))
             ORDER BY User.bca_no';
             //LIMIT 10';
 
@@ -1092,7 +1096,7 @@ class UsersController extends AppController {
     /**
     * admin_mark_same_person
     *
-    * Marks all the records with the same BCA as the same person so they won't appear on the mismatch names report.
+    * Marks all the individual user records with the same BCA as the same person so they won't appear on the mismatch names report.
     */
     function admin_mark_same_person($bca_no = null) {
 
@@ -1104,21 +1108,21 @@ class UsersController extends AppController {
 
         if ($this->User->MarkSamePerson($bca_no)) {
             $this->Session->setFlash(__('Updated'), 'default', array('class' => 'success'));
-            return $this->redirect(array('action' => 'report_mismatched_names_uu'));
+            return $this->redirect(array('action' => 'report_ind_mismatched_names_uu'));
         } else {
             $this->Session->setFlash(__('Not updated'));
-            return $this->redirect(array('action' => 'report_mismatched_names_uu'));
+            return $this->redirect(array('action' => 'report_ind_mismatched_names_uu'));
         }
     }
 
 
     /**
-    * admin_email_mismatched_names_uu
+    * admin_email_ind_mismatched_names_uu
     *
-    * Email the Mismatching Names report to the current operator.
+    * For individuals, email the Mismatching Names report to the current operator.
     *
     */
-    function admin_email_mismatched_names_uu() {
+    function admin_email_ind_mismatched_names_uu() {
 
         //Get data.
         $mySQL =
@@ -1126,13 +1130,17 @@ class UsersController extends AppController {
                     User.organisation, User.class, User.email, User.address1, User.address2
             FROM users AS User
             WHERE
+                (User.class = \'CIM\' OR User.class = \'DIM\') AND
                 EXISTS (SELECT u2.bca_no
-                FROM users AS u2
-                WHERE User.bca_no = u2.bca_no AND
-                    (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
+                    FROM users AS u2
+                    WHERE User.bca_no = u2.bca_no AND
+                        (u2.class = \'CIM\' OR u2.class = \'DIM\') AND
+                        (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
                 EXISTS (SELECT u3.bca_no
-                FROM users AS u3
-                WHERE User.bca_no = u3.bca_no AND (u3.same_person = 0))
+                    FROM users AS u3
+                    WHERE User.bca_no = u3.bca_no AND
+                        (u3.class = \'CIM\' OR u3.class = \'DIM\') AND
+                        (u3.same_person = 0))
             ORDER BY User.bca_no';
             //LIMIT 10';
 
@@ -1150,10 +1158,8 @@ class UsersController extends AppController {
 
         $email = array(
             'user_id' => $this->Auth->user('id'),
-            //'bca_no' => $this->Auth->user('bca_no'),
-            //'to' => $configEmailAddresses['bca_online_admin'],
-            'subject' => 'BCA Online Mismatch User Name (UU) Report.',
-            'template' => 'imported_users-admin_email_mismatched_names_uu',
+            'subject' => 'BCA Online Mismatch User Name (UU) Report for Individual Members.',
+            'template' => 'users-admin_email_ind_mismatched_names_uu',
             'forceSend' => true,
             'save' => false,
             'viewVars' => $viewVars,
@@ -1165,9 +1171,92 @@ class UsersController extends AppController {
             $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
         }
 
-        return $this->redirect(array('action' => 'admin_report_mismatched_names_uu'));
+        return $this->redirect(array('action' => 'admin_report_ind_mismatched_names_uu'));
     }
 
+    /**
+    * admin_report_multiclass_users_uu
+    *
+    * List those users that are both individual and group members.
+    * Compares the master database users against master database.
+    *
+    */
+    function admin_report_multiclass_users_uu() {
+
+        // For each BCA#, find those who are in both Group and Individual classes. It is wrong to be in both.
+
+        $mySQL =
+            'SELECT User.id, User.bca_no, User.forename, User.surname, User.organisation, User.class,
+                User2.forename, User2.surname, User2.organisation, User2.class
+            FROM users AS User, users AS User2
+            WHERE
+                User.bca_no = User2.bca_no AND
+                ((User.class = \'CIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'DIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'GRP\' AND User2.class = \'CIM\') OR
+                (User.class = \'GRP\' AND User2.class = \'DIM\'))
+            ORDER BY User.bca_no';
+            //LIMIT 10';
+
+        $db = $this->User->getDataSource();
+
+        $multiclassLines = $db->fetchALL($mySQL);
+
+        $this->set('multiclassLines', $multiclassLines);
+    }
+
+
+    /**
+    * admin_email_multiclass_users_uu
+    *
+    * Email the multiclass users report to the current operator.
+    *
+    */
+    function admin_email_multiclass_users_uu() {
+
+        //Get data.
+        $mySQL =
+            'SELECT User.id, User.bca_no, User.forename, User.surname, User.organisation, User.class,
+                User2.bca_no, User2.forename, User2.surname, User2.organisation, User2.class
+            FROM users AS User, users AS User2
+            WHERE
+                User.bca_no = User2.bca_no AND
+                ((User.class = \'CIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'DIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'GRP\' AND User2.class = \'CIM\') OR
+                (User.class = \'GRP\' AND User2.class = \'DIM\'))
+            ORDER BY User.bca_no';
+            //LIMIT 10';
+
+        $db = $this->User->getDataSource();
+
+        $multiclassLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'multiclassLines' => $multiclassLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'subject' => 'BCA Online Multiclass Users (UU) Report.',
+            'template' => 'users-admin_email_multiclass_users_uu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'report_multiclass_users_uu'));
+    }
 
     /**
     * Refreshes the Auth session
