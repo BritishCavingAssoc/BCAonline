@@ -1,7 +1,7 @@
 <?php
 
 echo <<<EOT
-Dear {$full_name},
+Dear {$id_name},
 
 This email is to let you know that the following changes have been made to your BCA Online profile.
 

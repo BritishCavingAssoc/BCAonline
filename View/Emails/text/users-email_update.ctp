@@ -1,7 +1,7 @@
 <?php
 
 echo <<<EOT
-Dear {$full_name},
+Dear {$id_name},
 
 This email is to confirm that your BCA email address has been changed to '{$new_email}'.
 

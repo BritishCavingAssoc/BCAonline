@@ -145,7 +145,7 @@ class UsersController extends AppController {
 
         //Pass some useful info to the view.
         $this->set('bca_no', $this->Auth->user('bca_no'));
-        $this->set('full_name', $this->Auth->user('full_name'));
+        $this->set('id_name', $this->Auth->user('id_name'));
 
         //"Diary Admin" button shown if user is this list.
         $event_admins = array(15404, 486, 1072, 5658); //List of authorised BCA members (Admin, Damian Weare, David Cooke, David Gibson).
@@ -186,7 +186,7 @@ class UsersController extends AppController {
         //Set useful info for the view.
         $this->set('user_count', count($users)); //Sometimes there is more than one User record for a given BCA No.
         $this->set('users', $users);
-        $this->set('full_name', $this->Auth->user('full_name'));
+        $this->set('id_name', $this->Auth->user('id_name'));
         $this->set('bca_no', $this->Auth->user('bca_no'));
 
         if ($this->Auth->user('class') == 'GRP') {
@@ -202,7 +202,7 @@ class UsersController extends AppController {
 
                 //Find all users with the given email address.
                 if(!$users = $this->User->find('all', array(
-                    'fields' => array('id', 'bca_no', 'username', 'full_name'),
+                    'fields' => array('id', 'bca_no', 'username', 'id_name', 'class', 'organisation'),
                     'conditions' => array('User.email' => $this->request->data['User']['email']),
                     'contain' => false))
                 ) {
@@ -232,7 +232,7 @@ class UsersController extends AppController {
                         $token_url = "{$base_url}users/password_reset/{$token_code}";
 
                         $myViewVars[] = array(
-                            'full_name' => $user['User']['full_name'],
+                            'id_name' => $user['User']['id_name'],
                             'username' => $user['User']['username'],
                             'token_url' => $token_url,
                             'bca_online_admin_email' => Configure::read('EmailAddresses.bca_online_admin'),
@@ -314,7 +314,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $this->Auth->user('email'),
                             'password_changed' => false,
@@ -362,6 +362,8 @@ class UsersController extends AppController {
             throw new NotFoundException(__('Invalid user'));
         }
 
+        $this->set('id_name', $this->Auth->user('id_name')); //For view heading.
+
         //Populate view.
         if (!$this->request->is('post')) {
 
@@ -371,9 +373,8 @@ class UsersController extends AppController {
             $this->request->data['User']['email_old'] = $this->request->data['User']['email']; //Keep old email address for the email.
 
             unset($this->request->data['User']['email']); //Don't show existing email.
-        }
-        //Process submitted view data.
-        else {
+
+        } else { //Process submitted view data.
 
             //Sanity checks.
             if ($this->request->data['User']['email'] != $this->request->data['User']['email_confirm']) {
@@ -400,7 +401,7 @@ class UsersController extends AppController {
                 }
 
                 $viewVars = array(
-                    'full_name' => $this->Auth->user('full_name'),
+                    'id_name' => $this->Auth->user('id_name'),
                     'new_email' => $this->Auth->user('email'),
                     'bca_online_admin_email' => $configEmailAddresses['bca_online_admin'],
                 );
@@ -426,7 +427,7 @@ class UsersController extends AppController {
                 //Let Membership Administrator know.
                 $viewVars = array(
                     'bca_no' => $this->Auth->user('bca_no'),
-                    'full_name' => $this->Auth->user('full_name'),
+                    'id_name' => $this->Auth->user('id_name'),
                     'organisation' => $this->Auth->user('organisation'),
                     'class' => $this->Auth->user('class'),
                     'new_email' => $this->Auth->user('email'),
@@ -452,7 +453,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $this->Auth->user('email'),
                             'password_changed' => false,
@@ -507,7 +508,7 @@ class UsersController extends AppController {
             throw new NotFoundException(__('Invalid user'));
         }
 
-        $this->set('full_name', $user['User']['full_name']); //For view.
+        $this->set('id_name', $user['User']['id_name']); //For view.
 
         if ($this->request->is('post')) {
 
@@ -526,7 +527,7 @@ class UsersController extends AppController {
 
                 //Send and save a copy of the confirmation email.
                 $viewVars = array(
-                    'full_name' => $user['User']['full_name'],
+                    'id_name' => $user['User']['id_name'],
                     'bca_online_admin_email' => $configEmailAddresses['bca_online_admin']
                 );
 
@@ -551,7 +552,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $user['User']['email'],
                             'password_changed' => true,
@@ -611,7 +612,7 @@ class UsersController extends AppController {
                 }
 
                 $viewVars = array(
-                    'full_name' => $this->Auth->user('full_name'),
+                    'id_name' => $this->Auth->user('id_name'),
                     'bca_online_admin_email' => $configEmailAddresses['bca_online_admin']
                 );
 
@@ -636,7 +637,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $this->Auth->user('email'),
                             'password_changed' => true,
@@ -663,7 +664,7 @@ class UsersController extends AppController {
             }
         }
 
-        $this->set('full_name', $this->Auth->user('full_name')); //For view heading.
+        $this->set('id_name', $this->Auth->user('id_name')); //For view heading.
     }
 
 
@@ -1055,11 +1056,11 @@ class UsersController extends AppController {
     }
 
     /**
-    * admin_report_mismatched_names_uu
+    * admin_report_ind_mismatched_names_uu
     *
-    * Compares User records against the other User records with the same BCA No. and lists those where the name doesn't match.
+    * For individuals, compares User records against the other User records with the same BCA No. and lists those where the name doesn't match.
     */
-    function admin_report_mismatched_names_uu() {
+    function admin_report_ind_mismatched_names_uu() {
 
         // For each BCA#, find the user records where there are other user records with a different name.
         // If any of those records are not marked as the same person then show all the records otherwise
@@ -1070,13 +1071,17 @@ class UsersController extends AppController {
                     User.organisation, User.class, User.email, User.address1, User.address2
             FROM users AS User
             WHERE
+                (User.class = \'CIM\' OR User.class = \'DIM\') AND
                 EXISTS (SELECT u2.bca_no
-                FROM users AS u2
-                WHERE User.bca_no = u2.bca_no AND
-                    (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
+                    FROM users AS u2
+                    WHERE User.bca_no = u2.bca_no AND
+                        (u2.class = \'CIM\' OR u2.class = \'DIM\') AND
+                        (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
                 EXISTS (SELECT u3.bca_no
-                FROM users AS u3
-                WHERE User.bca_no = u3.bca_no AND (u3.same_person = 0))
+                    FROM users AS u3
+                    WHERE User.bca_no = u3.bca_no AND
+                        (u3.class = \'CIM\' OR u3.class = \'DIM\') AND
+                        (u3.same_person = 0))
             ORDER BY User.bca_no';
             //LIMIT 10';
 
@@ -1091,7 +1096,7 @@ class UsersController extends AppController {
     /**
     * admin_mark_same_person
     *
-    * Marks all the records with the same BCA as the same person so they won't appear on the mismatch names report.
+    * Marks all the individual user records with the same BCA as the same person so they won't appear on the mismatch names report.
     */
     function admin_mark_same_person($bca_no = null) {
 
@@ -1103,21 +1108,21 @@ class UsersController extends AppController {
 
         if ($this->User->MarkSamePerson($bca_no)) {
             $this->Session->setFlash(__('Updated'), 'default', array('class' => 'success'));
-            return $this->redirect(array('action' => 'report_mismatched_names_uu'));
+            return $this->redirect(array('action' => 'report_ind_mismatched_names_uu'));
         } else {
             $this->Session->setFlash(__('Not updated'));
-            return $this->redirect(array('action' => 'report_mismatched_names_uu'));
+            return $this->redirect(array('action' => 'report_ind_mismatched_names_uu'));
         }
     }
 
 
     /**
-    * admin_email_mismatched_names_uu
+    * admin_email_ind_mismatched_names_uu
     *
-    * Email the Mismatching Names report to the current operator.
+    * For individuals, email the Mismatching Names report to the current operator.
     *
     */
-    function admin_email_mismatched_names_uu() {
+    function admin_email_ind_mismatched_names_uu() {
 
         //Get data.
         $mySQL =
@@ -1125,13 +1130,17 @@ class UsersController extends AppController {
                     User.organisation, User.class, User.email, User.address1, User.address2
             FROM users AS User
             WHERE
+                (User.class = \'CIM\' OR User.class = \'DIM\') AND
                 EXISTS (SELECT u2.bca_no
-                FROM users AS u2
-                WHERE User.bca_no = u2.bca_no AND
-                    (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
+                    FROM users AS u2
+                    WHERE User.bca_no = u2.bca_no AND
+                        (u2.class = \'CIM\' OR u2.class = \'DIM\') AND
+                        (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
                 EXISTS (SELECT u3.bca_no
-                FROM users AS u3
-                WHERE User.bca_no = u3.bca_no AND (u3.same_person = 0))
+                    FROM users AS u3
+                    WHERE User.bca_no = u3.bca_no AND
+                        (u3.class = \'CIM\' OR u3.class = \'DIM\') AND
+                        (u3.same_person = 0))
             ORDER BY User.bca_no';
             //LIMIT 10';
 
@@ -1149,10 +1158,8 @@ class UsersController extends AppController {
 
         $email = array(
             'user_id' => $this->Auth->user('id'),
-            //'bca_no' => $this->Auth->user('bca_no'),
-            //'to' => $configEmailAddresses['bca_online_admin'],
-            'subject' => 'BCA Online Mismatch User Name (UU) Report.',
-            'template' => 'imported_users-admin_email_mismatched_names_uu',
+            'subject' => 'BCA Online Mismatch User Name (UU) Report for Individual Members.',
+            'template' => 'users-admin_email_ind_mismatched_names_uu',
             'forceSend' => true,
             'save' => false,
             'viewVars' => $viewVars,
@@ -1164,9 +1171,92 @@ class UsersController extends AppController {
             $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
         }
 
-        return $this->redirect(array('action' => 'admin_report_mismatched_names_uu'));
+        return $this->redirect(array('action' => 'admin_report_ind_mismatched_names_uu'));
     }
 
+    /**
+    * admin_report_multiclass_users_uu
+    *
+    * List those users that are both individual and group members.
+    * Compares the master database users against master database.
+    *
+    */
+    function admin_report_multiclass_users_uu() {
+
+        // For each BCA#, find those who are in both Group and Individual classes. It is wrong to be in both.
+
+        $mySQL =
+            'SELECT User.id, User.bca_no, User.forename, User.surname, User.organisation, User.class,
+                User2.forename, User2.surname, User2.organisation, User2.class
+            FROM users AS User, users AS User2
+            WHERE
+                User.bca_no = User2.bca_no AND
+                ((User.class = \'CIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'DIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'GRP\' AND User2.class = \'CIM\') OR
+                (User.class = \'GRP\' AND User2.class = \'DIM\'))
+            ORDER BY User.bca_no';
+            //LIMIT 10';
+
+        $db = $this->User->getDataSource();
+
+        $multiclassLines = $db->fetchALL($mySQL);
+
+        $this->set('multiclassLines', $multiclassLines);
+    }
+
+
+    /**
+    * admin_email_multiclass_users_uu
+    *
+    * Email the multiclass users report to the current operator.
+    *
+    */
+    function admin_email_multiclass_users_uu() {
+
+        //Get data.
+        $mySQL =
+            'SELECT User.id, User.bca_no, User.forename, User.surname, User.organisation, User.class,
+                User2.bca_no, User2.forename, User2.surname, User2.organisation, User2.class
+            FROM users AS User, users AS User2
+            WHERE
+                User.bca_no = User2.bca_no AND
+                ((User.class = \'CIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'DIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'GRP\' AND User2.class = \'CIM\') OR
+                (User.class = \'GRP\' AND User2.class = \'DIM\'))
+            ORDER BY User.bca_no';
+            //LIMIT 10';
+
+        $db = $this->User->getDataSource();
+
+        $multiclassLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'multiclassLines' => $multiclassLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'subject' => 'BCA Online Multiclass Users (UU) Report.',
+            'template' => 'users-admin_email_multiclass_users_uu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'report_multiclass_users_uu'));
+    }
 
     /**
     * Refreshes the Auth session
@@ -1305,8 +1395,6 @@ class UsersController extends AppController {
         $order = array('bca_no');
 
         $users = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => $order, 'recursive' => -1));
-
-        //debug($users); die();
 
         //Some members join by more than one organisation and end up with more than one record. There should only be one.
         //If email address is present in one record make sure it is present in all the duplicates for that member.

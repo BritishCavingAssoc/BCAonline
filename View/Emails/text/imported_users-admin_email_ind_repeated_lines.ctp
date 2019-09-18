@@ -5,7 +5,7 @@ $repeatedLinesCount = count($repeatedLines);
 echo <<<EOT
 Dear {$full_name},
 
-These are the repeated lines in the imported user data.
+These are the repeated lines of individual members in the imported user data.
 
 There are ${repeatedLinesCount} row(s).
 

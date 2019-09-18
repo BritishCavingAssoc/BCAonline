@@ -1,11 +1,11 @@
 <?php
- 
+
 echo <<<EOT
-Dear {$users[0]['full_name']},
+Dear {$users[0]['id_name']},
 
 The login details for your BCA Online account were requested from the BCA website.
 
-There is more than one account with your email address. The details for each account are given below. 
+There is more than one account with your email address. The details for each account are given below.
 
 If you did not request or recognise these details, please contact the BCA Online Administrator ({$users[0]['bca_online_admin_email']}).
 
@@ -17,10 +17,10 @@ If you no longer wish to share the same email address between these accounts you
 
 EOT;
 
-foreach ($users as $user) { 
+foreach ($users as $user) {
 
 echo <<<EOT
-Name: {$user['full_name']}
+Name: {$user['id_name']}
 Username: {$user['username']}
 Password link: {$user['token_url']}
 

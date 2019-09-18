@@ -1,7 +1,7 @@
 <div class="users form">
 <?php echo $this->Session->flash('auth'); ?>
 <h2><?php echo __('Set / Reset Your Password'); ?></h2>
-<h3><?php if (isset($full_name)) echo $full_name; ?></h3>
+<h3><?php if (isset($id_name)) echo $id_name; ?></h3>
 
 <?php echo $this->Form->create('User');?>
     <fieldset>
@@ -20,5 +20,5 @@
     </ul>
     <p>&nbsp;</p>
     <p>To change your password, enter it twice and click the 'Submit' button.</p>
-    
+
 </div>

@@ -3,7 +3,7 @@
 $email_changed = ($primary_email != $email);
 
 echo <<<EOT
-Dear {$full_name},
+Dear {$id_name},
 
 You have multiple BCA Online profiles. This email is to let you know that your other profiles have been updated as well as the primary one.
 
