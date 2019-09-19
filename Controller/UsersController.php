@@ -147,14 +147,6 @@ class UsersController extends AppController {
         $this->set('bca_no', $this->Auth->user('bca_no'));
         $this->set('id_name', $this->Auth->user('id_name'));
 
-        //"Diary Admin" button shown if user is this list.
-        $event_admins = array(15404, 486, 1072, 5658); //List of authorised BCA members (Admin, Damian Weare, David Cooke, David Gibson).
-        $this->set('show_diary_admin', in_array($this->Auth->user('bca_no'), $event_admins));
-
-        //"Admin" button shown if user is this list.
-        $admins = array(15404, 1072, 5658); //List of authorised BCA members (Admin, David Cooke, David Gibson).
-        $this->set('show_admin', in_array($this->Auth->user('bca_no'), $admins));
-
         }
 
     public function nosubscription() {}
@@ -668,48 +660,6 @@ class UsersController extends AppController {
     }
 
 
-    /**
-    * update contact details method
-    *
-    * @return void
-    * /
-    public function contact_details() {
-        $this->User->id = $this->Auth->user('id');
-        if (!$this->User->exists()) {
-            throw new NotFoundException(__('Invalid user'));
-        }
-        if ($this->request->is('post') || $this->request->is('put')) {
-            if ($this->User->save($this->request->data)) {
-
-                //Send confirmation email
-                //DEV !!!! Send second email if email has changed to old address.
-                $email = new CakeEmail();
-
-                $message =
-                    "User: " . $this->User->id . "\n"
-                    . "Name: " . $this->request->data['User']['full_name'] . "\n"
-                    . "Orig Email: " . $orig_email . "\n"
-                    . "New Email: " . $this->request->data['User']['email'] . "\n"
-                    . " has been updated";
-
-                $email->from(array('webmaster@british-caving.org.uk' => "BCA's Members Area"))
-                    ->to('dave@alchemy.co.uk')
-                    ->subject('About')
-                    ->send($message);
-
-                $this->Session->setFlash(__('The user has been saved'));
-                return $this->redirect(array('action' => 'view'));
-            } else {
-                $this->Session->setFlash(__('The user could not be saved. Please try again.'));
-            }
-        } else {
-            $this->request->data = $this->User->read(null, $this->Auth->user('id'));
-            unset($this->request->data['User']['password']);
-            $orig_email = $this->request->data['User']['email'];
-        }
-    }
-*/
-
     //This function will be called if in admin area and session times out due to inactivity.
     //Therefore function needed in order for redirect to login screen to work (assuming logoutRedirect = Users.login).
     public function admin_logout() {
@@ -838,9 +788,6 @@ class UsersController extends AppController {
         $this->User->recursive = 0;
         $this->set('users', $this->paginate());
 
-        //"Add", "Edit" & "Delete" buttons shown if user is this list.
-        $admins = array(1072, 5658); //List of authorised BCA members.
-        $this->set('task_admin', in_array($this->Auth->user('bca_no'), $admins));
     }
 
     /**
@@ -857,9 +804,6 @@ class UsersController extends AppController {
         $this->User->contain('LastLogin');
         $this->set('user', $this->User->read(null, $id));
 
-        //"Add", "Edit" & "Delete" buttons shown if user is this list.
-        $admins = array(1072, 5658); //List of authorised BCA members.
-        $this->set('task_admin', in_array($this->Auth->user('bca_no'), $admins));
     }
 
     /**
@@ -945,10 +889,6 @@ class UsersController extends AppController {
         $this->User->syncDuplicates($id);
 
         $this->Session->setFlash(__('The duplicate users have been synchronised.'), 'default', array('class' => 'success'));
-
-        //"Add", "Edit", "Delete" & "Sync" buttons shown if user is this list.
-        //$admins = array(1072); //List of authorised BCA members.
-        //$this->set('task_admin', in_array($this->Auth->user('bca_no'), $admins));
 
         return $this->redirect(array('action' => 'index'));
     }

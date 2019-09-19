@@ -63,25 +63,6 @@ class UserAuditsController extends AppController {
     }
 
     /**
-    * admin_view method
-    *
-    * @param string $id
-    * @return void
-    * /
-    public function admin_view($id = null) {
-
-        if (!$this->UserAudit->exists($id)) {
-            throw new NotFoundException(__('Invalid user audit'));
-        }
-
-        $this->set('userAudit', $this->UserAudit->read(null, $id));
-
-        //"Add", "Edit" & "Delete" buttons shown if user is this list.
-        $admins = array(1072, 5658); //List of authorised BCA members.
-        $this->set('task_admin', in_array($this->Auth->user('bca_no'), $admins));
-    }
-
-    /**
     * admin_compare_current method
     *
     * @param string $id
@@ -215,71 +196,6 @@ class UserAuditsController extends AppController {
         $this->set('userAudits', $userAudits);
 
     }
-
-    /**
-    * admin_add method
-    *
-    * @return void
-    * /
-    public function admin_add() {
-      if ($this->request->is('post')) {
-          $this->User->create();
-          if ($this->User->save($this->request->data)) {
-              $this->Session->setFlash(__('The user has been saved'));
-              return $this->redirect(array('action' => 'index'));
-          } else {
-              $this->Session->setFlash(__('The user could not be saved. Please try again.'));
-          }
-      }
-    }
-
-    /**
-    * admin_edit method
-    *
-    * @param string $id
-    * @return void
-    * /
-
-    public function admin_edit($id = null) {
-      $this->User->id = $id;
-      if (!$this->User->exists()) {
-          throw new NotFoundException(__('Invalid user'));
-      }
-      if ($this->request->is('post') || $this->request->is('put')) {
-          if ($this->User->save($this->request->data)) {
-              $this->Session->setFlash(__('The user has been saved'));
-              return $this->redirect(array('action' => 'index'));
-          } else {
-              $this->Session->setFlash(__('The user could not be saved. Please try again.'));
-          }
-      } else {
-          $this->User->contain();
-          $this->request->data = $this->User->read(null, $id);
-      }
-    }
-
-    /**
-    * admin_delete method
-    *
-    * @param string $id
-    * @return void
-    * /
-    public function admin_delete($id = null) {
-      if (!$this->request->is('post')) {
-          throw new MethodNotAllowedException();
-      }
-      $this->User->id = $id;
-      if (!$this->User->exists()) {
-          throw new NotFoundException(__('Invalid user'));
-      }
-      if ($this->User->delete()) {
-          $this->Session->setFlash(__('User deleted'));
-          return $this->redirect(array('action' => 'index'));
-      }
-      $this->Session->setFlash(__('User was not deleted'));
-      return $this->redirect(array('action' => 'index'));
-    }
-*/
 }
 
 
