@@ -958,7 +958,7 @@ class UsersController extends AppController {
 
     /**
     * admin_send_email_update_to_admin method
-    * Send an email address update instruction to the Administrator.
+    * Send an email address update request to the BCA Membership Admin.
     *
     * @param string $id
     * @return void
@@ -986,10 +986,10 @@ class UsersController extends AppController {
                 throw new NotFoundException(__('Invalid email configuration'));
             }
 
-            //Let Membership Administrator know.
+            //Let BCA Membership Administrator know.
             $viewVars = array(
                 'bca_no' => $user['User']['bca_no'],
-                'full_name' => $user['User']['full_name'],
+                'id_name' => $user['User']['id_name'],
                 'organisation' => $user['User']['organisation'],
                 'class' => $user['User']['class'],
                 'new_email' => $user['User']['email'],
@@ -997,9 +997,8 @@ class UsersController extends AppController {
 
             $email = array(
                 'user_id' => $this->Auth->user('id'),
-                //'bca_no' => $this->Auth->user('bca_no'),
                 'to' => $configEmailAddresses['membership_admin2'],
-                'subject' => 'BCA Online email update. (Ref: '. $user['User']['bca_no'] . ')',
+                'subject' => 'BCA Online email update request. (Ref: '. $user['User']['bca_no'] . ')',
                 'template' => 'users-email_update-to_admin',
                 'forceSend' => true,
                 'viewVars' => $viewVars,
@@ -1010,6 +1009,60 @@ class UsersController extends AppController {
         } else {
             $this->Session->setFlash(__('There is no email address to send.'));
         }
+
+        return $this->redirect(array('action' => 'index'));
+    }
+
+
+    /**
+    * send_address_update_to_admin method
+    * Send an address update request to the BCA Membership Admin.
+    *
+    * @param string $id
+    * @return void
+    */
+    public function admin_send_address_update_to_admin ($id = null) {
+
+        if (!$this->request->is('post')) {
+            throw new MethodNotAllowedException();
+        }
+
+        $this->User->id = $id;
+
+        if (!$this->User->exists()) {
+            throw new NotFoundException(__('Invalid user'));
+        }
+
+        $this->User->contain();
+        $user = $this->User->read(null, $id);
+
+        //Send and save a copy of the email.
+        if(!$configEmailAddresses = Configure::read('EmailAddresses')) {
+            throw new NotFoundException(__('Invalid email configuration'));
+        }
+
+        //Let BCA Membership Administrator know.
+        $viewVars = array(
+            'bca_no' => $user['User']['bca_no'],
+            'id_name' => $user['User']['id_name'],
+            'organisation' => $user['User']['organisation'],
+            'class' => $user['User']['class'],
+            'new_address' => array('address1' => $user['User']['address1'], 'address2' => $user['User']['address2'], 'address3' => $user['User']['address3'],
+                'town' => $user['User']['town'], 'county' => $user['User']['county'], 'postcode' => $user['User']['postcode'], 'country' => $user['User']['country'], ),
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'to' => $configEmailAddresses['membership_admin2'],
+            'subject' => 'BCA Online address update request. (Ref: '. $user['User']['bca_no'] . ')',
+            'template' => 'users-address_update-to_admin',
+            'forceSend' => true,
+            'viewVars' => $viewVars,
+        );
+        $this->User->SentEmail->send($email);
+
+        $this->Session->setFlash(__('The email has been sent.'),'default', array('class' => 'success'));
+
 
         return $this->redirect(array('action' => 'index'));
     }
