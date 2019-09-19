@@ -147,14 +147,6 @@ class UsersController extends AppController {
         $this->set('bca_no', $this->Auth->user('bca_no'));
         $this->set('id_name', $this->Auth->user('id_name'));
 
-        //"Diary Admin" button shown if user is this list.
-        $event_admins = array(15404, 486, 1072, 5658); //List of authorised BCA members (Admin, Damian Weare, David Cooke, David Gibson).
-        $this->set('show_diary_admin', in_array($this->Auth->user('bca_no'), $event_admins));
-
-        //"Admin" button shown if user is this list.
-        $admins = array(15404, 1072, 5658); //List of authorised BCA members (Admin, David Cooke, David Gibson).
-        $this->set('show_admin', in_array($this->Auth->user('bca_no'), $admins));
-
         }
 
     public function nosubscription() {}
@@ -668,48 +660,6 @@ class UsersController extends AppController {
     }
 
 
-    /**
-    * update contact details method
-    *
-    * @return void
-    * /
-    public function contact_details() {
-        $this->User->id = $this->Auth->user('id');
-        if (!$this->User->exists()) {
-            throw new NotFoundException(__('Invalid user'));
-        }
-        if ($this->request->is('post') || $this->request->is('put')) {
-            if ($this->User->save($this->request->data)) {
-
-                //Send confirmation email
-                //DEV !!!! Send second email if email has changed to old address.
-                $email = new CakeEmail();
-
-                $message =
-                    "User: " . $this->User->id . "\n"
-                    . "Name: " . $this->request->data['User']['full_name'] . "\n"
-                    . "Orig Email: " . $orig_email . "\n"
-                    . "New Email: " . $this->request->data['User']['email'] . "\n"
-                    . " has been updated";
-
-                $email->from(array('webmaster@british-caving.org.uk' => "BCA's Members Area"))
-                    ->to('dave@alchemy.co.uk')
-                    ->subject('About')
-                    ->send($message);
-
-                $this->Session->setFlash(__('The user has been saved'));
-                return $this->redirect(array('action' => 'view'));
-            } else {
-                $this->Session->setFlash(__('The user could not be saved. Please try again.'));
-            }
-        } else {
-            $this->request->data = $this->User->read(null, $this->Auth->user('id'));
-            unset($this->request->data['User']['password']);
-            $orig_email = $this->request->data['User']['email'];
-        }
-    }
-*/
-
     //This function will be called if in admin area and session times out due to inactivity.
     //Therefore function needed in order for redirect to login screen to work (assuming logoutRedirect = Users.login).
     public function admin_logout() {
@@ -838,9 +788,6 @@ class UsersController extends AppController {
         $this->User->recursive = 0;
         $this->set('users', $this->paginate());
 
-        //"Add", "Edit" & "Delete" buttons shown if user is this list.
-        $admins = array(1072, 5658); //List of authorised BCA members.
-        $this->set('task_admin', in_array($this->Auth->user('bca_no'), $admins));
     }
 
     /**
@@ -857,9 +804,6 @@ class UsersController extends AppController {
         $this->User->contain('LastLogin');
         $this->set('user', $this->User->read(null, $id));
 
-        //"Add", "Edit" & "Delete" buttons shown if user is this list.
-        $admins = array(1072, 5658); //List of authorised BCA members.
-        $this->set('task_admin', in_array($this->Auth->user('bca_no'), $admins));
     }
 
     /**
@@ -946,10 +890,6 @@ class UsersController extends AppController {
 
         $this->Session->setFlash(__('The duplicate users have been synchronised.'), 'default', array('class' => 'success'));
 
-        //"Add", "Edit", "Delete" & "Sync" buttons shown if user is this list.
-        //$admins = array(1072); //List of authorised BCA members.
-        //$this->set('task_admin', in_array($this->Auth->user('bca_no'), $admins));
-
         return $this->redirect(array('action' => 'index'));
     }
 
@@ -958,7 +898,7 @@ class UsersController extends AppController {
 
     /**
     * admin_send_email_update_to_admin method
-    * Send an email address update instruction to the Administrator.
+    * Send an email address update request to the BCA Membership Admin.
     *
     * @param string $id
     * @return void
@@ -986,10 +926,10 @@ class UsersController extends AppController {
                 throw new NotFoundException(__('Invalid email configuration'));
             }
 
-            //Let Membership Administrator know.
+            //Let BCA Membership Administrator know.
             $viewVars = array(
                 'bca_no' => $user['User']['bca_no'],
-                'full_name' => $user['User']['full_name'],
+                'id_name' => $user['User']['id_name'],
                 'organisation' => $user['User']['organisation'],
                 'class' => $user['User']['class'],
                 'new_email' => $user['User']['email'],
@@ -997,9 +937,8 @@ class UsersController extends AppController {
 
             $email = array(
                 'user_id' => $this->Auth->user('id'),
-                //'bca_no' => $this->Auth->user('bca_no'),
                 'to' => $configEmailAddresses['membership_admin2'],
-                'subject' => 'BCA Online email update. (Ref: '. $user['User']['bca_no'] . ')',
+                'subject' => 'BCA Online email update request. (Ref: '. $user['User']['bca_no'] . ')',
                 'template' => 'users-email_update-to_admin',
                 'forceSend' => true,
                 'viewVars' => $viewVars,
@@ -1010,6 +949,60 @@ class UsersController extends AppController {
         } else {
             $this->Session->setFlash(__('There is no email address to send.'));
         }
+
+        return $this->redirect(array('action' => 'index'));
+    }
+
+
+    /**
+    * send_address_update_to_admin method
+    * Send an address update request to the BCA Membership Admin.
+    *
+    * @param string $id
+    * @return void
+    */
+    public function admin_send_address_update_to_admin ($id = null) {
+
+        if (!$this->request->is('post')) {
+            throw new MethodNotAllowedException();
+        }
+
+        $this->User->id = $id;
+
+        if (!$this->User->exists()) {
+            throw new NotFoundException(__('Invalid user'));
+        }
+
+        $this->User->contain();
+        $user = $this->User->read(null, $id);
+
+        //Send and save a copy of the email.
+        if(!$configEmailAddresses = Configure::read('EmailAddresses')) {
+            throw new NotFoundException(__('Invalid email configuration'));
+        }
+
+        //Let BCA Membership Administrator know.
+        $viewVars = array(
+            'bca_no' => $user['User']['bca_no'],
+            'id_name' => $user['User']['id_name'],
+            'organisation' => $user['User']['organisation'],
+            'class' => $user['User']['class'],
+            'new_address' => array('address1' => $user['User']['address1'], 'address2' => $user['User']['address2'], 'address3' => $user['User']['address3'],
+                'town' => $user['User']['town'], 'county' => $user['User']['county'], 'postcode' => $user['User']['postcode'], 'country' => $user['User']['country'], ),
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'to' => $configEmailAddresses['membership_admin2'],
+            'subject' => 'BCA Online address update request. (Ref: '. $user['User']['bca_no'] . ')',
+            'template' => 'users-address_update-to_admin',
+            'forceSend' => true,
+            'viewVars' => $viewVars,
+        );
+        $this->User->SentEmail->send($email);
+
+        $this->Session->setFlash(__('The email has been sent.'),'default', array('class' => 'success'));
+
 
         return $this->redirect(array('action' => 'index'));
     }
