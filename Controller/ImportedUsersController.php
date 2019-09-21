@@ -36,12 +36,17 @@ class ImportedUsersController extends AppController {
         //User Admin role can also do the following.
         if ($this->UserUtilities->hasRole(array('UserAdmin'))) {
             if (in_array($this->action, array('admin_index', 'admin_view', 'admin_add', 'admin_edit', 'admin_delete',
-                'admin_delete_all', 'admin_upload_file', 'admin_process_file', 'admin_update_users',
-                'admin_report_repeated_lines','admin_tidy_repeated_lines',
-                'admin_report_mismatched_names_iuu','admin_tidy_mismatched_names_iuu', 'admin_email_mismatched_names_iuu',
-                'admin_report_mismatched_names_iuiu','admin_tidy_mismatched_names_iuiu', 'admin_email_mismatched_names_iuiu',
-                'admin_report_users_to_be_updated', 'admin_report_users_to_be_added'))){
-
+                'admin_delete_all', 'admin_upload_file', 'admin_process_file', 'admin_update_users', 'admin_update_groups',
+                'admin_report_multiclass_users_iuu', 'admin_tidy_multiclass_users_iuu', 'admin_delete_multiclass_users_iuu', 'admin_email_multiclass_users_iuu',
+                'admin_report_ind_repeated_lines', 'admin_tidy_ind_repeated_lines', 'admin_email_ind_repeated_lines',
+                'admin_report_ind_mismatched_names_iuu', 'admin_tidy_ind_mismatched_names_iuu', 'admin_delete_ind_mismatched_iuu', 'admin_email_ind_mismatched_names_iuu',
+                'admin_report_ind_mismatched_names_iuiu', 'admin_tidy_ind_mismatched_names_iuiu', 'admin_delete_ind_mismatched_iuiu', 'admin_email_ind_mismatched_names_iuiu',
+                'admin_report_ind_to_be_updated', 'admin_report_ind_to_be_added',
+                'admin_report_group_repeated_lines', 'admin_tidy_group_repeated_lines', 'admin_email_group_repeated_lines',
+                'admin_report_group_mismatched_names_iuu', 'admin_tidy_group_mismatched_names_iuu', 'admin_delete_group_mismatched_iuu', 'admin_email_group_mismatched_names_iuu',
+                'admin_report_groups_to_be_updated', 'admin_report_groups_to_be_added',
+                )))
+            {
                 return true;
             }
         }
@@ -216,7 +221,7 @@ class ImportedUsersController extends AppController {
      *
      *
      */
-    function admin_import_errors() {}
+    //function admin_import_errors() {}
 
 
     /**
