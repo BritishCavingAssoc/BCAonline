@@ -137,9 +137,9 @@
 <div class="actions">
     <h3><?php echo __('BCA Online'); ?></h3>
     <ul>
-        <?php echo $this->Menu->item(null, $this->Html->link(__('Add User'), array('action' => 'add'))); ?>
-        <?php echo $this->Menu->item(null, $this->Html->link(__('Show Mismatched Names'), array('action' => 'report_ind_mismatched_names_uu'))); ?>
-        <?php echo $this->Menu->item(null, $this->Html->link(__('Show Multiclass Users'), array('action' => 'report_multiclass_users_uu'))); ?>
+        <?php echo $this->Menu->item('UserAdmin', $this->Html->link(__('Add User'), array('action' => 'add'))); ?>
+        <?php echo $this->Menu->item('UserAdmin', $this->Html->link(__('Show Mismatched Names'), array('action' => 'report_ind_mismatched_names_uu'))); ?>
+        <?php echo $this->Menu->item('UserAdmin', $this->Html->link(__('Show Multiclass Users'), array('action' => 'report_multiclass_users_uu'))); ?>
         <?php echo $this->Menu->item('UserAdmin', $this->Form->postLink(__('Lapse CIM & DIM Users'), array('action' => 'lapse_users'),
             null, __('Are you sure you want to lapse the CIM & DIM users?'))); ?>
         <?php echo $this->Menu->item(null, $this->Html->link(__('Admin Dashboard'), array('controller' => 'Users','action'=>'dashboard', 'admin' => true))); ?>
