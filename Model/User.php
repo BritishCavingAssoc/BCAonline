@@ -10,7 +10,8 @@ class User extends AppModel
     public $actsAs = array('Containable');
 
     public $virtualFields = array(
-        'full_name' => 'TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,"")))'
+        'full_name' => 'TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,"")))',
+        'id_name' => 'IF(User.class = "GRP", TRIM(IFNULL(User.Organisation,"")), TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,""))))'
     );
 
     public function beforeSave($options = array()) {
@@ -53,9 +54,9 @@ class User extends AppModel
             'message' => 'Forename can not be longer than 25 characters.'
         ),
         'surname' => array(
-            'rule' => array('maxlength', 25),
+            'rule' => array('maxlength', 30),
             'allowEmpty' => true,
-            'message' => 'Surname can not be longer than 25 characters.'
+            'message' => 'Surname can not be longer than 30 characters.'
         ),
         'organisation' => array(
             'rule' => array('maxlength', 50),
@@ -68,9 +69,9 @@ class User extends AppModel
             'message' => 'Short Name can not be longer than 20 characters.'
         ),
         'position' => array(
-            'rule' => array('maxlength', 25),
+            'rule' => array('maxlength', 50),
             'allowEmpty' => true,
-            'message' => 'Position can not be longer than 25 characters.'
+            'message' => 'Position can not be longer than 50 characters.'
         ),
         'bca_status' => array(
             'rule' => array('inList', array('Current', 'Overdue', 'Lapsed', 'Resigned', 'Expelled', 'Deceased')),
@@ -103,9 +104,9 @@ class User extends AppModel
             'message' => 'Invalid date.'
         ),
         'address1' => array(
-            'rule' => array('maxlength', 40),
+            'rule' => array('maxlength', 60),
             'allowEmpty' => true,
-            'message' => 'Address line 1 can not be longer than 40 characters.'
+            'message' => 'Address line 1 can not be longer than 60 characters.'
         ),
         'address2' => array(
             'rule' => array('maxlength', 40),
@@ -189,6 +190,36 @@ class User extends AppModel
             'rule' => 'boolean',
             'allowEmpty' => true,
             'message' => 'BCRA Email OK? must be yes, no or blank.'
+        ),
+        'bcra_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'BCRA Member? must be yes, no or blank.'
+        ),
+        'ccc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CCC Member? must be yes, no or blank.'
+        ),
+        'cscc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CSCC Member? must be yes, no or blank.'
+        ),
+        'cncc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CNCC Member? must be yes, no or blank.'
+        ),
+        'dca_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCA Member? must be yes, no or blank.'
+        ),
+        'dcuc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCUC Member? must be yes, no or blank.'
         ),
         'forename2' => array(
             'rule' => array('maxlength', 25),
@@ -336,7 +367,7 @@ class User extends AppModel
     /**
     * syncDuplicates method
     *
-    * Make password, email & email preferences the same for all user records with the same bca_no and email
+    * Make password, email & email preferences the same for all user records with the same bca_no
     * as the primary id user.
     * Send one notifying email to each unique email address.
     *
@@ -354,7 +385,7 @@ class User extends AppModel
 
         //Get the up to date primary user.
         if (!$primary_user = $this->find('first', array(
-            'fields' => array('id', 'bca_no', 'username', 'full_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
+            'fields' => array('id', 'bca_no', 'username', 'id_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
             'conditions' => array('User.id' => $id),
             'contain' => false))
         ) {
@@ -367,7 +398,7 @@ class User extends AppModel
 
         //Find the other users with the same bca_no.
         if(!$users = $this->find('all', array(
-            'fields' => array('id', 'bca_no', 'username', 'full_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
+            'fields' => array('id', 'bca_no', 'username', 'id_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
             'conditions' => array('User.bca_no' => $primary_user['User']['bca_no']),
             'contain' => false))
         ) {
@@ -405,7 +436,7 @@ class User extends AppModel
                         'id' => $users[$i]['User']['id'],
                         'bca_no' => $users[$i]['User']['bca_no'],
                         'email' => $users[$i]['User']['email'],
-                        'full_name' => $users[$i]['User']['full_name'],
+                        'id_name' => $users[$i]['User']['id_name'],
                     );
                 }
 
@@ -446,23 +477,22 @@ class User extends AppModel
     }
 
     /*
-    * Marks all the records with the same BCA as the same person.
+    * Marks all the individual user records with the same BCA as the same person.
     *
     * Returns true on success, false on failure.
     */
 
     public function MarkSamePerson($bca_no = null) {
 
-        //if (empty($bca_no)) {throw new InternalErrorException(__('No BCA No. supplied.'))};
-
         // Make sure it is a number.
-        //if (!is_numeric($bca_no)) {
-        //    throw new InternalErrorException(__('Not a valid BCA No.'))};
+        if (empty($bca_no) || !is_numeric($bca_no)) {
+            throw new InternalErrorException(__('Not a valid BCA No.'));
+        }
 
         $fields = array('User.same_person' => true);
 
         //Don't bother to update records where same_person is already true - saves space in the audit table.
-        $conditions = array('User.bca_no =' => $bca_no, 'User.same_person !=' => true);
+        $conditions = array('User.bca_no =' => $bca_no, 'User.class' => array('CIM', 'DIM'),  'User.same_person !=' => true);
 
         return $this->updateALL($fields, $conditions);
     }

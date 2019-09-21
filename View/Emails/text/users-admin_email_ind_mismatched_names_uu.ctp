@@ -5,7 +5,7 @@ $mismatchedLinesCount = count($mismatchedLines);
 echo <<<EOT
 Dear {$full_name},
 
-These are the mismatching names comparing the master user data to the master user data.
+These are the mismatching individual user names comparing the master user data to the master user data.
 
 There are ${mismatchedLinesCount} row(s).
 

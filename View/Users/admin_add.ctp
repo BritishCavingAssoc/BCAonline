@@ -10,9 +10,9 @@
         echo $this->Form->input('active');
         echo $this->Form->input('forename');
         echo $this->Form->input('surname');
-        echo $this->Form->input('organisation');
         echo $this->Form->input('short_name');
         echo $this->Form->input('position');
+        echo $this->Form->input('organisation');
 
         echo $this->Form->input('bca_status', array('options'=>array('Current'=>'Current', 'Overdue'=>'Overdue', 'Lapsed'=>'Lapsed',
             'Resigned'=>'Resigned', 'Expelled'=>'Expelled', 'Deceased'=>'Deceased'), 'empty'=>'Select'));
@@ -44,6 +44,12 @@
         echo $this->Form->input('bcra_email_ok');
         echo $this->Form->input('roles');
         echo $this->Form->input('same_person');
+        echo $this->Form->input('bcra_member');
+        echo $this->Form->input('ccc_member');
+        echo $this->Form->input('cncc_member');
+        echo $this->Form->input('cscc_member');
+        echo $this->Form->input('dca_member');
+        echo $this->Form->input('dcuc_member');
     ?>
     </fieldset>
 <?php echo $this->Form->end(__('Submit'));?>

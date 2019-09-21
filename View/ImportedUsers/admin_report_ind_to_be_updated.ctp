@@ -1,40 +1,43 @@
 <div class="userAudits index">
     <?php echo $this->Session->flash('auth'); ?>
-    <h2><?php echo __('Report Of Uses To Be Updated'); ?></h2>
-    <p>This reports shows the changes to be applied to the users in the master file.</p>
+    <h2><?php echo __('Report Of Individual Members To Be Updated'); ?></h2>
+    <p>This reports shows the changes to be applied to the individual members in the master file.</p>
     <h3><?php
         $line_count = count($updatedLines);
         if ($line_count == 0) {
-            echo "There are no users to be updated.";
+            echo "There are no individual members to be updated.";
         } elseif ($line_count == 1) {
-            echo "There is 1 user to be updated.";
+            echo "There is 1 individual member to be updated.";
         } elseif ($line_count >= 1000) {
-            echo "There are more than 1000 users to be updated.";
+            echo "There are more than 1000 individual members to be updated.";
         } else {
-            echo "There are $line_count users to be updated.";
+            echo "There are $line_count individual members to be updated.";
         }
     ?></h3>
     <table cellpadding="0" cellspacing="0">
     <tr>
-            <th><?php echo 'class'; ?></th>
-            <th><?php echo 'organisation'; ?></th>
-            <th><?php echo 'bca_no'; ?></th>
-            <th><?php echo 'forename'; ?></th>
-            <th><?php echo 'surname'; ?></th>
-            <th><?php echo 'class_code'; ?></th>
-            <th><?php echo 'bca_status'; ?></th>
-            <th><?php echo 'insurance_status'; ?></th>
-            <th><?php echo 'date_of_expiry'; ?></th>
-            <th><?php echo 'email'; ?></th>
-            <th><?php echo 'address1'; ?></th>
-            <th><?php echo 'address2'; ?></th>
-            <th><?php echo 'address3'; ?></th>
-            <th><?php echo 'town'; ?></th>
-            <th><?php echo 'county'; ?></th>
-            <th><?php echo 'postcode'; ?></th>
-            <th><?php echo 'country'; ?></th>
-            <th><?php echo 'gender'; ?></th>
-            <th><?php echo 'year_of_birth'; ?></th>
+            <th><?php echo 'Class'; ?></th>
+            <th><?php echo 'Organisation'; ?></th>
+            <th><?php echo 'BCA No'; ?></th>
+            <th><?php echo 'Forename'; ?></th>
+            <th><?php echo 'Surname'; ?></th>
+            <th><?php echo 'Class Code'; ?></th>
+            <th><?php echo 'BCA Status'; ?></th>
+            <th><?php echo 'Insurance Status'; ?></th>
+            <th><?php echo 'Date of Expiry'; ?></th>
+            <th><?php echo 'Email'; ?></th>
+            <th><?php echo 'Address1'; ?></th>
+            <th><?php echo 'Address2'; ?></th>
+            <th><?php echo 'Address3'; ?></th>
+            <th><?php echo 'Town'; ?></th>
+            <th><?php echo 'County'; ?></th>
+            <th><?php echo 'Postcode'; ?></th>
+            <th><?php echo 'Country'; ?></th>
+            <th><?php echo 'Telephone'; ?></th>
+            <th><?php echo 'Gender'; ?></th>
+            <th><?php echo 'Year of Birth'; ?></th>
+            <th><?php echo 'BCRA Member'; ?></th>
+            <th><?php echo 'Address OK'; ?></th>
     </tr>
     <?php foreach ($updatedLines as $updatedLine): ?>
     <tr>
@@ -55,8 +58,11 @@
         <td><?php if(!empty($updatedLine['User']['county'])) echo h($updatedLine['User']['county']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['postcode'])) echo h($updatedLine['User']['postcode']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['country'])) echo h($updatedLine['User']['country']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['telephone'])) echo h($updatedLine['User']['telephone']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['gender'])) echo h($updatedLine['User']['gender']); ?>&nbsp;</td>
         <td><?php if(!empty($updatedLine['User']['year_of_birth'])) echo h($updatedLine['User']['year_of_birth']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['bcra_member'])) echo h($updatedLine['User']['bcra_member']); ?>&nbsp;</td>
+        <td><?php if(!empty($updatedLine['User']['address_ok'])) echo h($updatedLine['User']['address_ok']); ?>&nbsp;</td>
     </tr>
     <tr class='bold'>
         <td>&nbsp;</td>
@@ -144,6 +150,16 @@
         <td><?php if($updatedLine['ImportedUser']['year_of_birth'] != $updatedLine['User']['year_of_birth'])
             if(!empty($updatedLine['ImportedUser']['year_of_birth'])) {
                 echo h($updatedLine['ImportedUser']['year_of_birth']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['bcra_member'] != $updatedLine['User']['bcra_member'])
+            if(!empty($updatedLine['ImportedUser']['bcra_member'])) {
+                echo h($updatedLine['ImportedUser']['bcra_member']);
+            } else { echo "Cleared"; }?>&nbsp;</td>
+
+        <td><?php if($updatedLine['ImportedUser']['address_ok'] != $updatedLine['User']['address_ok'])
+            if(!empty($updatedLine['ImportedUser']['address_ok'])) {
+                echo h($updatedLine['ImportedUser']['address_ok']);
             } else { echo "Cleared"; }?>&nbsp;</td>
     </tr>
     <?php endforeach; ?>

@@ -5,7 +5,7 @@ $mismatchedLinesCount = count($mismatchedLines);
 echo <<<EOT
 Dear {$full_name},
 
-These are the mismatching names comparing the imported user data to the imported user data.
+These are the mismatching names for individual members comparing the imported user data to the imported user data.
 
 There are ${mismatchedLinesCount} row(s).
 

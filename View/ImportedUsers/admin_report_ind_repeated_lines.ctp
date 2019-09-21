@@ -1,8 +1,8 @@
 <div class="importedUsers form">
     <?php echo $this->Session->flash('auth'); ?>
-    <h2><?php echo __('Report of Repeated Import Lines'); ?></h2>
+    <h2><?php echo __('Report of Repeated Import Lines for Individual Members'); ?></h2>
 
-    <p>This report shows the lines in the imported file where the combined BCA No/Organisation/Status occur more than once.</p>
+    <p>This report shows the lines in the imported file where the combined BCA No/Organisation/Status occur more than once for individual members.</p>
     <p>There shouldn't be any.</p>
 
     <h3><?php
@@ -38,8 +38,8 @@
 <div class="actions">
     <h3><?php echo __('Actions'); ?></h3>
     <ul>
-        <li><?php echo $this->Html->link(__('Send As Email'), array('action'=>'email_repeated_lines')); ?> </li>
-        <li><?php if ($line_count <> 0) { echo $this->Form->postLink(__('Tidy'), array('action' => 'tidy_repeated_lines'), null,
+        <li><?php if ($line_count <> 0) {echo $this->Html->link(__('Send As Email'), array('action'=>'email_ind_repeated_lines'));} ?> </li>
+        <li><?php if ($line_count <> 0) {echo $this->Form->postLink(__('Tidy'), array('action' => 'tidy_ind_repeated_lines'), null,
         __('Are you sure you remove all the duplicate records?'));} ?></li>
         <li><?php echo $this->Html->link(__('Return'), array('action'=>'index')); ?> </li>
     </ul>

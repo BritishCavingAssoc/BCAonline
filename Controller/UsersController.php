@@ -28,7 +28,7 @@ class UsersController extends AppController {
 
         //Logged in users can do the following.
         if (in_array($this->action, array('index', 'view', 'password_update', 'members_area', 'nosubscription', 'email_preferences',
-            'email_update', 'profile_faq'))) {
+            'email_update', 'profile_faq', 'become_admin'))) {
             return true;
         }
 
@@ -145,15 +145,7 @@ class UsersController extends AppController {
 
         //Pass some useful info to the view.
         $this->set('bca_no', $this->Auth->user('bca_no'));
-        $this->set('full_name', $this->Auth->user('full_name'));
-
-        //"Diary Admin" button shown if user is this list.
-        $event_admins = array(15404, 486, 1072, 5658); //List of authorised BCA members (Admin, Damian Weare, David Cooke, David Gibson).
-        $this->set('show_diary_admin', in_array($this->Auth->user('bca_no'), $event_admins));
-
-        //"Admin" button shown if user is this list.
-        $admins = array(15404, 1072, 5658); //List of authorised BCA members (Admin, David Cooke, David Gibson).
-        $this->set('show_admin', in_array($this->Auth->user('bca_no'), $admins));
+        $this->set('id_name', $this->Auth->user('id_name'));
 
         }
 
@@ -186,7 +178,7 @@ class UsersController extends AppController {
         //Set useful info for the view.
         $this->set('user_count', count($users)); //Sometimes there is more than one User record for a given BCA No.
         $this->set('users', $users);
-        $this->set('full_name', $this->Auth->user('full_name'));
+        $this->set('id_name', $this->Auth->user('id_name'));
         $this->set('bca_no', $this->Auth->user('bca_no'));
 
         if ($this->Auth->user('class') == 'GRP') {
@@ -202,7 +194,7 @@ class UsersController extends AppController {
 
                 //Find all users with the given email address.
                 if(!$users = $this->User->find('all', array(
-                    'fields' => array('id', 'bca_no', 'username', 'full_name'),
+                    'fields' => array('id', 'bca_no', 'username', 'id_name', 'class', 'organisation'),
                     'conditions' => array('User.email' => $this->request->data['User']['email']),
                     'contain' => false))
                 ) {
@@ -232,7 +224,7 @@ class UsersController extends AppController {
                         $token_url = "{$base_url}users/password_reset/{$token_code}";
 
                         $myViewVars[] = array(
-                            'full_name' => $user['User']['full_name'],
+                            'id_name' => $user['User']['id_name'],
                             'username' => $user['User']['username'],
                             'token_url' => $token_url,
                             'bca_online_admin_email' => Configure::read('EmailAddresses.bca_online_admin'),
@@ -314,7 +306,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $this->Auth->user('email'),
                             'password_changed' => false,
@@ -362,6 +354,8 @@ class UsersController extends AppController {
             throw new NotFoundException(__('Invalid user'));
         }
 
+        $this->set('id_name', $this->Auth->user('id_name')); //For view heading.
+
         //Populate view.
         if (!$this->request->is('post')) {
 
@@ -371,9 +365,8 @@ class UsersController extends AppController {
             $this->request->data['User']['email_old'] = $this->request->data['User']['email']; //Keep old email address for the email.
 
             unset($this->request->data['User']['email']); //Don't show existing email.
-        }
-        //Process submitted view data.
-        else {
+
+        } else { //Process submitted view data.
 
             //Sanity checks.
             if ($this->request->data['User']['email'] != $this->request->data['User']['email_confirm']) {
@@ -400,7 +393,7 @@ class UsersController extends AppController {
                 }
 
                 $viewVars = array(
-                    'full_name' => $this->Auth->user('full_name'),
+                    'id_name' => $this->Auth->user('id_name'),
                     'new_email' => $this->Auth->user('email'),
                     'bca_online_admin_email' => $configEmailAddresses['bca_online_admin'],
                 );
@@ -426,7 +419,7 @@ class UsersController extends AppController {
                 //Let Membership Administrator know.
                 $viewVars = array(
                     'bca_no' => $this->Auth->user('bca_no'),
-                    'full_name' => $this->Auth->user('full_name'),
+                    'id_name' => $this->Auth->user('id_name'),
                     'organisation' => $this->Auth->user('organisation'),
                     'class' => $this->Auth->user('class'),
                     'new_email' => $this->Auth->user('email'),
@@ -452,7 +445,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $this->Auth->user('email'),
                             'password_changed' => false,
@@ -507,7 +500,7 @@ class UsersController extends AppController {
             throw new NotFoundException(__('Invalid user'));
         }
 
-        $this->set('full_name', $user['User']['full_name']); //For view.
+        $this->set('id_name', $user['User']['id_name']); //For view.
 
         if ($this->request->is('post')) {
 
@@ -526,7 +519,7 @@ class UsersController extends AppController {
 
                 //Send and save a copy of the confirmation email.
                 $viewVars = array(
-                    'full_name' => $user['User']['full_name'],
+                    'id_name' => $user['User']['id_name'],
                     'bca_online_admin_email' => $configEmailAddresses['bca_online_admin']
                 );
 
@@ -551,7 +544,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $user['User']['email'],
                             'password_changed' => true,
@@ -611,7 +604,7 @@ class UsersController extends AppController {
                 }
 
                 $viewVars = array(
-                    'full_name' => $this->Auth->user('full_name'),
+                    'id_name' => $this->Auth->user('id_name'),
                     'bca_online_admin_email' => $configEmailAddresses['bca_online_admin']
                 );
 
@@ -636,7 +629,7 @@ class UsersController extends AppController {
                     foreach ($syncd_users as $syncd_user) {
 
                         $viewVars = array(
-                            'full_name' => $syncd_user['full_name'],
+                            'id_name' => $syncd_user['id_name'],
                             'email' => $syncd_user['email'],
                             'primary_email' => $this->Auth->user('email'),
                             'password_changed' => true,
@@ -663,51 +656,9 @@ class UsersController extends AppController {
             }
         }
 
-        $this->set('full_name', $this->Auth->user('full_name')); //For view heading.
+        $this->set('id_name', $this->Auth->user('id_name')); //For view heading.
     }
 
-
-    /**
-    * update contact details method
-    *
-    * @return void
-    * /
-    public function contact_details() {
-        $this->User->id = $this->Auth->user('id');
-        if (!$this->User->exists()) {
-            throw new NotFoundException(__('Invalid user'));
-        }
-        if ($this->request->is('post') || $this->request->is('put')) {
-            if ($this->User->save($this->request->data)) {
-
-                //Send confirmation email
-                //DEV !!!! Send second email if email has changed to old address.
-                $email = new CakeEmail();
-
-                $message =
-                    "User: " . $this->User->id . "\n"
-                    . "Name: " . $this->request->data['User']['full_name'] . "\n"
-                    . "Orig Email: " . $orig_email . "\n"
-                    . "New Email: " . $this->request->data['User']['email'] . "\n"
-                    . " has been updated";
-
-                $email->from(array('webmaster@british-caving.org.uk' => "BCA's Members Area"))
-                    ->to('dave@alchemy.co.uk')
-                    ->subject('About')
-                    ->send($message);
-
-                $this->Session->setFlash(__('The user has been saved'));
-                return $this->redirect(array('action' => 'view'));
-            } else {
-                $this->Session->setFlash(__('The user could not be saved. Please try again.'));
-            }
-        } else {
-            $this->request->data = $this->User->read(null, $this->Auth->user('id'));
-            unset($this->request->data['User']['password']);
-            $orig_email = $this->request->data['User']['email'];
-        }
-    }
-*/
 
     //This function will be called if in admin area and session times out due to inactivity.
     //Therefore function needed in order for redirect to login screen to work (assuming logoutRedirect = Users.login).
@@ -837,9 +788,6 @@ class UsersController extends AppController {
         $this->User->recursive = 0;
         $this->set('users', $this->paginate());
 
-        //"Add", "Edit" & "Delete" buttons shown if user is this list.
-        $admins = array(1072, 5658); //List of authorised BCA members.
-        $this->set('task_admin', in_array($this->Auth->user('bca_no'), $admins));
     }
 
     /**
@@ -856,9 +804,6 @@ class UsersController extends AppController {
         $this->User->contain('LastLogin');
         $this->set('user', $this->User->read(null, $id));
 
-        //"Add", "Edit" & "Delete" buttons shown if user is this list.
-        $admins = array(1072, 5658); //List of authorised BCA members.
-        $this->set('task_admin', in_array($this->Auth->user('bca_no'), $admins));
     }
 
     /**
@@ -945,10 +890,6 @@ class UsersController extends AppController {
 
         $this->Session->setFlash(__('The duplicate users have been synchronised.'), 'default', array('class' => 'success'));
 
-        //"Add", "Edit", "Delete" & "Sync" buttons shown if user is this list.
-        //$admins = array(1072); //List of authorised BCA members.
-        //$this->set('task_admin', in_array($this->Auth->user('bca_no'), $admins));
-
         return $this->redirect(array('action' => 'index'));
     }
 
@@ -957,7 +898,7 @@ class UsersController extends AppController {
 
     /**
     * admin_send_email_update_to_admin method
-    * Send an email address update instruction to the Administrator.
+    * Send an email address update request to the BCA Membership Admin.
     *
     * @param string $id
     * @return void
@@ -985,10 +926,10 @@ class UsersController extends AppController {
                 throw new NotFoundException(__('Invalid email configuration'));
             }
 
-            //Let Membership Administrator know.
+            //Let BCA Membership Administrator know.
             $viewVars = array(
                 'bca_no' => $user['User']['bca_no'],
-                'full_name' => $user['User']['full_name'],
+                'id_name' => $user['User']['id_name'],
                 'organisation' => $user['User']['organisation'],
                 'class' => $user['User']['class'],
                 'new_email' => $user['User']['email'],
@@ -996,9 +937,8 @@ class UsersController extends AppController {
 
             $email = array(
                 'user_id' => $this->Auth->user('id'),
-                //'bca_no' => $this->Auth->user('bca_no'),
                 'to' => $configEmailAddresses['membership_admin2'],
-                'subject' => 'BCA Online email update. (Ref: '. $user['User']['bca_no'] . ')',
+                'subject' => 'BCA Online email update request. (Ref: '. $user['User']['bca_no'] . ')',
                 'template' => 'users-email_update-to_admin',
                 'forceSend' => true,
                 'viewVars' => $viewVars,
@@ -1009,6 +949,60 @@ class UsersController extends AppController {
         } else {
             $this->Session->setFlash(__('There is no email address to send.'));
         }
+
+        return $this->redirect(array('action' => 'index'));
+    }
+
+
+    /**
+    * send_address_update_to_admin method
+    * Send an address update request to the BCA Membership Admin.
+    *
+    * @param string $id
+    * @return void
+    */
+    public function admin_send_address_update_to_admin ($id = null) {
+
+        if (!$this->request->is('post')) {
+            throw new MethodNotAllowedException();
+        }
+
+        $this->User->id = $id;
+
+        if (!$this->User->exists()) {
+            throw new NotFoundException(__('Invalid user'));
+        }
+
+        $this->User->contain();
+        $user = $this->User->read(null, $id);
+
+        //Send and save a copy of the email.
+        if(!$configEmailAddresses = Configure::read('EmailAddresses')) {
+            throw new NotFoundException(__('Invalid email configuration'));
+        }
+
+        //Let BCA Membership Administrator know.
+        $viewVars = array(
+            'bca_no' => $user['User']['bca_no'],
+            'id_name' => $user['User']['id_name'],
+            'organisation' => $user['User']['organisation'],
+            'class' => $user['User']['class'],
+            'new_address' => array('address1' => $user['User']['address1'], 'address2' => $user['User']['address2'], 'address3' => $user['User']['address3'],
+                'town' => $user['User']['town'], 'county' => $user['User']['county'], 'postcode' => $user['User']['postcode'], 'country' => $user['User']['country'], ),
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'to' => $configEmailAddresses['membership_admin2'],
+            'subject' => 'BCA Online address update request. (Ref: '. $user['User']['bca_no'] . ')',
+            'template' => 'users-address_update-to_admin',
+            'forceSend' => true,
+            'viewVars' => $viewVars,
+        );
+        $this->User->SentEmail->send($email);
+
+        $this->Session->setFlash(__('The email has been sent.'),'default', array('class' => 'success'));
+
 
         return $this->redirect(array('action' => 'index'));
     }
@@ -1055,11 +1049,11 @@ class UsersController extends AppController {
     }
 
     /**
-    * admin_report_mismatched_names_uu
+    * admin_report_ind_mismatched_names_uu
     *
-    * Compares User records against the other User records with the same BCA No. and lists those where the name doesn't match.
+    * For individuals, compares User records against the other User records with the same BCA No. and lists those where the name doesn't match.
     */
-    function admin_report_mismatched_names_uu() {
+    function admin_report_ind_mismatched_names_uu() {
 
         // For each BCA#, find the user records where there are other user records with a different name.
         // If any of those records are not marked as the same person then show all the records otherwise
@@ -1070,13 +1064,17 @@ class UsersController extends AppController {
                     User.organisation, User.class, User.email, User.address1, User.address2
             FROM users AS User
             WHERE
+                (User.class = \'CIM\' OR User.class = \'DIM\') AND
                 EXISTS (SELECT u2.bca_no
-                FROM users AS u2
-                WHERE User.bca_no = u2.bca_no AND
-                    (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
+                    FROM users AS u2
+                    WHERE User.bca_no = u2.bca_no AND
+                        (u2.class = \'CIM\' OR u2.class = \'DIM\') AND
+                        (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
                 EXISTS (SELECT u3.bca_no
-                FROM users AS u3
-                WHERE User.bca_no = u3.bca_no AND (u3.same_person = 0))
+                    FROM users AS u3
+                    WHERE User.bca_no = u3.bca_no AND
+                        (u3.class = \'CIM\' OR u3.class = \'DIM\') AND
+                        (u3.same_person = 0))
             ORDER BY User.bca_no';
             //LIMIT 10';
 
@@ -1091,7 +1089,7 @@ class UsersController extends AppController {
     /**
     * admin_mark_same_person
     *
-    * Marks all the records with the same BCA as the same person so they won't appear on the mismatch names report.
+    * Marks all the individual user records with the same BCA as the same person so they won't appear on the mismatch names report.
     */
     function admin_mark_same_person($bca_no = null) {
 
@@ -1103,21 +1101,21 @@ class UsersController extends AppController {
 
         if ($this->User->MarkSamePerson($bca_no)) {
             $this->Session->setFlash(__('Updated'), 'default', array('class' => 'success'));
-            return $this->redirect(array('action' => 'report_mismatched_names_uu'));
+            return $this->redirect(array('action' => 'report_ind_mismatched_names_uu'));
         } else {
             $this->Session->setFlash(__('Not updated'));
-            return $this->redirect(array('action' => 'report_mismatched_names_uu'));
+            return $this->redirect(array('action' => 'report_ind_mismatched_names_uu'));
         }
     }
 
 
     /**
-    * admin_email_mismatched_names_uu
+    * admin_email_ind_mismatched_names_uu
     *
-    * Email the Mismatching Names report to the current operator.
+    * For individuals, email the Mismatching Names report to the current operator.
     *
     */
-    function admin_email_mismatched_names_uu() {
+    function admin_email_ind_mismatched_names_uu() {
 
         //Get data.
         $mySQL =
@@ -1125,13 +1123,17 @@ class UsersController extends AppController {
                     User.organisation, User.class, User.email, User.address1, User.address2
             FROM users AS User
             WHERE
+                (User.class = \'CIM\' OR User.class = \'DIM\') AND
                 EXISTS (SELECT u2.bca_no
-                FROM users AS u2
-                WHERE User.bca_no = u2.bca_no AND
-                    (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
+                    FROM users AS u2
+                    WHERE User.bca_no = u2.bca_no AND
+                        (u2.class = \'CIM\' OR u2.class = \'DIM\') AND
+                        (User.forename <> u2.forename OR User.surname <> u2.surname)) AND
                 EXISTS (SELECT u3.bca_no
-                FROM users AS u3
-                WHERE User.bca_no = u3.bca_no AND (u3.same_person = 0))
+                    FROM users AS u3
+                    WHERE User.bca_no = u3.bca_no AND
+                        (u3.class = \'CIM\' OR u3.class = \'DIM\') AND
+                        (u3.same_person = 0))
             ORDER BY User.bca_no';
             //LIMIT 10';
 
@@ -1149,10 +1151,8 @@ class UsersController extends AppController {
 
         $email = array(
             'user_id' => $this->Auth->user('id'),
-            //'bca_no' => $this->Auth->user('bca_no'),
-            //'to' => $configEmailAddresses['bca_online_admin'],
-            'subject' => 'BCA Online Mismatch User Name (UU) Report.',
-            'template' => 'imported_users-admin_email_mismatched_names_uu',
+            'subject' => 'BCA Online Mismatch User Name (UU) Report for Individual Members.',
+            'template' => 'users-admin_email_ind_mismatched_names_uu',
             'forceSend' => true,
             'save' => false,
             'viewVars' => $viewVars,
@@ -1164,9 +1164,92 @@ class UsersController extends AppController {
             $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
         }
 
-        return $this->redirect(array('action' => 'admin_report_mismatched_names_uu'));
+        return $this->redirect(array('action' => 'admin_report_ind_mismatched_names_uu'));
     }
 
+    /**
+    * admin_report_multiclass_users_uu
+    *
+    * List those users that are both individual and group members.
+    * Compares the master database users against master database.
+    *
+    */
+    function admin_report_multiclass_users_uu() {
+
+        // For each BCA#, find those who are in both Group and Individual classes. It is wrong to be in both.
+
+        $mySQL =
+            'SELECT User.id, User.bca_no, User.forename, User.surname, User.organisation, User.class,
+                User2.forename, User2.surname, User2.organisation, User2.class
+            FROM users AS User, users AS User2
+            WHERE
+                User.bca_no = User2.bca_no AND
+                ((User.class = \'CIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'DIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'GRP\' AND User2.class = \'CIM\') OR
+                (User.class = \'GRP\' AND User2.class = \'DIM\'))
+            ORDER BY User.bca_no';
+            //LIMIT 10';
+
+        $db = $this->User->getDataSource();
+
+        $multiclassLines = $db->fetchALL($mySQL);
+
+        $this->set('multiclassLines', $multiclassLines);
+    }
+
+
+    /**
+    * admin_email_multiclass_users_uu
+    *
+    * Email the multiclass users report to the current operator.
+    *
+    */
+    function admin_email_multiclass_users_uu() {
+
+        //Get data.
+        $mySQL =
+            'SELECT User.id, User.bca_no, User.forename, User.surname, User.organisation, User.class,
+                User2.bca_no, User2.forename, User2.surname, User2.organisation, User2.class
+            FROM users AS User, users AS User2
+            WHERE
+                User.bca_no = User2.bca_no AND
+                ((User.class = \'CIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'DIM\' AND User2.class = \'GRP\') OR
+                (User.class = \'GRP\' AND User2.class = \'CIM\') OR
+                (User.class = \'GRP\' AND User2.class = \'DIM\'))
+            ORDER BY User.bca_no';
+            //LIMIT 10';
+
+        $db = $this->User->getDataSource();
+
+        $multiclassLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'multiclassLines' => $multiclassLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'subject' => 'BCA Online Multiclass Users (UU) Report.',
+            'template' => 'users-admin_email_multiclass_users_uu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'report_multiclass_users_uu'));
+    }
 
     /**
     * Refreshes the Auth session
@@ -1271,8 +1354,8 @@ class UsersController extends AppController {
     */
     public function admin_mailing_list_groups() {
 
-        $fields = array('DISTINCT email', 'full_name');
-        $conditions = array('User.class' => array('GRP'), 'User.bca_status' => array('Current', 'Overdue'), 'User.bca_email_ok <>' => 0, 'User.email <>' => ''   );
+        $fields = array('DISTINCT email', 'organisation');
+        $conditions = array('User.class' => array('GRP'), 'User.bca_status' => array('Current', 'Overdue'),  'User.email <>' => ''   );
 
         $result = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => array('User.email'), 'recursive' => -1));
 
@@ -1305,8 +1388,6 @@ class UsersController extends AppController {
         $order = array('bca_no');
 
         $users = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => $order, 'recursive' => -1));
-
-        //debug($users); die();
 
         //Some members join by more than one organisation and end up with more than one record. There should only be one.
         //If email address is present in one record make sure it is present in all the duplicates for that member.
@@ -1412,6 +1493,76 @@ class UsersController extends AppController {
         ini_set('max_execution_time', 30);
     }
 
+    /**
+    * Become as though logged in as user.
+    * Only the Admin role can do this in debugging mode.
+    * Useful for testing.
+    */
+    public function admin_become_user ($id = null) {
+
+        if (Configure::read('debug') == 0) {
+            throw new BadRequestException(__('Only available in debug mode'));
+        }
+
+        if (!$this->User->exists($id)) {
+            throw new NotFoundException(__('Invalid user'));
+        }
+
+        //Remember the current user id.
+        $admin_id = $this->Auth->user('id');
+
+        //Get details of the new user.
+        $user_info = $this->User->find('first', array('conditions' =>array('User.id' => $id), 'contain' => false));
+
+        //Login as new user.
+        //Remember former Admin user id in the Session.
+        // - Used to swap back to.
+        // - Used to check if in swapped state.
+        if (!empty($user_info)) {
+            if ($this->Auth->login($user_info['User'])) {
+
+                //Don't overwrite the Admin id if it already exists. This is the one we want to return to.
+                //Allows swap to a sucession of user before swapping back to Admin.
+                if (!$this->Session->check('Auth.Admin.id')) {
+                    $this->Session->write('Auth.Admin.id', $admin_id);
+                }
+                $this->Session->setFlash(__('Swap successful.'), 'default', array('class' => 'success'));
+                return $this->redirect(array('action'=>'members_area', 'admin' => false));
+            }
+        }
+        $this->Session->setFlash(__('Failed to swap user.'));
+        return $this->redirect(array('action'=>'index'));
+    }
+
+    /**
+    * Swap back to previous Admin user after being logged in as another user.
+    */
+    public function become_admin () {
+
+        //Recover original Admin id.
+        $admin_id = $this->Session->read('Auth.Admin.id');
+
+        if (!$this->User->exists($admin_id)) {
+            throw new NotFoundException(__('Invalid user'));
+        }
+
+        //Get details of the new user.
+        $user_info = $this->User->find('first', array('conditions' =>array('User.id' => $admin_id), 'contain' => false));
+
+        //Login as former Admin.
+        if (!empty($user_info)) {
+            if ($this->Auth->login($user_info['User'])) {
+
+                //Remove Admin id from Session. No longer in swapped state.
+                $this->Session->delete('Auth.Admin.id');
+
+                $this->Session->setFlash(__('Swap successful.'), 'default', array('class' => 'success'));
+                return $this->redirect(array('action'=>'members_area', 'admin' => false));
+            }
+        }
+        $this->Session->setFlash(__('Failed to swap user.'));
+        return $this->redirect(array('action'=>'members_area', 'admin' => false));
+    }
 }
 
 

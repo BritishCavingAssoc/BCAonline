@@ -12,7 +12,7 @@
 email,FULLNAME
 <?php foreach ($users as $user):
 
-    echo h($user['User']['email']).",".h($user['User']['full_name'])."\n";
+    echo h($user['User']['email']).",".h($user['User']['organisation'])."\n";
 
 endforeach; ?>
 </textarea>

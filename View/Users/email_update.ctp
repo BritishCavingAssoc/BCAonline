@@ -1,6 +1,7 @@
 <div class="users form">
 <?php echo $this->Session->flash('auth'); ?>
 <h2><?php echo __('Update Your Email Address'); ?></h2>
+<h3><?php echo $id_name; ?></h3>
 
 <?php echo $this->Form->create('User');?>
 	<fieldset>
@@ -21,5 +22,5 @@
 	</ul>
 	<p>&nbsp;</p>
 	<p>To change your email address, enter it twice and click the 'Submit' button.</p>
-	
+
 </div>

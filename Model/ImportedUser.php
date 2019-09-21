@@ -8,7 +8,8 @@ class ImportedUser extends AppModel
     public $actsAs = array('Csv.Csv' => array('length' => '1000','delimiter' => "\t"));
 
     public $virtualFields = array(
-        'full_name' => 'TRIM(CONCAT(IFNULL(ImportedUser.forename,""), " ", IFNULL(ImportedUser.surname,"")))'
+        'full_name' => 'TRIM(CONCAT(IFNULL(ImportedUser.forename,""), " ", IFNULL(ImportedUser.surname,"")))',
+        'id_name' => 'IF(ImportedUser.class = "GRP", TRIM(IFNULL(ImportedUser.Organisation,"")), TRIM(CONCAT(IFNULL(ImportedUser.forename,""), " ", IFNULL(ImportedUser.surname,""))))'
     );
 
     public $validate = array(
@@ -24,9 +25,9 @@ class ImportedUser extends AppModel
             'message' => 'Forename can not be longer than 25 characters.'
             ),
         'surname' => array(
-            'rule' => array('maxlength', 25),
+            'rule' => array('maxlength', 30),
             'allowEmpty' => true,
-            'message' => 'Surname can not be longer than 25 characters.'
+            'message' => 'Surname can not be longer than 30 characters.'
         ),
         'bca_no' => array(
             'rule' => 'numeric',
@@ -40,9 +41,9 @@ class ImportedUser extends AppModel
             'message' => 'Organisation can not be missing or longer than 50 characters.'
         ),
         'position' => array(
-            'rule' => array('maxlength', 25),
+            'rule' => array('maxlength', 50),
             'allowEmpty' => true,
-            'message' => 'Position can not be longer than 25 characters.'
+            'message' => 'Position can not be longer than 50 characters.'
         ),
         'bca_status' => array(
             'rule' => array('inList', array('Current', 'Overdue', 'Lapsed', 'Resigned', 'Expelled', 'Deceased')),
@@ -75,9 +76,9 @@ class ImportedUser extends AppModel
             'message' => 'Invalid date.'
         ),
         'address1' => array(
-            'rule' => array('maxlength', 40),
+            'rule' => array('maxlength', 60),
             'allowEmpty' => true,
-            'message' => 'Address line 1 can not be longer than 40 characters.'
+            'message' => 'Address line 1 can not be longer than 60 characters.'
         ),
         'address2' => array(
             'rule' => array('maxlength', 40),
@@ -108,6 +109,11 @@ class ImportedUser extends AppModel
             'rule' => array('maxlength', 30),
             'allowEmpty' => true,
             'message' => 'Country can not be longer than 30 characters.'
+        ),
+        'telephone' => array(
+            'rule' => array('maxlength', 20),
+            'allowEmpty' => true,
+            'message' => 'Telephone can not be longer than 20 characters.'
         ),
         'website' => array(
             'website' => array(
@@ -145,6 +151,36 @@ class ImportedUser extends AppModel
             'rule' => 'boolean',
             'allowEmpty' => true,
             'message' => 'BCRA Email OK? must be yes, no or blank.'
+        ),
+        'bcra_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'BCRA Member? must be yes, no or blank.'
+        ),
+        'ccc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CCC Member? must be yes, no or blank.'
+        ),
+        'cscc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CSCC Member? must be yes, no or blank.'
+        ),
+        'cncc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CNCC Member? must be yes, no or blank.'
+        ),
+        'dca_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCA Member? must be yes, no or blank.'
+        ),
+        'dcuc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCUC Member? must be yes, no or blank.'
         ),
         'forename2' => array(
             'rule' => array('maxlength', 25),

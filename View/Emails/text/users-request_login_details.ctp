@@ -1,7 +1,7 @@
 <?php
 
 echo <<<EOT
-Dear {$full_name},
+Dear {$id_name},
 
 The login details for your BCA Online account were requested from the BCA website.
 
