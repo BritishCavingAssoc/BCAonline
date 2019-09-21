@@ -1341,7 +1341,7 @@ class UsersController extends AppController {
     */
     public function admin_mailing_list_individuals() {
 
-        $fields = array('DISTINCT email', 'full_name');
+        $fields = array('DISTINCT email', 'id_name');
         $conditions = array('User.class' => array('CIM', 'DIM'), 'User.bca_status' => array('Current', 'Overdue'), 'User.bca_email_ok <>' => 0, 'User.email <>' => ''   );
 
         $result = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => array('User.email'), 'recursive' => -1));
@@ -1354,7 +1354,7 @@ class UsersController extends AppController {
     */
     public function admin_mailing_list_groups() {
 
-        $fields = array('DISTINCT email', 'organisation');
+        $fields = array('DISTINCT email', 'id_name');
         $conditions = array('User.class' => array('GRP'), 'User.bca_status' => array('Current', 'Overdue'),  'User.email <>' => ''   );
 
         $result = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => array('User.email'), 'recursive' => -1));
@@ -1370,16 +1370,16 @@ class UsersController extends AppController {
         ini_set('max_execution_time', 60);
 
         //Find all current voting bca members.
-        //ie WHERE (class = 'CIM' or class = 'DIM' or (class = 'GRP' AND (class_code = 'GRP' or class_code = 'ACB'))) AND bca_status = 'Current'
+        //ie WHERE (class = 'CIM' or class = 'DIM' or (class = 'GRP' AND (class_code = 'GRP' or 'ACB' or 'CCB' or 'RCC'))) AND bca_status = 'Current'
 
-        $fields = array('bca_no', 'class', 'class_code', 'full_name', 'organisation', 'email', 'address1', 'address2', 'address3',
+        $fields = array('bca_no', 'class', 'class_code', 'id_name', 'full_name', 'organisation', 'email', 'address1', 'address2', 'address3',
             'town', 'county', 'postcode', 'country');
 
         $conditions =
             array('OR' =>
                 array(
                     'class' => array('CIM', 'DIM'),
-                    array('class' => 'GRP', 'Class_code' => array('GRP', 'ACB'))
+                    array('class' => 'GRP', 'Class_code' => array('ACB', 'CCB', 'GRP', 'RCC'))
                 ),
                 'bca_status' => array('Current'),
 

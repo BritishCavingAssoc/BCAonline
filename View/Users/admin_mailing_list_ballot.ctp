@@ -16,13 +16,14 @@
 
     } else {
 
-        echo "email|FULLNAME|organisation|ballot_id|address1|address2|address3|town|county|postcode|country|house|occurance\n";
+        echo "email|id_name|full_name|organisation|ballot_id|address1|address2|address3|town|county|postcode|country|house|occurance\n";
 
         foreach ($users as $user):
 
         echo
             //h($user['User']['bca_no'])."|".
             h($user['User']['email'])."|".
+            h($user['User']['id_name'])."|".
             h($user['User']['full_name'])."|".
             h($user['User']['organisation'])."|".
             h($user['User']['ballot_id'])."|".
