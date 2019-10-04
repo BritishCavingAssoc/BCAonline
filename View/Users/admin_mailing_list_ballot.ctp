@@ -16,7 +16,7 @@
 
     } else {
 
-        echo "email|id_name|full_name|organisation|ballot_id|address1|address2|address3|town|county|postcode|country|house|occurance\n";
+        echo "email|name|full_name|organisation|ballot_id|address1|address2|address3|town|county|postcode|country|house|occurance\n";
 
         foreach ($users as $user):
 
