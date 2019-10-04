@@ -11,7 +11,7 @@ class User extends AppModel
 
     public $virtualFields = array(
         'full_name' => 'TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,"")))',
-        'id_name' => 'IF(User.class = "GRP", TRIM(IFNULL(User.Organisation,"")), TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,""))))'
+        'id_name' => 'IF(User.class = "GRP", TRIM(IFNULL(User.organisation,"")), TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,""))))'
     );
 
     public function beforeSave($options = array()) {

@@ -1351,7 +1351,8 @@ class UsersController extends AppController {
     public function admin_mailing_list_individuals() {
 
         $fields = array('DISTINCT email', 'id_name');
-        $conditions = array('User.class' => array('CIM', 'DIM'), 'User.bca_status' => array('Current', 'Overdue'), 'User.bca_email_ok <>' => 0, 'User.email <>' => ''   );
+        $conditions = array('User.class' => array('CIM', 'DIM'), 'User.bca_status' => array('Current', 'Overdue'), 'User.admin_email_ok <>' => 0,
+            'User.bca_email_ok <>' => 0, 'User.email <>' => '');
 
         $result = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => array('User.email'), 'recursive' => -1));
 
@@ -1364,7 +1365,7 @@ class UsersController extends AppController {
     public function admin_mailing_list_groups() {
 
         $fields = array('DISTINCT email', 'id_name');
-        $conditions = array('User.class' => array('GRP'), 'User.bca_status' => array('Current', 'Overdue'),  'User.email <>' => ''   );
+        $conditions = array('User.class' => array('GRP'), 'User.bca_status' => array('Current', 'Overdue'), 'User.email <>' => '');
 
         $result = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => array('User.email'), 'recursive' => -1));
 
@@ -1382,7 +1383,7 @@ class UsersController extends AppController {
         //ie WHERE (class = 'CIM' or class = 'DIM' or (class = 'GRP' AND (class_code = 'GRP' or 'ACB' or 'CCB' or 'RCC'))) AND bca_status = 'Current'
 
         $fields = array('bca_no', 'class', 'class_code', 'id_name', 'full_name', 'organisation', 'email', 'address1', 'address2', 'address3',
-            'town', 'county', 'postcode', 'country');
+            'town', 'county', 'postcode', 'country', 'admin_email_ok');
 
         $conditions =
             array('OR' =>
@@ -1445,6 +1446,11 @@ class UsersController extends AppController {
                 $users[$c1]['User']['house'] = 'IND';
             } else {
                 $users[$c1]['User']['house'] = 'GRP';
+            }
+
+            //Blank email address if don't have permission to use it.
+            if ($users[$c1]['User']['admin_email_ok'] == 0) {
+                $users[$c1]['User']['email'] = '';
             }
         }
 
