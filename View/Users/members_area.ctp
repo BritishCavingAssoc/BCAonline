@@ -22,6 +22,4 @@
     ?>
     <li><?php echo $this->Html->link(__('Logout'), array('controller' => 'Users','action'=>'logout')); ?> </li>
   </ul>
-  <p>&nbsp;</p>
-  <p><strong>Welcome to your personal area of the BCA website.</strong></p>
 </div>

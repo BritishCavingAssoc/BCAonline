@@ -4,7 +4,7 @@
 
     <?php
     if ($user_count > 1) {
-        echo "<p>You have multiple profiles. Generally this shouldn't happen!</p>";
+        echo "<p>You have multiple profiles.</p>";
         echo "<p>For more information see ". $this->Html->link(__('Profiles Explained'), array('action'=>'profiles_explained')) .".</p>";
         echo "<p>If you have any questions please contact the " . $this->Html->link(__('Members\'s Area Administrator'),
             'mailto:members.area@british-caving.org.uk?subject=Members Area query from ' .
