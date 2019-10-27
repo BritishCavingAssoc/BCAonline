@@ -33,7 +33,7 @@ class UsersController extends AppController {
             return true;
         }
 
-        //Role Enquiry can do the following.
+        //Role 'User Enquiry' can do the following.
         if ($this->UserUtilities->hasRole(array('UserEnquiry'))) {
             if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view'))) {
 
@@ -41,7 +41,7 @@ class UsersController extends AppController {
             }
         }
 
-        //Role Manager can do the following.
+        //Role 'User Manager' can do the following.
         if ($this->UserUtilities->hasRole(array('UserManager'))) {
             if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view'))) {
 
@@ -49,7 +49,7 @@ class UsersController extends AppController {
             }
         }
 
-        //Role MailingLists can do the following.
+        //Role 'MailingLists' can do the following.
         if ($this->UserUtilities->hasRole(array('UserMailingLists'))) {
             if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups'))) {
 
@@ -65,15 +65,24 @@ class UsersController extends AppController {
             }
         }
 
-        //User Admin role can also do the following.
+        //Role 'User Admin' can do the following.
         if ($this->UserUtilities->hasRole(array('UserAdmin'))) {
             if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view', 'admin_add', 'admin_edit', 'admin_delete', 'admin_sync_duplicates',
-                'admin_send_email_update_to_admin', 'admin_mark_deceased', 'admin_report_mismatched_names_uu', 'admin_mark_same_person', 'admin_email_mismatched_names_uu',
-                'admin_lapse_users', 'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups', 'admin_mailing_list_ballot'))) {
-
+                'admin_send_email_update_to_admin', 'admin_send_address_update_to_admin',
+                'admin_mark_deceased',
+                'admin_report_ind_mismatched_names_uu', 'admin_mark_same_person', 'admin_email_ind_mismatched_names_uu',
+                'admin_report_multiclass_users_uu', 'admin_email_multiclass_users_uu',
+                'admin_lapse_users',
+                'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups', 'admin_mailing_list_ballot',
+                )))
+            {
                 return true;
             }
         }
+
+        //Role 'Admin' can do the following:
+        //'admin_become_user', 'become_admin',
+
 
         return parent::isAuthorized($user);
     }
