@@ -29,12 +29,14 @@ class UsersController extends AppController {
         //Logged in users can do the following.
         if (in_array($this->action, array('index', 'view', 'password_update', 'members_area', 'nosubscription', 'email_preferences',
             'email_update', 'profile_faq', 'become_admin'))) {
+
             return true;
         }
 
         //Role Enquiry can do the following.
         if ($this->UserUtilities->hasRole(array('UserEnquiry'))) {
             if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view'))) {
+
                 return true;
             }
         }
@@ -42,14 +44,22 @@ class UsersController extends AppController {
         //Role Manager can do the following.
         if ($this->UserUtilities->hasRole(array('UserManager'))) {
             if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view'))) {
+
                 return true;
             }
         }
 
         //Role MailingLists can do the following.
         if ($this->UserUtilities->hasRole(array('UserMailingLists'))) {
-            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups',
-                'admin_mailing_list_ballot'))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups'))) {
+
+                return true;
+            }
+        }
+
+        //Role Ballot can do the following.
+        if ($this->UserUtilities->hasRole(array('UserBallot'))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_ballot'))) {
 
                 return true;
             }
