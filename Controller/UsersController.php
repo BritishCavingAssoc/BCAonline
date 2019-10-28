@@ -29,12 +29,14 @@ class UsersController extends AppController {
         //Logged in users can do the following.
         if (in_array($this->action, array('index', 'view', 'password_update', 'members_area', 'nosubscription', 'email_preferences',
             'email_update', 'profile_faq', 'become_admin'))) {
+
             return true;
         }
 
         //Role 'User Enquiry' can do the following.
         if ($this->UserUtilities->hasRole(array('UserEnquiry'))) {
             if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view'))) {
+
                 return true;
             }
         }
@@ -42,14 +44,22 @@ class UsersController extends AppController {
         //Role 'User Manager' can do the following.
         if ($this->UserUtilities->hasRole(array('UserManager'))) {
             if (in_array($this->action, array('admin_dashboard', 'admin_index', 'admin_view'))) {
+
                 return true;
             }
         }
 
         //Role 'MailingLists' can do the following.
         if ($this->UserUtilities->hasRole(array('UserMailingLists'))) {
-            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups',
-                'admin_mailing_list_ballot'))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups'))) {
+
+                return true;
+            }
+        }
+
+        //Role Ballot can do the following.
+        if ($this->UserUtilities->hasRole(array('UserBallot'))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_ballot'))) {
 
                 return true;
             }
@@ -1479,26 +1489,32 @@ class UsersController extends AppController {
             }
         }
 
-        //Sort users into email address order.
+        //Sort users into house then email address order ready for concatenation step below.
         usort($users,
             function($a, $b) {
-                return strcmp($a['User']['email'], $b['User']['email']);
+                return strcasecmp($a['User']['house'].$a['User']['email'], $b['User']['house'].$b['User']['email']);
             }
         );
 
-        //Add occurance count of each email address.
+        //Concatenate the name and ballot token fields of multiple occurrences of the same email address to form a single email record.
+        //Mailing lists discard repeated email addresses.
+        //Since sorted into house/email order, group email addresses should only occur once so won't be concatenated.
         $no_users = count($users);
         $occurance = 1;
         $last_email = '';
         for ($c1 = 0; $c1 < $no_users; $c1++) {
 
             //If email is '' or different from the previous row then reset the occurance to 1.
-            if ($users[$c1]['User']['email'] == '' || strcmp($users[$c1]['User']['email'], $last_email) != 0) {
+            if ($users[$c1]['User']['email'] == '' || strcasecmp($users[$c1]['User']['email'], $last_email) != 0) {
                 $last_email = $users[$c1]['User']['email'];
                 $users[$c1]['User']['occurance'] = $occurance = 1;
             } else {
+                $users[$c1-$occurance]['User']['occurance'] = $occurance+1;
+                $users[$c1-$occurance]['User']['id_name'] = $users[$c1-$occurance]['User']['id_name'].', '.$users[$c1]['User']['id_name'];
+                $users[$c1-$occurance]['User']['full_name'] = $users[$c1-$occurance]['User']['full_name'].', '.$users[$c1]['User']['full_name'];
+                $users[$c1-$occurance]['User']['ballot_id'] = $users[$c1-$occurance]['User']['ballot_id'].', '.$users[$c1]['User']['ballot_id'];
+                unset($users[$c1]);
                 $occurance++;
-                $users[$c1]['User']['occurance'] = $occurance;
             }
         }
 
