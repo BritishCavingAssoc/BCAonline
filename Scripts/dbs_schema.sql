@@ -1,4 +1,6 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
 SET time_zone = "+00:00";
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -23,26 +25,35 @@ CREATE TABLE `imported_users` (
   `id` int(10) UNSIGNED NOT NULL,
   `class` enum('CIM','DIM','GRP','') DEFAULT NULL,
   `forename` varchar(25) DEFAULT NULL,
-  `surname` varchar(25) DEFAULT NULL,
+  `surname` varchar(30) DEFAULT NULL,
   `bca_no` int(11) UNSIGNED DEFAULT NULL,
   `organisation` varchar(50) DEFAULT NULL,
-  `position` varchar(25) DEFAULT NULL,
+  `position` varchar(50) DEFAULT NULL,
   `bca_status` varchar(10) DEFAULT 'Current',
   `insurance_status` varchar(3) DEFAULT NULL,
   `class_code` varchar(10) DEFAULT NULL,
   `email` varchar(50) DEFAULT NULL,
   `date_of_expiry` date DEFAULT NULL,
-  `address1` varchar(40) DEFAULT NULL,
+  `address1` varchar(60) DEFAULT NULL,
   `address2` varchar(40) DEFAULT NULL,
   `address3` varchar(40) DEFAULT NULL,
   `town` varchar(40) DEFAULT NULL,
   `county` varchar(40) DEFAULT NULL,
   `postcode` varchar(10) DEFAULT NULL,
   `country` varchar(30) DEFAULT NULL,
+  `telephone` varchar(50) DEFAULT NULL,
   `website` varchar(100) DEFAULT NULL,
+  `gender` char(1) DEFAULT NULL,
+  `year_of_birth` smallint(5) UNSIGNED DEFAULT NULL,
   `address_ok` varchar(25) DEFAULT NULL,
   `bca_email_ok` tinyint(1) NOT NULL DEFAULT '0',
   `bcra_email_ok` tinyint(1) NOT NULL DEFAULT '0',
+  `bcra_member` tinyint(1) DEFAULT NULL,
+  `ccc_member` tinyint(1) DEFAULT NULL,
+  `cncc_member` tinyint(1) DEFAULT NULL,
+  `cscc_member` tinyint(1) DEFAULT NULL,
+  `dca_member` tinyint(1) DEFAULT NULL,
+  `dcuc_member` tinyint(1) DEFAULT NULL,
   `forename2` varchar(25) DEFAULT NULL,
   `surname2` varchar(25) DEFAULT NULL,
   `bca_no2` int(11) DEFAULT NULL,
@@ -88,17 +99,17 @@ CREATE TABLE `users` (
   `active` tinyint(1) NOT NULL DEFAULT '0',
   `email` varchar(50) DEFAULT NULL,
   `forename` varchar(25) DEFAULT NULL,
-  `surname` varchar(25) DEFAULT NULL,
+  `surname` varchar(30) DEFAULT NULL,
   `organisation` varchar(50) NOT NULL,
   `short_name` varchar(20) DEFAULT NULL,
-  `position` varchar(25) DEFAULT NULL,
+  `position` varchar(50) DEFAULT NULL,
   `bca_status` varchar(10) DEFAULT NULL COMMENT 'Current, Lapsed, Resigned, Deceased',
   `bca_no` int(11) UNSIGNED DEFAULT NULL,
   `class` varchar(4) DEFAULT NULL,
   `class_code` varchar(10) DEFAULT NULL,
   `insurance_status` varchar(3) DEFAULT NULL,
   `date_of_expiry` date DEFAULT NULL,
-  `address1` varchar(40) DEFAULT NULL,
+  `address1` varchar(60) DEFAULT NULL,
   `address2` varchar(40) DEFAULT NULL,
   `address3` varchar(40) DEFAULT NULL,
   `town` varchar(40) DEFAULT NULL,
@@ -114,6 +125,12 @@ CREATE TABLE `users` (
   `admin_email_ok` tinyint(1) NOT NULL DEFAULT '1',
   `bca_email_ok` tinyint(1) NOT NULL DEFAULT '0',
   `bcra_email_ok` tinyint(1) NOT NULL DEFAULT '0',
+  `bcra_member` tinyint(1) DEFAULT NULL,
+  `ccc_member` tinyint(1) DEFAULT NULL,
+  `cncc_member` tinyint(1) DEFAULT NULL,
+  `cscc_member` tinyint(1) DEFAULT NULL,
+  `dca_member` tinyint(1) DEFAULT NULL,
+  `dcuc_member` tinyint(1) DEFAULT NULL,
   `forename2` varchar(25) DEFAULT NULL,
   `surname2` varchar(25) DEFAULT NULL,
   `bca_no2` int(11) DEFAULT NULL,
@@ -131,14 +148,16 @@ CREATE TRIGGER `UsersAfterDelete` AFTER DELETE ON `users` FOR EACH ROW BEGIN
             email, forename, surname, organisation, short_name, position,
             bca_status, bca_no, class, class_code, insurance_status, date_of_expiry, address1, address2,
             address3, town, county, postcode, country, telephone, website, gender, year_of_birth, address_ok, allow_club_updates,
-            admin_email_ok, bca_email_ok, bcra_email_ok, forename2, surname2, bca_no2, insurance_status2,
+            admin_email_ok, bca_email_ok, bcra_email_ok, bcra_member, ccc_member, cncc_member, cscc_member, dca_member, dcuc_member,
+            forename2, surname2, bca_no2, insurance_status2,
             class_code2, roles, same_person, created, modified)
         values
             (now(), user(), 'D', old.id, old.username, old.password, old.active, 
             old.email, old.forename, old.surname, old.organisation, old.short_name, old.position,
             old.bca_status, old.bca_no, old.class, old.class_code, old.insurance_status, old.date_of_expiry, old.address1, old.address2,
             old.address3, old.town, old.county, old.postcode, old.country, old.telephone, old.website, old.gender, old.year_of_birth, old.address_ok, old.allow_club_updates,
-            old.admin_email_ok, old.bca_email_ok, old.bcra_email_ok, old.forename2, old.surname2, old.bca_no2, old.insurance_status2,
+            old.admin_email_ok, old.bca_email_ok, old.bcra_email_ok, old.bcra_member, old.ccc_member, old.cncc_member, old.cscc_member, old.dca_member, old.dcuc_member,
+            old.forename2, old.surname2, old.bca_no2, old.insurance_status2,
             old.class_code2, old.roles, old.same_person, old.created, old.modified);
      END
 $$
@@ -150,14 +169,16 @@ CREATE TRIGGER `UsersAfterInsert` AFTER INSERT ON `users` FOR EACH ROW BEGIN
             email, forename, surname, organisation, short_name, position,
             bca_status, bca_no, class, class_code, insurance_status, date_of_expiry, address1, address2,
             address3, town, county, postcode, country, telephone, website, gender, year_of_birth, address_ok, allow_club_updates,
-            admin_email_ok, bca_email_ok, bcra_email_ok, forename2, surname2, bca_no2, insurance_status2,
+            admin_email_ok, bca_email_ok, bcra_email_ok, bcra_member, ccc_member, cncc_member, cscc_member, dca_member, dcuc_member,
+            forename2, surname2, bca_no2, insurance_status2,
             class_code2, roles, same_person, created, modified)
         values
             (now(), user(), 'I',  new.id, new.username, new.password, new.active, 
             new.email, new.forename, new.surname, new.organisation, new.short_name, new.position,
             new.bca_status, new.bca_no, new.class, new.class_code, new.insurance_status, new.date_of_expiry, new.address1, new.address2,
             new.address3, new.town, new.county, new.postcode, new.country, new.telephone, new.website, new.gender, new.year_of_birth, new.address_ok, new.allow_club_updates,
-            new.admin_email_ok, new.bca_email_ok, new.bcra_email_ok, new.forename2, new.surname2, new.bca_no2, new.insurance_status2,
+            new.admin_email_ok, new.bca_email_ok, new.bcra_email_ok, new.bcra_member, new.ccc_member, new.cncc_member, new.cscc_member, new.dca_member, new.dcuc_member,
+            new.forename2, new.surname2, new.bca_no2, new.insurance_status2,
             new.class_code2, new.roles, new.same_person, new.created, new.modified);
      END
 $$
@@ -169,14 +190,16 @@ CREATE TRIGGER `UsersAfterUpdate` AFTER UPDATE ON `users` FOR EACH ROW BEGIN
             email, forename, surname, organisation, short_name, position,
             bca_status, bca_no, class, class_code, insurance_status, date_of_expiry, address1, address2,
             address3, town, county, postcode, country, telephone, website, gender, year_of_birth, address_ok, allow_club_updates,
-            admin_email_ok, bca_email_ok, bcra_email_ok, forename2, surname2, bca_no2, insurance_status2,
+            admin_email_ok, bca_email_ok, bcra_email_ok, bcra_member, ccc_member, cncc_member, cscc_member, dca_member, dcuc_member,
+            forename2, surname2, bca_no2, insurance_status2,
             class_code2, roles, same_person, created, modified)
         values
             (now(), user(), 'U',  new.id, new.username, new.password, new.active, 
             new.email, new.forename, new.surname, new.organisation, new.short_name, new.position,
             new.bca_status, new.bca_no, new.class, new.class_code, new.insurance_status, new.date_of_expiry, new.address1, new.address2,
             new.address3, new.town, new.county, new.postcode, new.country, new.telephone, new.website, new.gender, new.year_of_birth, new.address_ok, new.allow_club_updates,
-            new.admin_email_ok, new.bca_email_ok, new.bcra_email_ok, new.forename2, new.surname2, new.bca_no2, new.insurance_status2,
+            new.admin_email_ok, new.bca_email_ok, new.bcra_email_ok, new.bcra_member, new.ccc_member, new.cncc_member, new.cscc_member, new.dca_member, new.dcuc_member,
+            new.forename2, new.surname2, new.bca_no2, new.insurance_status2,
             new.class_code2, new.roles, new.same_person, new.created, new.modified);
      END
 $$
@@ -193,17 +216,17 @@ CREATE TABLE `user_audits` (
   `active` tinyint(1) DEFAULT NULL,
   `email` varchar(50) DEFAULT NULL,
   `forename` varchar(25) DEFAULT NULL,
-  `surname` varchar(25) DEFAULT NULL,
+  `surname` varchar(30) DEFAULT NULL,
   `organisation` varchar(50) DEFAULT NULL,
   `short_name` varchar(20) DEFAULT NULL,
-  `position` varchar(25) DEFAULT NULL,
+  `position` varchar(50) DEFAULT NULL,
   `bca_status` varchar(10) DEFAULT NULL COMMENT 'Current, Lapsed, Resigned, Deceased',
   `bca_no` int(11) UNSIGNED DEFAULT NULL,
   `class` varchar(4) DEFAULT NULL,
   `class_code` varchar(10) DEFAULT NULL,
   `insurance_status` varchar(3) DEFAULT NULL,
   `date_of_expiry` date DEFAULT NULL,
-  `address1` varchar(40) DEFAULT NULL,
+  `address1` varchar(60) DEFAULT NULL,
   `address2` varchar(40) DEFAULT NULL,
   `address3` varchar(40) DEFAULT NULL,
   `town` varchar(40) DEFAULT NULL,
@@ -219,6 +242,12 @@ CREATE TABLE `user_audits` (
   `admin_email_ok` tinyint(1) DEFAULT NULL,
   `bca_email_ok` tinyint(1) DEFAULT NULL,
   `bcra_email_ok` tinyint(1) DEFAULT NULL,
+  `bcra_member` tinyint(1) DEFAULT NULL,
+  `ccc_member` tinyint(1) DEFAULT NULL,
+  `cncc_member` tinyint(1) DEFAULT NULL,
+  `cscc_member` tinyint(1) DEFAULT NULL,
+  `dca_member` tinyint(1) DEFAULT NULL,
+  `dcuc_member` tinyint(1) DEFAULT NULL,
   `forename2` varchar(25) DEFAULT NULL,
   `surname2` varchar(25) DEFAULT NULL,
   `bca_no2` int(11) DEFAULT NULL,
@@ -264,16 +293,23 @@ ALTER TABLE `user_audits`
 
 ALTER TABLE `activities`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 ALTER TABLE `imported_users`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
 ALTER TABLE `sent_emails`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 ALTER TABLE `tokens`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+
 ALTER TABLE `users`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
 ALTER TABLE `user_audits`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+COMMIT;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
