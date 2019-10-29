@@ -4,6 +4,7 @@
         <?php echo $this->Menu->item(array('UserAdmin', 'UserMailingLists'), $this->Html->link(__('Newsletter Individuals'), array('controller' => 'Users','action'=>'mailing_list_individuals', 'admin' => true))); ?>
         <?php echo $this->Menu->item(array('UserAdmin', 'UserMailingLists'), $this->Html->link(__('Newsletter Groups'), array('controller' => 'Users','action'=>'mailing_list_groups', 'admin' => true))); ?>
         <?php echo $this->Menu->item(array('UserAdmin', 'UserBallot'), $this->Html->link(__('Ballot'), array('controller' => 'Users','action'=>'mailing_list_ballot', 'admin' => true))); ?>
+        <?php echo $this->Menu->item(array('UserAdmin', 'UserMailingLists', 'UserBallot'), $this->Html->link(__('Set Email Status'), array('controller' => 'Users','action' => 'set_email_status', 'admin' => true))); ?>
         <?php echo $this->Menu->item(null, $this->Html->link(__('Admin Dashboard'), array('action'=>'dashboard'))); ?>
     </ul>
 </div>

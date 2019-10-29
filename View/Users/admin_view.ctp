@@ -18,6 +18,10 @@
         <dd>
             <?php echo h($user['User']['email']); ?> &nbsp;
         </dd>
+        <dt><?php echo __('Email Status'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['email_status']); ?> &nbsp;
+        </dd>
         <dt><?php echo __('Active?'); ?></dt>
         <dd>
             <?php echo h($user['User']['active']); ?> &nbsp;
