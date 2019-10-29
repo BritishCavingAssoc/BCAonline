@@ -7,7 +7,7 @@
         echo $this->Form->input('bca_no');
         echo $this->Form->input('username');
         echo $this->Form->input('email');
-        echo $this->Form->input('email_status');
+        echo $this->Form->input('email_status', array('options'=> array('OK'=>'OK', 'HB'=>'Hard Bounce', 'SB'=>'Soft Bounce', 'BL'=>'Black Listed'), 'empty'=>'Select'));
         echo $this->Form->input('active');
         echo $this->Form->input('forename');
         echo $this->Form->input('surname');

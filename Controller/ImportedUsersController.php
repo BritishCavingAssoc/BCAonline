@@ -58,11 +58,12 @@ class ImportedUsersController extends AppController {
     /*
      * Filter Plugin stuff.
      */
-    var $filters = array (
+    public $filters = array (
         'admin_index' => array (
             'ImportedUser' => array (
                 'ImportedUser.bca_no' => array('label' => 'BCA No', 'condition' => '=', 'type' => 'text'),
                 'ImportedUser.surname',
+                'ImportedUser.email',
                 'ImportedUser.organisation',
             )
         )

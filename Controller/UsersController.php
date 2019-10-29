@@ -92,12 +92,13 @@ class UsersController extends AppController {
     /*
      * Filter Plugin stuff.
      */
-    var $filters = array (
+    public $filters = array (
         'admin_index' => array (
             'User' => array (
-                'User.id' => array('label' => 'User Id', 'condition' => '=', 'type' => 'text'),
                 'User.bca_no' => array('label' => 'BCA No', 'condition' => '=', 'type' => 'text'),
+                'User.id' => array('label' => 'User Id', 'condition' => '=', 'type' => 'text'),
                 'User.surname',
+                'User.email',
                 'User.organisation',
             )
         )
