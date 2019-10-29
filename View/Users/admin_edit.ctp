@@ -7,6 +7,7 @@
         echo $this->Form->input('bca_no');
         echo $this->Form->input('username');
         echo $this->Form->input('email');
+        echo $this->Form->input('email_status');
         echo $this->Form->input('active');
 
         echo $this->Form->input('forename');

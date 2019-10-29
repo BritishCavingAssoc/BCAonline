@@ -391,7 +391,7 @@ class User extends AppModel
 
         //Get the up to date primary user.
         if (!$primary_user = $this->find('first', array(
-            'fields' => array('id', 'bca_no', 'username', 'id_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
+            'fields' => array('id', 'bca_no', 'username', 'id_name', 'active', 'email', 'email_status', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
             'conditions' => array('User.id' => $id),
             'contain' => false))
         ) {
@@ -399,12 +399,12 @@ class User extends AppModel
         }
 
         //Pick out the fields, given by the second array, to check against.
-        $check_values = array_intersect_key($primary_user['User'], array('active' => null, 'email' => null,
+        $check_values = array_intersect_key($primary_user['User'], array('active' => null, 'email' => null, 'email_status' => null,
             'admin_email_ok' => null, 'bca_email_ok' => null, 'bcra_email_ok' => null));
 
         //Find the other users with the same bca_no.
         if(!$users = $this->find('all', array(
-            'fields' => array('id', 'bca_no', 'username', 'id_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
+            'fields' => array('id', 'bca_no', 'username', 'id_name', 'active', 'email', 'email_status', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
             'conditions' => array('User.bca_no' => $primary_user['User']['bca_no']),
             'contain' => false))
         ) {

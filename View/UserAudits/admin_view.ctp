@@ -30,6 +30,10 @@
         <dd>
             <?php echo h($userAudit['UserAudit']['email']); ?> &nbsp;
         </dd>
+        <dt><?php echo __('Email Status'); ?></dt>
+        <dd>
+            <?php echo h($userAudit['UserAudit']['email_status']); ?> &nbsp;
+        </dd>
         <dt><?php echo __('Forename'); ?></dt>
         <dd>
             <?php echo h($userAudit['UserAudit']['forename']); ?> &nbsp;
@@ -53,7 +57,7 @@
         <dt><?php echo __('BCA Status'); ?></dt>
         <dd>
             <?php echo h($userAudit['UserAudit']['bca_status']); ?> &nbsp;
-        </dd>        
+        </dd>
         <dt><?php echo __('BCA No'); ?></dt>
         <dd>
             <?php echo h($userAudit['UserAudit']['bca_no']); ?> &nbsp;

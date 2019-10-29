@@ -12,6 +12,7 @@
             <th><?php echo $this->Paginator->sort('username');?></th>
 
             <th><?php echo $this->Paginator->sort('email');?></th>
+            <th><?php echo $this->Paginator->sort('email_status');?></th>
             <th><?php echo $this->Paginator->sort('active');?></th>
             <th><?php echo $this->Paginator->sort('last_login');?></th>
             <th><?php echo $this->Paginator->sort('login_count');?></th>
@@ -71,6 +72,7 @@
         <td><?php echo h($user['User']['username']); ?>&nbsp;</td>
 
         <td><?php echo h($user['User']['email']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['email_status']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['active']); ?>&nbsp;</td>
         <td><?php echo h($user['LastLogin']['last_login']); ?>&nbsp;</td>
         <td><?php echo h($user['LastLogin']['login_count']); ?>&nbsp;</td>

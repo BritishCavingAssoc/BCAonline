@@ -51,7 +51,8 @@ class UsersController extends AppController {
 
         //Role 'MailingLists' can do the following.
         if ($this->UserUtilities->hasRole(array('UserMailingLists'))) {
-            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups'))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups',
+                'admin_set_email_status',))) {
 
                 return true;
             }
@@ -59,7 +60,7 @@ class UsersController extends AppController {
 
         //Role Ballot can do the following.
         if ($this->UserUtilities->hasRole(array('UserBallot'))) {
-            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_ballot'))) {
+            if (in_array($this->action, array('admin_dashboard', 'admin_mailing_list_index', 'admin_mailing_list_ballot', 'admin_set_email_status',))) {
 
                 return true;
             }
@@ -73,7 +74,7 @@ class UsersController extends AppController {
                 'admin_report_ind_mismatched_names_uu', 'admin_mark_same_person', 'admin_email_ind_mismatched_names_uu',
                 'admin_report_multiclass_users_uu', 'admin_email_multiclass_users_uu',
                 'admin_lapse_users',
-                'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups', 'admin_mailing_list_ballot',
+                'admin_mailing_list_index', 'admin_mailing_list_individuals', 'admin_mailing_list_groups', 'admin_mailing_list_ballot', 'admin_set_email_status',
                 )))
             {
                 return true;
@@ -400,8 +401,10 @@ class UsersController extends AppController {
                 return;
             }
 
+            $this->request->data['User']['email_status'] = 'OK'; //Assume the new email address is OK.
+
             //Save new email address.
-            if ($this->User->save($this->request->data, array('fieldlist' => array('email')))) {
+            if ($this->User->save($this->request->data, array('fieldlist' => array('email', 'email_status')))) {
 
                 //Update the Auth Session user data.
                 $this->_refreshAuth();
@@ -1317,7 +1320,7 @@ class UsersController extends AppController {
     *
     * @return void
     */
-    public function admin_lapse_users () {
+    public function admin_lapse_users() {
 
         //Mark 'Lapsed' old DIMs who haven't been caught by DG's routines. DIM are normally his responsibility.
         //Current or Overdue DIMs who date of expiry is more than 11 months ago.
@@ -1531,7 +1534,7 @@ class UsersController extends AppController {
     * The processed emails are remove from the form.
     * The unprocessed (badly formed, unrecognised) emails are retained for the user to edit or delete.
     */
-    public function admin_set_email_status () {
+    public function admin_set_email_status(){
 
         if ($this->request->is('post')) {
 
@@ -1570,7 +1573,7 @@ class UsersController extends AppController {
     * Only the Admin role can do this in debugging mode.
     * Useful for testing.
     */
-    public function admin_become_user ($id = null) {
+    public function admin_become_user($id = null) {
 
         if (Configure::read('debug') == 0) {
             throw new BadRequestException(__('Only available in debug mode'));
@@ -1609,7 +1612,7 @@ class UsersController extends AppController {
     /**
     * Swap back to previous Admin user after being logged in as another user.
     */
-    public function become_admin () {
+    public function become_admin() {
 
         //Recover original Admin id.
         $admin_id = $this->Session->read('Auth.Admin.id');
