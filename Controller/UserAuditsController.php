@@ -37,11 +37,11 @@ class UserAuditsController extends AppController {
     /*
      * Filter Plugin stuff.
      */
-    var $filters = array (
+    public $filters = array (
         'admin_index' => array (
             'UserAudit' => array (
-                'UserAudit.user_id' => array('label' => 'User Id', 'condition' => '=', 'type' => 'text'),
                 'UserAudit.bca_no' => array('label' => 'BCA No', 'condition' => '=', 'type' => 'text'),
+                'UserAudit.user_id' => array('label' => 'User Id', 'condition' => '=', 'type' => 'text'),
             )
         )
     );

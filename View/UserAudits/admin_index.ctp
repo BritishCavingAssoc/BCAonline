@@ -15,6 +15,7 @@
             <th><?php echo $this->Paginator->sort('bca_no'); ?></th>
             <th><?php echo $this->Paginator->sort('username'); ?></th>
             <th><?php echo $this->Paginator->sort('email'); ?></th>
+            <th><?php echo $this->Paginator->sort('email_status'); ?></th>
             <th><?php echo $this->Paginator->sort('active'); ?></th>
             <th><?php echo $this->Paginator->sort('forename'); ?></th>
             <th><?php echo $this->Paginator->sort('surname'); ?></th>
@@ -72,6 +73,7 @@
         <td><?php echo h($userAudit['UserAudit']['bca_no']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['username']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['email']); ?>&nbsp;</td>
+        <td><?php echo h($userAudit['UserAudit']['email_status']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['active']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['forename']); ?>&nbsp;</td>
         <td><?php echo h($userAudit['UserAudit']['surname']); ?>&nbsp;</td>

@@ -58,11 +58,12 @@ class ImportedUsersController extends AppController {
     /*
      * Filter Plugin stuff.
      */
-    var $filters = array (
+    public $filters = array (
         'admin_index' => array (
             'ImportedUser' => array (
                 'ImportedUser.bca_no' => array('label' => 'BCA No', 'condition' => '=', 'type' => 'text'),
                 'ImportedUser.surname',
+                'ImportedUser.email',
                 'ImportedUser.organisation',
             )
         )
@@ -365,6 +366,13 @@ class ImportedUsersController extends AppController {
                 unset($importedUser['ImportedUser']['created']);
                 unset($importedUser['ImportedUser']['modified']);
 
+                //Set email status. Assume OK if email present.
+                if (!empty($importedUser['ImportedUser']['email'])) {
+                    $importedUser['ImportedUser']['email_status'] = 'OK';
+                } else {
+                    $importedUser['ImportedUser']['email_status'] = null;
+                }
+
                 //Find corresponding User.
                 //NB These 3 criteria should give a unique match.
                 $conditions = array(
@@ -384,6 +392,12 @@ class ImportedUsersController extends AppController {
                     //Don't update or compare these fields because they can overwrite changes made online.
                     unset($importedUser['ImportedUser']['bca_email_ok']);
                     unset($importedUser['ImportedUser']['bcra_email_ok']);
+
+
+                    //Don't change the email status if the email address hasn't changed.
+                    if ($user['User']['email'] == $importedUser['ImportedUser']['email']) {
+                        $importedUser['ImportedUser']['email_status'] = $user['User']['email_status'];
+                    }
 
                     //Find the values in ImportedUser that aren't in User. Case insensitive. DEV!!! Might have trouble with integers.
                     if($changes = array_udiff_assoc($importedUser['ImportedUser'], $user['User'], 'strcasecmp')) {
@@ -446,6 +460,7 @@ class ImportedUsersController extends AppController {
                             unset($changes2['bca_status']); //Change of status is normally notified by another route.
                             unset($changes2['date_of_expiry'], $changes2['address_ok']);
                             unset($changes2['forename2'], $changes2['surname2'], $changes2['bca_no2']);
+                            unset($changes2['email_status']); //Internal use.
                             unset($changes2['insurance_status2'], $changes2['class_code2']); //!!!DEV These should be removed when gone from table.
 
                             //Add in whole address if any part has changed.
@@ -577,6 +592,13 @@ class ImportedUsersController extends AppController {
                 unset($importedUser['ImportedUser']['created']);
                 unset($importedUser['ImportedUser']['modified']);
 
+                //Set email status. Assume OK if email present.
+                if (!empty($importedUser['ImportedUser']['email'])) {
+                    $importedUser['ImportedUser']['email_status'] = 'OK';
+                } else {
+                    $importedUser['ImportedUser']['email_status'] = null;
+                }
+
                 //Find corresponding User.
                 //NB These 2 criteria should give a unique match.
                 $conditions = array(
@@ -590,6 +612,11 @@ class ImportedUsersController extends AppController {
                     //Don't update or compare these fields because they can overwrite changes made online.
                     unset($importedUser['ImportedUser']['bca_email_ok']);
                     unset($importedUser['ImportedUser']['bcra_email_ok']);
+
+                    //Don't change the email status if the email address hasn't changed.
+                    if ($user['User']['email'] == $importedUser['ImportedUser']['email']) {
+                        $importedUser['ImportedUser']['email_status'] = $user['User']['email_status'];
+                    }
 
                     //Find the values in ImportedUser that aren't in User. Case insensitive. DEV!!! Might have trouble with integers.
                     if($changes = array_udiff_assoc($importedUser['ImportedUser'], $user['User'], 'strcasecmp')) {
@@ -651,6 +678,7 @@ class ImportedUsersController extends AppController {
                             unset($changes2['id_name']); //Virtual field.
                             unset($changes2['bca_status']); //Change of status is normally notified by another route.
                             unset($changes2['date_of_expiry'], $changes2['address_ok']);
+                            unset($changes2['email_status']); //Internal use.
                             unset($changes2['forename2'], $changes2['surname2'], $changes2['bca_no2']);
                             unset($changes2['insurance_status2'], $changes2['class_code2']); //!!!DEV These should be removed when gone from table.
 
