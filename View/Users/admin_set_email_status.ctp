@@ -1,8 +1,9 @@
 <div class="users view">
 <?php echo $this->Session->flash('auth'); ?>
-<h2><?php  echo __('Set Email Status Flag');?></h2>
+<h2><?php  echo __('Set Email Status');?></h2>
 
 <p>Cut and paste lists of email addesses, one per line, into the appropriate box.</p>
+<p>Email addresses that are not present in the database will not be processed.</p>
 <p>&nbsp;</p>
 
 <?php echo $this->Form->create('User');?>
