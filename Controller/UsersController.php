@@ -1396,7 +1396,7 @@ class UsersController extends AppController {
         //Find all current voting bca members.
         //ie WHERE (class = 'CIM' or class = 'DIM' or (class = 'GRP' AND (class_code = 'GRP' or 'ACB' or 'CCB' or 'RCC'))) AND bca_status = 'Current'
 
-        $fields = array('bca_no', 'class', 'class_code', 'id_name', 'full_name', 'organisation', 'email', 'address1', 'address2', 'address3',
+        $fields = array('bca_no', 'class', 'class_code', 'id_name', 'full_name', 'organisation', 'email', 'email_status', 'address1', 'address2', 'address3',
             'town', 'county', 'postcode', 'country', 'admin_email_ok');
 
         $conditions =
@@ -1413,12 +1413,33 @@ class UsersController extends AppController {
 
         $users = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions, 'order' => $order, 'recursive' => -1));
 
+        $no_users = count($users);
+
+        for ($c1 = 0; $c1 < $no_users; $c1++) {
+
+            //Add unique no.
+            $ballot_id = sha1(uniqid());
+            $users[$c1]['User']['ballot_id'] = substr($ballot_id,0,3)."-".substr($ballot_id,3,3)."-".substr($ballot_id,6,3);
+
+            //Set house as either be house of individuals (IND) or house of groups (GRP).
+            if (in_array($users[$c1]['User']['class'], array('CIM', 'DIM'))) {
+                $users[$c1]['User']['house'] = 'IND';
+            } else {
+                $users[$c1]['User']['house'] = 'GRP';
+            }
+
+            //Blank email address if don't have permission to use it.
+            if ($users[$c1]['User']['admin_email_ok'] == 0) $users[$c1]['User']['email'] = '';
+
+            //Blank email addresses that have bounced.
+            if ($users[$c1]['User']['email_status'] != 'OK') $users[$c1]['User']['email'] = '';
+        }
+
         //Some members join by more than one organisation and end up with more than one record. There should only be one.
         //If email address is present in one record make sure it is present in all the duplicates for that member.
-        //Then remove any duplicates. The any address and/or email should be valid for all so it doesn't matter which we delete.
+        //Then remove any duplicates. Any address and/or email should be valid for all so it doesn't matter which we delete.
 
         //Work through all users. $users is ordered by bca_no.
-        $no_users = count($users);
         $c1 = 0;
         while ($c1 < $no_users) {
 
@@ -1447,25 +1468,6 @@ class UsersController extends AppController {
 
             //Start on next block;
             $c1 += $c2;
-        }
-
-        for ($c1 = 0; $c1 < $no_users; $c1++) {
-
-            //Add unique no.
-            $ballot_id = sha1(uniqid());
-            $users[$c1]['User']['ballot_id'] = substr($ballot_id,0,3)."-".substr($ballot_id,3,3)."-".substr($ballot_id,6,3);
-
-            //Set house as either be house of individuals (IND) or house of groups (GRP).
-            if (in_array($users[$c1]['User']['class'], array('CIM', 'DIM'))) {
-                $users[$c1]['User']['house'] = 'IND';
-            } else {
-                $users[$c1]['User']['house'] = 'GRP';
-            }
-
-            //Blank email address if don't have permission to use it.
-            if ($users[$c1]['User']['admin_email_ok'] == 0) {
-                $users[$c1]['User']['email'] = '';
-            }
         }
 
         //Check no duplicate ballot id.
