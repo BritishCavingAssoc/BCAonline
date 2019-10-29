@@ -1524,6 +1524,47 @@ class UsersController extends AppController {
         ini_set('max_execution_time', 30);
     }
 
+
+    /**
+    * Bulk set the email status flag. OK, Soft Bounced, Hard Bounced, Black Listed, etc.
+    *
+    * The processed emails are remove from the form.
+    * The unprocessed (badly formed, unrecognised) emails are retained for the user to edit or delete.
+    */
+    public function admin_set_email_status () {
+
+        if ($this->request->is('post')) {
+
+            $success = true;
+
+            $fields = array(
+                array('name' => 'hard_bounced_emails', 'code' => 'HB'),
+                array('name' => 'soft_bounced_emails', 'code' => 'SB'),
+                array('name' => 'black_listed_emails', 'code' => 'BL'),
+                array('name' => 'ok_emails', 'code' => 'OK')
+            );
+
+            //Set the email status flag for all the emails listed in each field.
+            foreach ($fields as $field) {
+
+                if (!empty($this->request->data['User'][$field['name']])) {
+
+                    //Returns a list of unprocessed emails.
+                    $this->request->data['User'][$field['name']] = $this->User->SetEmailStatus($this->request->data['User'][$field['name']], $field['code']);
+
+                    if (!empty($this->request->data['User'][$field['name']])) $success = false;
+                }
+            }
+
+            if ($success) {
+                $this->Session->setFlash(__('Processing complete.'), 'default', array('class' => 'success'));
+            } else {
+                $this->Session->setFlash(__('Incomplete. The unprocessed emails are listed below.'));
+            }
+        }
+    }
+
+
     /**
     * Become as though logged in as user.
     * Only the Admin role can do this in debugging mode.

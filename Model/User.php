@@ -176,6 +176,12 @@ class User extends AppModel
             'allowEmpty' => true,
             'message' => 'Allow Club Updates? must be yes, no or blank.'
         ),
+        'email_status' => array(
+            'rule' => array('inList', array('OK','HB','SB','BL','')),
+            'required' => 'create',
+            'allowEmpty' => true,
+            'message' => 'Email Status must be OK, HB, SB, BL or blank.'
+        ),
         'admin_email_ok' => array(
             'rule' => 'boolean',
             'allowEmpty' => true,
@@ -508,6 +514,59 @@ class User extends AppModel
             return str_pad($bca_no, 5, "0", STR_PAD_LEFT);
         } else {
             return null;
+        }
+    }
+
+    /*
+    * Sets the email status flag for the all occurances of the given email address.
+    *
+    * $email_list (string) - string of emails separated by \r\n
+    * $status (string) - OK, HB-Hard Bounce, SB-Soft Bounce, BL-Black Listed (By Mailing provider)
+    *
+    * returns an empty string if all emails processed ok.
+    */
+    public function SetEmailStatus($email_list, $status) {
+
+        // Check a valid status.
+        if (!in_array($status, array('OK', 'HB', 'SB', 'BL'))) {
+            throw new InternalErrorException(__('Invalid email status')." ($status).");
+        }
+
+        //Convert to an array.
+        if(!$emails = preg_split("/[\s,]+/", $email_list)) {
+            return $email_list; //Failed to process the list. Return as is.
+        }
+
+        $modified = date("Y-m-d H:i:s");
+
+        foreach ($emails as $k => $email) {
+
+            //Skip empty emails.
+            if (empty(trim($email))) {
+                unset($emails[$k]); //Remove empty email address.
+                continue;
+            }
+
+            //Check is an email address.
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+                //Check that there are records that matches the email.
+                $conditions = array('User.email' => $email);
+                if ($count = $this->find('count', array('conditions' => $conditions))) {
+
+                    $fields = array('User.email_status' => "'$status'", 'modified' => "'$modified'"); //NB Note the necessity to quote strings. NB need to upddate modifed.
+                    $this->updateAll($fields, $conditions);
+
+                    unset($emails[$k]); //Remove processed email address.
+                }
+            }
+        }
+
+        //Return any unprocessed/bad emails as a string.
+        if (count($emails) > 0) {
+            return implode("\r\n", $emails);
+        } else {
+            return "";
         }
     }
 }
