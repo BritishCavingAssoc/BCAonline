@@ -23,7 +23,7 @@ CREATE TABLE `activities` (
 
 CREATE TABLE `imported_users` (
   `id` int(10) UNSIGNED NOT NULL,
-  `class` enum('CIM','DIM','GRP','') DEFAULT NULL,
+  `class` varchar(5) DEFAULT NULL,
   `forename` varchar(25) DEFAULT NULL,
   `surname` varchar(30) DEFAULT NULL,
   `bca_no` int(11) UNSIGNED DEFAULT NULL,
@@ -106,7 +106,7 @@ CREATE TABLE `users` (
   `position` varchar(50) DEFAULT NULL,
   `bca_status` varchar(10) DEFAULT NULL COMMENT 'Current, Lapsed, Resigned, Deceased',
   `bca_no` int(11) UNSIGNED DEFAULT NULL,
-  `class` varchar(4) DEFAULT NULL,
+  `class` varchar(5) DEFAULT NULL,
   `class_code` varchar(10) DEFAULT NULL,
   `insurance_status` varchar(3) DEFAULT NULL,
   `date_of_expiry` date DEFAULT NULL,
@@ -224,7 +224,7 @@ CREATE TABLE `user_audits` (
   `position` varchar(50) DEFAULT NULL,
   `bca_status` varchar(10) DEFAULT NULL COMMENT 'Current, Lapsed, Resigned, Deceased',
   `bca_no` int(11) UNSIGNED DEFAULT NULL,
-  `class` varchar(4) DEFAULT NULL,
+  `class` varchar(5) DEFAULT NULL,
   `class_code` varchar(10) DEFAULT NULL,
   `insurance_status` varchar(3) DEFAULT NULL,
   `date_of_expiry` date DEFAULT NULL,
