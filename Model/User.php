@@ -85,10 +85,10 @@ class User extends AppModel
             'message' => 'BCA No. must be a number.'
         ),
         'class' => array(
-            'rule' => array('inList', array('CIM','DIM','GRP')),
+            'rule' => array('inList', array('CIM','DIM','GRP','STAFF')),
             'required' => 'create',
             'allowEmpty' => false,
-            'message' => 'Class must be CIM, DIM or GRP.'
+            'message' => 'Class must be CIM, DIM, GRP or STAFF.'
         ),
         'class_code' => array(
             'rule' => array('maxlength', 10),
@@ -339,7 +339,7 @@ class User extends AppModel
     //Class is required but insurance_status(2) is not.
     public function ruleValidInsuranceStatus($data) {
 
-    if (!isset($this->data[$this->alias]['class'])) return 'Class must be CIM, DIM or GRP.';
+        if (!isset($this->data[$this->alias]['class'])) return 'Class must be CIM, DIM, GRP or STAFF.';
 
         //If GRP.
         if ($this->data[$this->alias]['class'] == 'GRP') {

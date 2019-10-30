@@ -17,7 +17,7 @@
 
         echo $this->Form->input('bca_status', array('options'=>array('Current'=>'Current', 'Overdue'=>'Overdue', 'Lapsed'=>'Lapsed',
             'Resigned'=>'Resigned', 'Expelled'=>'Expelled', 'Deceased'=>'Deceased'), 'empty'=>'Select'));
-        echo $this->Form->input('class', array('options'=>array('CIM'=>'CIM', 'DIM'=>'DIM', 'GRP'=>'GRP'), 'empty'=>'Select'));
+        echo $this->Form->input('class', array('options'=>array('CIM'=>'CIM', 'DIM'=>'DIM', 'GRP'=>'GRP', 'STAFF'=>'STAFF'), 'empty'=>'Select'));
         echo $this->Form->input('class_code');
         echo $this->Form->input('insurance_status',
             array('options'=>array('C'=>'Caver', 'NC'=>'Non-Caver', 'STU'=>'Full Time Student', 'U18'=>'Under 18', 'AN'=>'Another Route',
