@@ -4,7 +4,7 @@
 		<legend><?php echo __('Admin Edit Imported User'); ?></legend>
 	<?php
 		echo $this->Form->input('id');
-		echo $this->Form->input('class', array('options'=>array('CIM'=>'CIM', 'DIM'=>'DIM', 'GRP'=>'GRP'), 'empty'=>'Select'));
+		echo $this->Form->input('class', array('options'=>array('CIM'=>'CIM', 'DIM'=>'DIM', 'GRP'=>'GRP', 'STAFF'=>'STAFF'), 'empty'=>'Select'));
 		echo $this->Form->input('forename');
 		echo $this->Form->input('surname');
 		echo $this->Form->input('bca_no');

@@ -14,10 +14,10 @@ class ImportedUser extends AppModel
 
     public $validate = array(
         'class' => array(
-            'rule' => array('inList', array('CIM','DIM','GRP')),
+            'rule' => array('inList', array('CIM','DIM','GRP','STAFF')),
             'required' => 'create',
             'allowEmpty' => false,
-            'message' => 'Class must be CIM, DIM or GRP.'
+            'message' => 'Class must be CIM, DIM, GRP or STAFF.'
         ),
         'forename' => array(
             'rule' => array('maxlength', 25),
@@ -205,7 +205,7 @@ class ImportedUser extends AppModel
     //Class is required but insurance_status(2) is not.
     public function ruleValidInsuranceStatus($data) {
 
-    if (!isset($this->data[$this->alias]['class'])) return 'Class must be CIM, DIM or GRP.';
+        if (!isset($this->data[$this->alias]['class'])) return 'Class must be CIM, DIM, GRP or STAFF.';
 
         //If GRP.
         if ($this->data[$this->alias]['class'] == 'GRP') {
