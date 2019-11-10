@@ -815,9 +815,40 @@ class UsersController extends AppController {
             }
         }
 
+
+        // Aged last logged in.
+        $fields = array('COUNT(User.id) as user_count');
+
+        //By week
+        for ($i=1; $i <= 12; $i++) {
+            $conditions = array('LastLogin.last_login >=' => date("Y-m-d H:i:s", time() - $i*7*24*3600 ),
+                                'LastLogin.last_login <' => date("Y-m-d H:i:s", time() - ($i-1)*7*24*3600 ));
+
+            $table4['week'][$i] = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions));
+        }
+
+        //By Month
+        for ($i=1; $i <= 12; $i++) {
+            $conditions = array('LastLogin.last_login >=' => date("Y-m-d H:i:s", time() - $i*30*24*3600 ),
+                                'LastLogin.last_login <' => date("Y-m-d H:i:s", time() - ($i-1)*30*24*3600 ));
+
+            $table4['month'][$i] = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions));
+        }
+
+        //By Year
+        for ($i=1; $i <= 5; $i++) {
+            $conditions = array('LastLogin.last_login >=' => date("Y-m-d H:i:s", time() - $i*365*24*3600 ),
+                                'LastLogin.last_login <' => date("Y-m-d H:i:s", time() - ($i-1)*365*24*3600 ));
+
+            $table4['year'][$i] = $this->User->find('all', array('fields' => $fields, 'conditions' => $conditions));
+        }
+
+//debug($table4);die();
+
         $this->set('table1', $table1);
         $this->set('table2', $table2);
         $this->set('table3', $table3);
+        $this->set('table4', $table4);
 
     }
 
