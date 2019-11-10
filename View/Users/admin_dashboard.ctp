@@ -11,19 +11,38 @@
 
     <p><b>Total BCA Members:&nbsp;<?php echo $table1['Totals']['BCA'] + $table2['Totals']['BCA']; ?></b></p>
     <p><b>Of which BCRA:&nbsp;<?php echo $table1['Totals']['BCRA'] + $table2['Totals']['BCRA']; ?></b></p>
+    <p><b>Has Email:&nbsp;<?php echo $table1['Totals']['EMAIL'] + $table2['Totals']['BCRA']; ?></b></p>
 
     <table>
     <?php foreach ($table1 as $k => $v){
 
         echo "<tr>";
 
-        if ($k == 'Title' || $k == 'Totals') {
-            if ($k == 'Title') { echo "<th>&nbsp;</th>"; } else { echo "<th>$k</th>"; }
+        if ($k == 'Title') {
             foreach ($v as $kk => $vv) { echo "<th>$vv</th>"; }
+
         } else {
-            echo "<td>$k</td>";
-            foreach ($v as $kk => $vv) { echo "<td>$vv</td>"; }
+
+            if ($k == 'Totals') $line_type = "th"; else $line_type = "td";
+
+            echo "<$line_type>$k</$line_type>";
+
+            foreach ($v as $kk => $vv) {
+
+                if (empty($table1[$k]['BCA'])) { // Don't devide by zero.
+                    $percent = "(-%)";
+                } else if ($kk == "BCA") { // Don't have percent for Total BCA column.
+                    $percent = "";
+                } else if ($vv == 0) { // Don't show 0%.
+                    $percent = "";
+                } else {
+                    $percent = "(". round ($vv/$table1[$k]['BCA'] * 100, 0) ."%)";
+                }
+
+                echo "<$line_type>$vv $percent</$line_type>";
+            }
         }
+        echo "</tr>";
     } ?>
     </table>
 
@@ -34,13 +53,31 @@
 
         echo "<tr>";
 
-        if ($k == 'Title' || $k == 'Totals') {
-            if ($k == 'Title') { echo "<th>&nbsp;</th>"; } else { echo "<th>$k</th>"; }
+        if ($k == 'Title') {
             foreach ($v as $kk => $vv) { echo "<th>$vv</th>"; }
+
         } else {
-            echo "<td>$k</td>";
-            foreach ($v as $kk => $vv) { echo "<td>$vv</td>"; }
+
+            if ($k == 'Totals') $line_type = "th"; else $line_type = "td";
+
+            echo "<$line_type>$k</$line_type>";
+
+            foreach ($v as $kk => $vv) {
+
+                if (empty($table2[$k]['BCA'])) { // Don't devide by zero.
+                    $percent = "(-%)";
+                } else if ($kk == "BCA") { // Don't have percent for Total BCA column.
+                    $percent = "";
+                } else if ($vv == 0) { // Don't show 0%.
+                    $percent = "";
+                } else {
+                    $percent = "(". round ($vv/$table2[$k]['BCA'] * 100, 0) ."%)";
+                }
+
+                echo "<$line_type>$vv $percent</$line_type>";
+            }
         }
+        echo "</tr>";
     } ?>
     </table>
 

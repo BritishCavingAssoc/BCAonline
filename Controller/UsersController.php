@@ -697,19 +697,26 @@ class UsersController extends AppController {
 
         // Display a summary of totals.
         // Initialise all table cells. Current Individual Members.
-        $line = array('C' => 0, 'NC' => 0, 'STU' => 0, 'U18' => 0, 'BCA' => 0, 'BCRA' => 0);
+        $line = array('C' => 0, 'NC' => 0, 'STU' => 0, 'U18' => 0, 'BCA' => 0, 'BCRA' => 0, 'EMAIL' => 0, 'REGISTERED' => 0);
 
         $table1 = array(
-            'Title' => array('C' => 'C', 'NC' => 'NC', 'STU' => 'STU', 'U18' => 'U18', 'BCA' => 'Total BCA', 'BCRA' => 'Of Which BCRA'),
+            'Title' => array('Title'=>'Individuals', 'C' => 'C', 'NC' => 'NC', 'STU' => 'STU', 'U18' => 'U18', 'BCA' => 'Total BCA', 'BCRA' => 'Of Which BCRA',
+                             'EMAIL' => 'Has Email', 'REGISTERED' => 'Registered'),
             'Totals' => $line,
             'CIM' => $line,
             'DIM' => $line
         );
 
         // Gather data. Individuals
-        $fields = array('User.class', 'User.insurance_status', 'COUNT(User.id) as my_count');
+        $fields = array('User.class', 'User.insurance_status',
+                        'COUNT(User.id) as user_count',
+                        'SUM(if(User.bcra_member <> 0, 1, 0)) as bcra_count',
+                        'SUM(if(User.email_status="OK", 1, 0)) as email_count',
+                        'SUM(if(User.active <> 0, 1, 0)) as registered_count',
+        );
+
         $group = array('User.class', 'User.insurance_status');
-        $conditions = array('User.class' => array('CIM', 'DIM'), 'User.bca_status' => array('Current', 'Overdue'), 'NOT' => array('User.insurance_status' => array('AN')));
+        $conditions = array('User.class' => array('CIM', 'DIM'), 'User.bca_status' => array('Current'), 'NOT' => array('User.insurance_status' => array('AN')));
 
         $result = $this->User->find('all', array('fields' => $fields, 'group' => $group, 'conditions' => $conditions, 'recursive' => -1));
 
@@ -719,26 +726,39 @@ class UsersController extends AppController {
             // Add a new line if necessary.
             if (empty($table1[$result[$i]['User']['class']])) { $table1[$result[$i]['User']['class']] = $line;}
 
-            $table1[$result[$i]['User']['class']][$result[$i]['User']['insurance_status']] += $result[$i][0]['my_count'];
-            $table1[$result[$i]['User']['class']]['BCA'] += $result[$i][0]['my_count'];
+            $table1[$result[$i]['User']['class']][$result[$i]['User']['insurance_status']] += $result[$i][0]['user_count'];
+            $table1[$result[$i]['User']['class']]['BCA'] += $result[$i][0]['user_count'];
+            $table1[$result[$i]['User']['class']]['BCRA'] += $result[$i][0]['bcra_count'];
+            $table1[$result[$i]['User']['class']]['EMAIL'] += $result[$i][0]['email_count'];
+            $table1[$result[$i]['User']['class']]['REGISTERED'] += $result[$i][0]['registered_count'];
 
-            $table1['Totals'][$result[$i]['User']['insurance_status']] += $result[$i][0]['my_count'];
-            $table1['Totals']['BCA'] += $result[$i][0]['my_count'];
+            $table1['Totals'][$result[$i]['User']['insurance_status']] += $result[$i][0]['user_count'];
+            $table1['Totals']['BCA'] += $result[$i][0]['user_count'];
+            $table1['Totals']['BCRA'] += $result[$i][0]['bcra_count'];
+            $table1['Totals']['EMAIL'] += $result[$i][0]['email_count'];
+            $table1['Totals']['REGISTERED'] += $result[$i][0]['registered_count'];
         }
 
 
         // Initialise all table cells. Current Group Members.
-        $line = array('Y' => 0, 'N' => 0, 'BCA' => 0, 'BCRA' => 0);
+        $line = array('Y' => 0, 'N' => 0, 'BCA' => 0, 'BCRA' => 0, 'EMAIL' => 0, 'REGISTERED' => 0);
 
         $table2 = array(
-            'Title' => array('Y' => 'PL', 'N' => 'No PL', 'BCA' => 'Total BCA', 'BCRA' => 'Of Which BCRA'),
+            'Title' => array('Title'=>'Groups', 'Y' => 'PL', 'N' => 'No PL', 'BCA' => 'Total BCA', 'BCRA' => 'Of Which BCRA',
+                             'EMAIL' => 'Has Email', 'REGISTERED' => 'Registered'),
             'Totals' => $line
         );
 
         // Gather data. Group
-        $fields = array('User.class_code', 'User.insurance_status', 'COUNT(User.id) as my_count');
+        $fields = array('User.class_code', 'User.insurance_status',
+                        'COUNT(User.id) as user_count',
+                        'SUM(if(User.bcra_member <> 0, 1, 0)) as bcra_count',
+                        'SUM(if(User.email_status="OK", 1, 0)) as email_count',
+                        'SUM(if(User.active <> 0, 1, 0)) as registered_count',
+        );
+
         $group = array('User.class_code', 'User.insurance_status');
-        $conditions = array('User.class' => array('GRP'), 'User.bca_status' => array('Current', 'Overdue'));
+        $conditions = array('User.class' => array('GRP'), 'User.bca_status' => array('Current'));
 
         $result = $this->User->find('all', array('fields' => $fields, 'group' => $group, 'conditions' => $conditions, 'recursive' => -1));
 
@@ -748,11 +768,17 @@ class UsersController extends AppController {
             // Add a new line if necessary.
             if (empty($table2[$result[$i]['User']['class_code']])) { $table2[$result[$i]['User']['class_code']] = $line;}
 
-            $table2[$result[$i]['User']['class_code']][$result[$i]['User']['insurance_status']] += $result[$i][0]['my_count'];
-            $table2[$result[$i]['User']['class_code']]['BCA'] += $result[$i][0]['my_count'];
+            $table2[$result[$i]['User']['class_code']][$result[$i]['User']['insurance_status']] += $result[$i][0]['user_count'];
+            $table2[$result[$i]['User']['class_code']]['BCA'] += $result[$i][0]['user_count'];
+            $table2[$result[$i]['User']['class_code']]['BCRA'] += $result[$i][0]['bcra_count'];
+            $table2[$result[$i]['User']['class_code']]['EMAIL'] += $result[$i][0]['email_count'];
+            $table2[$result[$i]['User']['class_code']]['REGISTERED'] += $result[$i][0]['registered_count'];
 
-            $table2['Totals'][$result[$i]['User']['insurance_status']] += $result[$i][0]['my_count'];
-            $table2['Totals']['BCA'] += $result[$i][0]['my_count'];
+            $table2['Totals'][$result[$i]['User']['insurance_status']] += $result[$i][0]['user_count'];
+            $table2['Totals']['BCA'] += $result[$i][0]['user_count'];
+            $table2['Totals']['BCRA'] += $result[$i][0]['bcra_count'];
+            $table2['Totals']['EMAIL'] += $result[$i][0]['email_count'];
+            $table2['Totals']['REGISTERED'] += $result[$i][0]['registered_count'];
         }
 
         // Initialise table cells. All members by status.
@@ -1402,7 +1428,8 @@ class UsersController extends AppController {
         $conditions =
             array('OR' =>
                 array(
-                    'class' => array('CIM', 'DIM'),
+                    //'class' => array('CIM', 'DIM'),
+                    array('class' => array('CIM', 'DIM'), 'insurance_status <>' => 'AN'),
                     array('class' => 'GRP', 'Class_code' => array('ACB', 'CCB', 'GRP', 'RCC'))
                 ),
                 'bca_status' => array('Current'),
