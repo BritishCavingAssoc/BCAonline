@@ -47,7 +47,6 @@
         echo $this->Form->input('bcra_email_ok');
 
         echo $this->Form->input('roles');
-        echo $this->Form->input('same_person');
 
         echo $this->Form->input('bcra_member');
         echo $this->Form->input('ccc_member');
