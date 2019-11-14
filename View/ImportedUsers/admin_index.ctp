@@ -27,10 +27,19 @@
             <th><?php echo $this->Paginator->sort('county'); ?></th>
             <th><?php echo $this->Paginator->sort('postcode'); ?></th>
             <th><?php echo $this->Paginator->sort('country'); ?></th>
+            <th><?php echo $this->Paginator->sort('telephone'); ?></th>
             <th><?php echo $this->Paginator->sort('website'); ?></th>
+            <th><?php echo $this->Paginator->sort('gender'); ?></th>
+            <th><?php echo $this->Paginator->sort('year_of_birth'); ?></th>
             <th><?php echo $this->Paginator->sort('address_ok'); ?></th>
             <th><?php echo $this->Paginator->sort('bca_email_ok'); ?></th>
             <th><?php echo $this->Paginator->sort('bcra_email_ok'); ?></th>
+            <th><?php echo $this->Paginator->sort('bcra_member'); ?></th>
+            <th><?php echo $this->Paginator->sort('ccc_member'); ?></th>
+            <th><?php echo $this->Paginator->sort('cncc_member'); ?></th>
+            <th><?php echo $this->Paginator->sort('cscc_member'); ?></th>
+            <th><?php echo $this->Paginator->sort('dca_member'); ?></th>
+            <th><?php echo $this->Paginator->sort('dcuc_member'); ?></th>
             <th><?php echo $this->Paginator->sort('forename2'); ?></th>
             <th><?php echo $this->Paginator->sort('surname2'); ?></th>
             <th><?php echo $this->Paginator->sort('bca_no2'); ?></th>
@@ -63,10 +72,19 @@
         <td><?php echo h($importedUser['ImportedUser']['county']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['postcode']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['country']); ?>&nbsp;</td>
+        <td><?php echo h($importedUser['ImportedUser']['telephone']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['website']); ?>&nbsp;</td>
+        <td><?php echo h($importedUser['ImportedUser']['gender']); ?>&nbsp;</td>
+        <td><?php echo h($importedUser['ImportedUser']['year_of_birth']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['address_ok']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['bca_email_ok']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['bcra_email_ok']); ?>&nbsp;</td>
+        <td><?php echo h($importedUser['ImportedUser']['bcra_member']); ?>&nbsp;</td>
+        <td><?php echo h($importedUser['ImportedUser']['ccc_member']); ?>&nbsp;</td>
+        <td><?php echo h($importedUser['ImportedUser']['cncc_member']); ?>&nbsp;</td>
+        <td><?php echo h($importedUser['ImportedUser']['cscc_member']); ?>&nbsp;</td>
+        <td><?php echo h($importedUser['ImportedUser']['dca_member']); ?>&nbsp;</td>
+        <td><?php echo h($importedUser['ImportedUser']['dcuc_member']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['forename2']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['surname2']); ?>&nbsp;</td>
         <td><?php echo h($importedUser['ImportedUser']['bca_no2']); ?>&nbsp;</td>
@@ -96,14 +114,25 @@
             __('Are you sure you want to delete all?')); ?></li>
         <li><?php echo $this->Html->link(__('Upload CSV File'), array('action' => 'upload_file')); ?></li>
         <li><?php echo $this->Html->link(__('Process CSV File'), array('action' => 'process_file')); ?></li>
-        <li><?php echo $this->Html->link(__('Show Repeated Lines'), array('action' => 'report_repeated_lines')); ?></li>
-        <li><?php echo $this->Html->link(__('Show New Mismatched Names'), array('action' => 'report_new_mismatched_names')); ?></li>
-        <li><?php echo $this->Html->link(__('Show Mismatched Names'), array('action' => 'report_mismatched_names')); ?></li>
-        <li><?php echo $this->Html->link(__('Show To Be Updated'), array('action' => 'report_users_to_be_updated')); ?></li>
-        <li><?php echo $this->Html->link(__('Show To Be Added'), array('action' => 'report_users_to_be_added')); ?></li>
+        <li>&nbsp;</li>
+        <li><?php echo $this->Html->link(__('Show Multiclass Users'), array('action' => 'report_multiclass_users_iuu')); ?></li>
+        <li><strong>Individual:</strong></li>
+        <li><?php echo $this->Html->link(__('Show Repeated Lines'), array('action' => 'report_ind_repeated_lines')); ?></li>
+        <li><?php echo $this->Html->link(__('Show Mismatched Names 1'), array('action' => 'report_ind_mismatched_names_iuu')); ?></li>
+        <li><?php echo $this->Html->link(__('Show Mismatched Names 2'), array('action' => 'report_ind_mismatched_names_iuiu')); ?></li>
+        <li><?php echo $this->Html->link(__('Show To Be Updated'), array('action' => 'report_ind_to_be_updated')); ?></li>
+        <li><?php echo $this->Html->link(__('Show To Be Added'), array('action' => 'report_ind_to_be_added')); ?></li>
+        <li><?php echo $this->Form->postLink(__('Update CIMs/DIMs'), array('action' => 'update_users'), null,
+            __('Are you sure you want to update the CIMs/DIMs?')); ?></li>
+        <li><strong>Group:</strong></li>
+        <li><?php echo $this->Html->link(__('Show Repeated Lines'), array('action' => 'report_group_repeated_lines')); ?></li>
+        <li><?php echo $this->Html->link(__('Show Mismatched Names 1'), array('action' => 'report_group_mismatched_names_iuu')); ?></li>
+        <li><?php echo $this->Html->link(__('Show To Be Updated'), array('action' => 'report_groups_to_be_updated')); ?></li>
+        <li><?php echo $this->Html->link(__('Show To Be Added'), array('action' => 'report_groups_to_be_added')); ?></li>
         <!-- <li><?php echo $this->Html->link(__('Update Users'), array('action' => 'update_users')); ?></li> -->
-        <li><?php echo $this->Form->postLink(__('Update Users'), array('action' => 'update_users'), null,
-            __('Are you sure you want to update the users?')); ?></li>
+        <li><?php echo $this->Form->postLink(__('Update GRPs'), array('action' => 'update_groups'), null,
+            __('Are you sure you want to update the GRPs?')); ?></li>
+        <li>&nbsp;</li>
         <li><?php echo $this->Html->link(__('Add Imported User'), array('action' => 'add')); ?></li>
         <li><?php echo $this->Html->link(__('Admin Dashboard'), array('controller' => 'Users','action'=>'dashboard', 'admin' => true)); ?> </li>
     </ul>

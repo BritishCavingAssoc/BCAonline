@@ -12,16 +12,16 @@
             <th><?php echo $this->Paginator->sort('username');?></th>
 
             <th><?php echo $this->Paginator->sort('email');?></th>
+            <th><?php echo $this->Paginator->sort('email_status');?></th>
             <th><?php echo $this->Paginator->sort('active');?></th>
             <th><?php echo $this->Paginator->sort('last_login');?></th>
             <th><?php echo $this->Paginator->sort('login_count');?></th>
 
             <th><?php echo $this->Paginator->sort('forename');?></th>
             <th><?php echo $this->Paginator->sort('surname');?></th>
-            <th><?php echo $this->Paginator->sort('full_name');?></th>
-            <th><?php echo $this->Paginator->sort('organisation');?></th>
             <th><?php echo $this->Paginator->sort('short_name');?></th>
             <th><?php echo $this->Paginator->sort('position');?></th>
+            <th><?php echo $this->Paginator->sort('organisation');?></th>
 
             <th><?php echo $this->Paginator->sort('bca_status');?></th>
             <th><?php echo $this->Paginator->sort('class');?></th>
@@ -38,13 +38,23 @@
             <th><?php echo $this->Paginator->sort('country');?></th>
             <th><?php echo $this->Paginator->sort('telephone');?></th>
             <th><?php echo $this->Paginator->sort('website');?></th>
-            <th><?php echo $this->Paginator->sort('address_ok');?></th>
+            <th><?php echo $this->Paginator->sort('Gender');?></th>
+            <th><?php echo $this->Paginator->sort('Year Of Birth');?></th>
 
+            <th><?php echo $this->Paginator->sort('address_ok');?></th>
             <th><?php echo $this->Paginator->sort('allow_club_updates');?></th>
             <th><?php echo $this->Paginator->sort('admin_email_ok');?></th>
             <th><?php echo $this->Paginator->sort('bca_email_ok');?></th>
             <th><?php echo $this->Paginator->sort('bcra_email_ok');?></th>
             <th><?php echo $this->Paginator->sort('roles');?></th>
+            <th><?php echo $this->Paginator->sort('same_person');?></th>
+
+            <th><?php echo $this->Paginator->sort('bcra_member');?></th>
+            <th><?php echo $this->Paginator->sort('ccc_member');?></th>
+            <th><?php echo $this->Paginator->sort('cncc_member');?></th>
+            <th><?php echo $this->Paginator->sort('cscc_member');?></th>
+            <th><?php echo $this->Paginator->sort('dca_member');?></th>
+            <th><?php echo $this->Paginator->sort('dcuc_member');?></th>
 
             <th><?php echo $this->Paginator->sort('created');?></th>
             <th><?php echo $this->Paginator->sort('modified');?></th>
@@ -62,16 +72,16 @@
         <td><?php echo h($user['User']['username']); ?>&nbsp;</td>
 
         <td><?php echo h($user['User']['email']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['email_status']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['active']); ?>&nbsp;</td>
         <td><?php echo h($user['LastLogin']['last_login']); ?>&nbsp;</td>
         <td><?php echo h($user['LastLogin']['login_count']); ?>&nbsp;</td>
 
         <td><?php echo h($user['User']['forename']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['surname']); ?>&nbsp;</td>
-        <td><?php echo h($user['User']['full_name']); ?>&nbsp;</td>
-        <td><?php echo h($user['User']['organisation']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['short_name']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['position']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['organisation']); ?>&nbsp;</td>
 
         <td><?php echo h($user['User']['bca_status']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['class']); ?>&nbsp;</td>
@@ -88,13 +98,23 @@
         <td><?php echo h($user['User']['country']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['telephone']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['website']); ?>&nbsp;</td>
-        <td><?php echo h($user['User']['address_ok']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['gender']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['year_of_birth']); ?>&nbsp;</td>
 
+        <td><?php echo h($user['User']['address_ok']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['allow_club_updates']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['admin_email_ok']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['bca_email_ok']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['bcra_email_ok']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['roles']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['same_person']); ?>&nbsp;</td>
+
+        <td><?php echo h($user['User']['bcra_member']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['ccc_member']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['cncc_member']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['cscc_member']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['dca_member']); ?>&nbsp;</td>
+        <td><?php echo h($user['User']['dcuc_member']); ?>&nbsp;</td>
 
         <td><?php echo h($user['User']['created']); ?>&nbsp;</td>
         <td><?php echo h($user['User']['modified']); ?>&nbsp;</td>
@@ -119,7 +139,11 @@
 <div class="actions">
     <h3><?php echo __('BCA Online'); ?></h3>
     <ul>
-        <li><?php echo $this->Html->link(__('Add User'), array('action' => 'add')); ?></li>
-        <li><?php echo $this->Html->link(__('Admin Dashboard'), array('controller' => 'Users','action'=>'dashboard', 'admin' => true)); ?> </li>
+        <?php echo $this->Menu->item('UserAdmin', $this->Html->link(__('Add User'), array('action' => 'add'))); ?>
+        <?php echo $this->Menu->item('UserAdmin', $this->Html->link(__('Show Mismatched Names'), array('action' => 'report_ind_mismatched_names_uu'))); ?>
+        <?php echo $this->Menu->item('UserAdmin', $this->Html->link(__('Show Multiclass Users'), array('action' => 'report_multiclass_users_uu'))); ?>
+        <?php echo $this->Menu->item('UserAdmin', $this->Form->postLink(__('Lapse CIM & DIM Users'), array('action' => 'lapse_users'),
+            null, __('Are you sure you want to lapse the CIM & DIM users?'))); ?>
+        <?php echo $this->Menu->item(null, $this->Html->link(__('Admin Dashboard'), array('controller' => 'Users','action'=>'dashboard', 'admin' => true))); ?>
     </ul>
 </div>

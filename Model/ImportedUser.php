@@ -8,15 +8,16 @@ class ImportedUser extends AppModel
     public $actsAs = array('Csv.Csv' => array('length' => '1000','delimiter' => "\t"));
 
     public $virtualFields = array(
-        'full_name' => 'TRIM(CONCAT(IFNULL(ImportedUser.forename,""), " ", IFNULL(ImportedUser.surname,"")))'
+        'full_name' => 'TRIM(CONCAT(IFNULL(ImportedUser.forename,""), " ", IFNULL(ImportedUser.surname,"")))',
+        'id_name' => 'IF(ImportedUser.class = "GRP", TRIM(IFNULL(ImportedUser.Organisation,"")), TRIM(CONCAT(IFNULL(ImportedUser.forename,""), " ", IFNULL(ImportedUser.surname,""))))'
     );
 
     public $validate = array(
         'class' => array(
-            'rule' => array('inList', array('CIM','DIM','GRP')),
+            'rule' => array('inList', array('CIM','DIM','GRP','STAFF')),
             'required' => 'create',
             'allowEmpty' => false,
-            'message' => 'Class must be CIM, DIM or GRP.'
+            'message' => 'Class must be CIM, DIM, GRP or STAFF.'
         ),
         'forename' => array(
             'rule' => array('maxlength', 25),
@@ -24,9 +25,9 @@ class ImportedUser extends AppModel
             'message' => 'Forename can not be longer than 25 characters.'
             ),
         'surname' => array(
-            'rule' => array('maxlength', 25),
+            'rule' => array('maxlength', 30),
             'allowEmpty' => true,
-            'message' => 'Surname can not be longer than 25 characters.'
+            'message' => 'Surname can not be longer than 30 characters.'
         ),
         'bca_no' => array(
             'rule' => 'numeric',
@@ -37,12 +38,12 @@ class ImportedUser extends AppModel
         'organisation' => array(
             'rule' => array('maxlength', 50),
             'allowEmpty' => false,
-            'message' => 'Organisation can not be longer than 50 characters.'
+            'message' => 'Organisation can not be missing or longer than 50 characters.'
         ),
         'position' => array(
-            'rule' => array('maxlength', 25),
+            'rule' => array('maxlength', 50),
             'allowEmpty' => true,
-            'message' => 'Position can not be longer than 25 characters.'
+            'message' => 'Position can not be longer than 50 characters.'
         ),
         'bca_status' => array(
             'rule' => array('inList', array('Current', 'Overdue', 'Lapsed', 'Resigned', 'Expelled', 'Deceased')),
@@ -52,15 +53,11 @@ class ImportedUser extends AppModel
         ),
         'insurance_status' => array(
             'rule_valid_insurance_status' => array('rule' => 'ruleValidInsuranceStatus'),
-            //'required' => false,
-            //'allowEmpty' => true,
-            //'rule' => array('inList', array('C','NC','STU','AN')),
-            //'message' => 'Insurance Status must be C, NC, STU, AN or blank.'
         ),
         'class_code' => array(
             'rule' => array('maxlength', 10),
             'allowEmpty' => false,
-            'message' => 'Class Core can not be longer than 10 characters.'
+            'message' => 'Class Code can not be missing or longer than 10 characters.'
         ),
         'email' => array(
             'email' => array(
@@ -79,9 +76,9 @@ class ImportedUser extends AppModel
             'message' => 'Invalid date.'
         ),
         'address1' => array(
-            'rule' => array('maxlength', 40),
+            'rule' => array('maxlength', 60),
             'allowEmpty' => true,
-            'message' => 'Address line 1 can not be longer than 40 characters.'
+            'message' => 'Address line 1 can not be longer than 60 characters.'
         ),
         'address2' => array(
             'rule' => array('maxlength', 40),
@@ -113,6 +110,11 @@ class ImportedUser extends AppModel
             'allowEmpty' => true,
             'message' => 'Country can not be longer than 30 characters.'
         ),
+        'telephone' => array(
+            'rule' => array('maxlength', 20),
+            'allowEmpty' => true,
+            'message' => 'Telephone can not be longer than 20 characters.'
+        ),
         'website' => array(
             'website' => array(
                 'rule' => 'url',
@@ -124,6 +126,16 @@ class ImportedUser extends AppModel
                 'rule' => array('maxlength', 100),
                 'message' => 'Website can not be longer than 100 characters.'
             )
+        ),
+        'gender' => array(
+            'rule' => array('inList', array('M','F','T','')),
+            'allowEmpty' => true,
+            'message' => 'Gender must be M, F, T or blank.'
+        ),
+        'year_of_birth' => array(
+            'rule' => array('range', 1899, 2021),
+            'allowEmpty' => true,
+            'message' => 'Year of Birth must be after 1900 and not in the future.'
         ),
         'address_ok' => array(
             'rule' => array('maxlength', 25),
@@ -139,6 +151,36 @@ class ImportedUser extends AppModel
             'rule' => 'boolean',
             'allowEmpty' => true,
             'message' => 'BCRA Email OK? must be yes, no or blank.'
+        ),
+        'bcra_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'BCRA Member? must be yes, no or blank.'
+        ),
+        'ccc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CCC Member? must be yes, no or blank.'
+        ),
+        'cscc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CSCC Member? must be yes, no or blank.'
+        ),
+        'cncc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CNCC Member? must be yes, no or blank.'
+        ),
+        'dca_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCA Member? must be yes, no or blank.'
+        ),
+        'dcuc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCUC Member? must be yes, no or blank.'
         ),
         'forename2' => array(
             'rule' => array('maxlength', 25),
@@ -163,9 +205,10 @@ class ImportedUser extends AppModel
     //Class is required but insurance_status(2) is not.
     public function ruleValidInsuranceStatus($data) {
 
-    if (!isset($this->data[$this->alias]['class'])) return 'Class must be CIM, DIM or GRP.';
+        if (!isset($this->data[$this->alias]['class'])) return 'Class must be CIM, DIM, GRP or STAFF.';
 
-        if ($this->data[$this->alias]['class'] == 'GRP') { //If GRP.
+        //If GRP.
+        if ($this->data[$this->alias]['class'] == 'GRP') {
             if (isset($this->data[$this->alias]['insurance_status']) &&
                 !in_array($this->data[$this->alias]['insurance_status'], array('Y', 'N', '')))
             {
@@ -177,16 +220,16 @@ class ImportedUser extends AppModel
                 return 'Insurance Status 2 for group members must be either Y, N or blank.';
             }
         }
-        else { //else CIM or DIM.
+        else { //CIM or DIM.
             if (isset($this->data[$this->alias]['insurance_status']) &&
-                !in_array($this->data[$this->alias]['insurance_status'], array('C','NC','STU','AN', '')))
+                !in_array($this->data[$this->alias]['insurance_status'], array('C','NC','STU','U18','AN','')))
             {
-                return 'Insurance Status for individual members must be either C, NC, STU, AN or blank.';
+                return 'Insurance Status for individual members must be either C, NC, STU, U18, AN or blank.';
             }
             if (isset($this->data[$this->alias]['insurance_status2']) &&
-                !in_array($this->data[$this->alias]['insurance_status2'], array('C','NC','STU','AN', '')))
+                !in_array($this->data[$this->alias]['insurance_status2'], array('C','NC','STU','U18','AN', '')))
             {
-                return 'Insurance Status 2 for individual members must be either C, NC, STU, AN or blank.';
+                return 'Insurance Status 2 for individual members must be either C, NC, STU, U18, AN or blank.';
             }
         }
 

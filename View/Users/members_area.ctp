@@ -1,6 +1,6 @@
 <div class="users view">
 <?php echo $this->Session->flash('auth'); ?>
-<h2><?php echo $full_name;?></h2>
+<h2><?php echo $id_name;?></h2>
 
   <p>Welcome to your personal area of the BCA website.</p>
   <p>Currently we are focusing on using email to improve communications with our members.</p>
@@ -16,9 +16,10 @@
     <li><?php echo $this->Html->link(__('Your Profile'), array('action' => 'view')); ?> </li>
     <li><?php echo $this->Html->link(__('Email Preferences'), array('action' => 'email_preferences')); ?> </li>
     <?php echo $this->Menu->item('DiaryAdmin', $this->Html->link(__('Diary Admin'), array('controller' => 'Events', 'action' => 'index', 'admin' => true))); ?>
-    <?php echo $this->Menu->item(array('UserEnquiry', 'UserManager', 'UserAdmin', 'ImportUserAdmin'), $this->Html->link(__('Admin Dashboard'), array('controller' => 'Users', 'action' => 'dashboard', 'admin' => true))); ?>
+    <?php echo $this->Menu->item(array('UserEnquiry', 'UserManager', 'UserAdmin', 'ImportUserAdmin', 'UserMailingLists', 'UserBallot'), $this->Html->link(__('Admin Dashboard'), array('controller' => 'Users', 'action' => 'dashboard', 'admin' => true))); ?>
+    <?php if ($this->Session->check('Auth.Admin.id')) { //Show button if an Admin currently acting as a user.
+        echo $this->Menu->item(null, $this->Html->link(__('Become Admin'), array('action'=>'become_admin')));}
+    ?>
     <li><?php echo $this->Html->link(__('Logout'), array('controller' => 'Users','action'=>'logout')); ?> </li>
   </ul>
-  <p>&nbsp;</p>
-  <p><strong>Welcome to your personal area of the BCA website.</strong></p>
 </div>

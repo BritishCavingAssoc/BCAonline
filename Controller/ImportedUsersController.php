@@ -30,13 +30,23 @@ class ImportedUsersController extends AppController {
         //$this->Auth->allow(); // Allow all to public.
     }
 
+
     public function isAuthorized($user) {
 
         //User Admin role can also do the following.
         if ($this->UserUtilities->hasRole(array('UserAdmin'))) {
             if (in_array($this->action, array('admin_index', 'admin_view', 'admin_add', 'admin_edit', 'admin_delete',
-                    'admin_upload_file', 'admin_process_file', 'admin_update_users', 'admin_delete_all'))) {
-
+                'admin_delete_all', 'admin_upload_file', 'admin_process_file', 'admin_update_users', 'admin_update_groups',
+                'admin_report_multiclass_users_iuu', 'admin_tidy_multiclass_users_iuu', 'admin_delete_multiclass_users_iuu', 'admin_email_multiclass_users_iuu',
+                'admin_report_ind_repeated_lines', 'admin_tidy_ind_repeated_lines', 'admin_email_ind_repeated_lines',
+                'admin_report_ind_mismatched_names_iuu', 'admin_tidy_ind_mismatched_names_iuu', 'admin_delete_ind_mismatched_iuu', 'admin_email_ind_mismatched_names_iuu',
+                'admin_report_ind_mismatched_names_iuiu', 'admin_tidy_ind_mismatched_names_iuiu', 'admin_delete_ind_mismatched_iuiu', 'admin_email_ind_mismatched_names_iuiu',
+                'admin_report_ind_to_be_updated', 'admin_report_ind_to_be_added',
+                'admin_report_group_repeated_lines', 'admin_tidy_group_repeated_lines', 'admin_email_group_repeated_lines',
+                'admin_report_group_mismatched_names_iuu', 'admin_tidy_group_mismatched_names_iuu', 'admin_delete_group_mismatched_iuu', 'admin_email_group_mismatched_names_iuu',
+                'admin_report_groups_to_be_updated', 'admin_report_groups_to_be_added',
+                )))
+            {
                 return true;
             }
         }
@@ -44,45 +54,44 @@ class ImportedUsersController extends AppController {
         return parent::isAuthorized($user);
     }
 
+
     /*
      * Filter Plugin stuff.
      */
-    var $filters = array (
+    public $filters = array (
         'admin_index' => array (
             'ImportedUser' => array (
                 'ImportedUser.bca_no' => array('label' => 'BCA No', 'condition' => '=', 'type' => 'text'),
                 'ImportedUser.surname',
+                'ImportedUser.email',
                 'ImportedUser.organisation',
             )
         )
     );
 
-public function admin_testxls() {
+    public function admin_testxls() {
 
-    $folderToSaveXls = '/';
+        $folderToSaveXls = '/';
 
-    $objPHPExcel = new PHPExcel();
+        $objPHPExcel = new PHPExcel();
 
-    $objPHPExcel->getProperties()->setCreator("David Cooke")
-                         ->setLastModifiedBy("David Cooke")
-                         ->setTitle("PHPExcel Test Document")
-                         ->setSubject("PHPExcel Test Document")
-                         ->setDescription("Test document for PHPExcel, generated using PHP classes.")
-                         ->setKeywords("office PHPExcel php")
-                         ->setCategory("Test result file");
+        $objPHPExcel->getProperties()->setCreator("David Cooke")
+                             ->setLastModifiedBy("David Cooke")
+                             ->setTitle("PHPExcel Test Document")
+                             ->setSubject("PHPExcel Test Document")
+                             ->setDescription("Test document for PHPExcel, generated using PHP classes.")
+                             ->setKeywords("office PHPExcel php")
+                             ->setCategory("Test result file");
 
-    $objPHPExcel->setActiveSheetIndex(0)
-        ->setCellValue('A1', 'Hello')
-        ->setCellValue('B2', 'world!')
-        ->setCellValue('C1', 'Hello')
-        ->setCellValue('D2', 'world!');
+        $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue('A1', 'Hello')
+            ->setCellValue('B2', 'world!')
+            ->setCellValue('C1', 'Hello')
+            ->setCellValue('D2', 'world!');
 
-    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
-    //$objWriter->save( $folderToSaveXls . '/test.xls' );
-    $objWriter->save( 'test.xls' );
-
-
-
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        //$objWriter->save( $folderToSaveXls . '/test.xls' );
+        $objWriter->save( 'test.xls' );
     }
 
 
@@ -115,6 +124,7 @@ public function admin_testxls() {
         $this->set('importedUsers', $this->Paginator->paginate());
     }
 
+
     /**
      * admin_view method
      *
@@ -129,6 +139,7 @@ public function admin_testxls() {
         $options = array('conditions' => array('ImportedUser.' . $this->ImportedUser->primaryKey => $id));
         $this->set('importedUser', $this->ImportedUser->find('first', $options));
     }
+
 
     /**
      * admin_add method
@@ -146,6 +157,7 @@ public function admin_testxls() {
             }
         }
     }
+
 
     /**
      * admin_edit method
@@ -171,6 +183,7 @@ public function admin_testxls() {
         }
     }
 
+
     /**
      * admin_delete method
      *
@@ -192,6 +205,7 @@ public function admin_testxls() {
         return $this->redirect(array('action' => 'index'));
     }
 
+
     public function admin_delete_all() {
 
         if ($this->ImportedUser->deleteAll('1=1', false)) {
@@ -202,13 +216,14 @@ public function admin_testxls() {
         return $this->redirect(array('action' => 'index'));
     }
 
+
     /**
      * admin_import_errors
      *
      *
      */
+    //function admin_import_errors() {}
 
-    function admin_import_errors() {}
 
     /**
      * admin_upload method
@@ -250,6 +265,12 @@ public function admin_testxls() {
         }
     }
 
+
+    /**
+     * admin_process_file
+     *
+     * Process the CIM import file.
+     */
     function admin_process_file() {
 
         //Give ourselves plenty of time and memory.
@@ -307,12 +328,12 @@ public function admin_testxls() {
         return $this->redirect(array('action' => 'index'));
     }
 
+
     /**
      * admin_update_users
      *
      *
      */
-
     function admin_update_users() {
 
         $this->loadModel('User');
@@ -327,8 +348,9 @@ public function admin_testxls() {
         $batch_size = 100;
 
         while ($importedUsers = $this->ImportedUser->find('all',
-            array('order' => 'id', 'offset' => $c1 * $batch_size, 'limit' => $batch_size, 'recursive' => -1))) {
-
+            array('order' => 'id', 'offset' => $c1 * $batch_size, 'limit' => $batch_size, 'recursive' => -1,
+                'conditions' => array('ImportedUser.class' => array('CIM', 'DIM')))))
+        {
             set_time_limit(120); //Reset PHPs timeout counter.
 
             $batchCount = count($importedUsers);
@@ -343,6 +365,13 @@ public function admin_testxls() {
                 unset($importedUser['ImportedUser']['id']);
                 unset($importedUser['ImportedUser']['created']);
                 unset($importedUser['ImportedUser']['modified']);
+
+                //Set email status. Assume OK if email present.
+                if (!empty($importedUser['ImportedUser']['email'])) {
+                    $importedUser['ImportedUser']['email_status'] = 'OK';
+                } else {
+                    $importedUser['ImportedUser']['email_status'] = null;
+                }
 
                 //Find corresponding User.
                 //NB These 3 criteria should give a unique match.
@@ -364,6 +393,12 @@ public function admin_testxls() {
                     unset($importedUser['ImportedUser']['bca_email_ok']);
                     unset($importedUser['ImportedUser']['bcra_email_ok']);
 
+
+                    //Don't change the email status if the email address hasn't changed.
+                    if ($user['User']['email'] == $importedUser['ImportedUser']['email']) {
+                        $importedUser['ImportedUser']['email_status'] = $user['User']['email_status'];
+                    }
+
                     //Find the values in ImportedUser that aren't in User. Case insensitive. DEV!!! Might have trouble with integers.
                     if($changes = array_udiff_assoc($importedUser['ImportedUser'], $user['User'], 'strcasecmp')) {
 
@@ -377,7 +412,7 @@ public function admin_testxls() {
                         if (isset($changes['email'])) {
 
                             $viewVars = array(
-                                'full_name' => $user['User']['full_name'],
+                                'id_name' => $user['User']['id_name'],
                                 'new_email' => $changes['email'],
                                 'bca_online_admin_email' => $configEmailAddresses['bca_online_admin'],
                             );
@@ -404,7 +439,7 @@ public function admin_testxls() {
                                 $updateErrors[] = array(
                                     'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
                                     'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
-                                    'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                                    'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
                                     'validation_error' => $this->User->validationErrors);
 
                                 continue;
@@ -421,9 +456,11 @@ public function admin_testxls() {
 
                             //Don't want these to show up in the notification emails.
                             unset($changes2['full_name']); //Virtual field.
+                            unset($changes2['id_name']); //Virtual field.
                             unset($changes2['bca_status']); //Change of status is normally notified by another route.
                             unset($changes2['date_of_expiry'], $changes2['address_ok']);
                             unset($changes2['forename2'], $changes2['surname2'], $changes2['bca_no2']);
+                            unset($changes2['email_status']); //Internal use.
                             unset($changes2['insurance_status2'], $changes2['class_code2']); //!!!DEV These should be removed when gone from table.
 
                             //Add in whole address if any part has changed.
@@ -445,7 +482,7 @@ public function admin_testxls() {
 
                             if (!empty($email_changes)) {
                                 $viewVars = array(
-                                    'full_name' => $importedUser['ImportedUser']['full_name'],
+                                    'id_name' => $importedUser['ImportedUser']['id_name'],
                                     'membership_admin_email' => $configEmailAddresses['membership_admin'],
                                     'changes' => $email_changes,
                                     'previous' => $email_previous,
@@ -475,7 +512,7 @@ public function admin_testxls() {
                         $updateErrors[] = array(
                             'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
                             'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
-                            'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                            'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
                             'validation_error' => 'Empty username');
 
                         continue;
@@ -488,7 +525,7 @@ public function admin_testxls() {
                         $updateErrors[] = array(
                             'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
                             'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
-                            'full_name' =>$importedUsers[$c2]['ImportedUser']['full_name'],
+                            'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
                             'validation_error' => $this->User->validationErrors);
 
                         continue;
@@ -515,16 +552,386 @@ public function admin_testxls() {
         $this->Session->setFlash("Processed {$process_count}, added {$add_count} and updated {$update_count} records.", 'default', array('class' => 'success'));
 
         return $this->redirect(array('action' => 'index'));
-
     }
 
+
     /**
-     * admin_report_repeated_lines
+     * admin_update_groups
+     *
+     *
+     */
+    function admin_update_groups() {
+
+        $this->loadModel('User');
+        $this->loadModel('SentEmail');
+
+        //Get email config.
+        if(!$configEmailAddresses = Configure::read('EmailAddresses')) {
+            throw new NotFoundException(__('Invalid email configuration'));
+        }
+
+        $process_count = $add_count = $update_count = $c1 = $c2 = 0;
+        $batch_size = 100;
+
+        while ($importedUsers = $this->ImportedUser->find('all',
+            array('order' => 'id', 'offset' => $c1 * $batch_size, 'limit' => $batch_size, 'recursive' => -1,
+                'conditions' => array('ImportedUser.class' => 'GRP'))))
+        {
+            set_time_limit(120); //Reset PHPs timeout counter.
+
+            $batchCount = count($importedUsers);
+
+            for ($c2 = 0; $c2 < $batchCount; $c2++) {
+
+                $importedUser = $importedUsers[$c2];
+
+                $process_count++;
+
+                //Don't add, update or compare these fields.
+                unset($importedUser['ImportedUser']['id']);
+                unset($importedUser['ImportedUser']['created']);
+                unset($importedUser['ImportedUser']['modified']);
+
+                //Set email status. Assume OK if email present.
+                if (!empty($importedUser['ImportedUser']['email'])) {
+                    $importedUser['ImportedUser']['email_status'] = 'OK';
+                } else {
+                    $importedUser['ImportedUser']['email_status'] = null;
+                }
+
+                //Find corresponding User.
+                //NB These 2 criteria should give a unique match.
+                $conditions = array(
+                    'User.class' => $importedUser['ImportedUser']['class'],
+                    'User.bca_no' => $importedUser['ImportedUser']['bca_no']
+                );
+
+                //If User exists.
+                if ($user = $this->User->find('first', array('conditions' => $conditions, 'contain' => false))) {
+
+                    //Don't update or compare these fields because they can overwrite changes made online.
+                    unset($importedUser['ImportedUser']['bca_email_ok']);
+                    unset($importedUser['ImportedUser']['bcra_email_ok']);
+
+                    //Don't change the email status if the email address hasn't changed.
+                    if ($user['User']['email'] == $importedUser['ImportedUser']['email']) {
+                        $importedUser['ImportedUser']['email_status'] = $user['User']['email_status'];
+                    }
+
+                    //Find the values in ImportedUser that aren't in User. Case insensitive. DEV!!! Might have trouble with integers.
+                    if($changes = array_udiff_assoc($importedUser['ImportedUser'], $user['User'], 'strcasecmp')) {
+
+                        //The import can not clear the email address of an active user but can update it.
+                        if ($user['User']['active'] && isset($changes['email']) && empty($changes['email'])) {
+                            unset($changes['email'], $importedUser['ImportedUser']['email']);
+                        }
+
+                        // If email address has changed send a notification to the old address.
+                        // NB Before save() so isEmailable() isn't affected by the update.
+                        if (isset($changes['email'])) {
+
+                            $viewVars = array(
+                                'id_name' => $user['User']['id_name'],
+                                'new_email' => $changes['email'],
+                                'bca_online_admin_email' => $configEmailAddresses['bca_online_admin'],
+                            );
+
+                            $email = array(
+                                'user_id' => $user['User']['id'],
+                                //'to' => $user['User']['email'],
+                                'subject' => 'Your BCA Online email address has been changed. (Ref: '. $user['User']['bca_no'] . ')',
+                                'template' => 'imported_users-admin_update_users-email_updated',
+                                'viewVars' => $viewVars,
+                            );
+
+                            $this->SentEmail->send($email);
+                        }
+
+                        //Update User if any changes.
+                        if (!empty($changes)) {
+                            $importedUser['ImportedUser']['id'] = $user['User']['id'];
+                            $this->User->clear();
+
+                            if(!$this->User->save($importedUser['ImportedUser'])) {
+
+                                //Save errors to display at end of batch.
+                                $updateErrors[] = array(
+                                    'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
+                                    'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
+                                    'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
+                                    'validation_error' => $this->User->validationErrors);
+
+                                continue;
+
+                            } else {
+                                //Keep total of records updated.
+                                $update_count++;
+                            }
+
+                            //// Send email to notify user of import changes.
+
+                            //Check for notifyable changes not including changes of case.
+                            $changes2 = array_udiff_assoc($importedUser['ImportedUser'], $user['User'], 'strcasecmp');
+
+                            //Don't want these to show up in the notification emails.
+                            unset($changes2['full_name']); //Virtual field.
+                            unset($changes2['id_name']); //Virtual field.
+                            unset($changes2['bca_status']); //Change of status is normally notified by another route.
+                            unset($changes2['date_of_expiry'], $changes2['address_ok']);
+                            unset($changes2['email_status']); //Internal use.
+                            unset($changes2['forename2'], $changes2['surname2'], $changes2['bca_no2']);
+                            unset($changes2['insurance_status2'], $changes2['class_code2']); //!!!DEV These should be removed when gone from table.
+
+                            //Add in whole address if any part has changed.
+                            if(array_key_exists('address1', $changes2) || array_key_exists('address2', $changes2) ||
+                                array_key_exists('address3', $changes2) || array_key_exists('town', $changes2) ||
+                                array_key_exists('county', $changes2) || array_key_exists('postcode', $changes2) ||
+                                array_key_exists('country', $changes2)) {
+
+                                //Add in keys to be used below.
+                                $changes2['address1'] = $changes2['address2'] = $changes2['address3'] = $changes2['town'] = "";
+                                $changes2['county'] = $changes2['postcode'] = $changes2['country'] = "";
+                            }
+
+                            //Find the corresponding current values in the right order (as per database).
+                            $email_changes = array_intersect_key($importedUser['ImportedUser'], $changes2);
+
+                            //Find the corresponding previous values.
+                            $email_previous = array_intersect_key($user['User'], $changes2);
+
+                            if (!empty($email_changes)) {
+                                $viewVars = array(
+                                    'id_name' => $importedUser['ImportedUser']['id_name'],
+                                    'membership_admin_email' => $configEmailAddresses['membership_admin'],
+                                    'changes' => $email_changes,
+                                    'previous' => $email_previous,
+                                );
+
+                                $email = array(
+                                    'user_id' => $user['User']['id'],
+                                    'subject' => 'Your BCA Online profile has been updated. (Ref: '. $user['User']['bca_no'] . ')',
+                                    'template' => 'imported_users-admin_update_users-user_updated',
+                                    'viewVars' => $viewVars,
+                                );
+
+                                $this->SentEmail->send($email);
+                            }
+                        }
+                    }
+
+                } else {
+                    //Add new user.
+
+                    // Set username (bca_no padded with leading zeros).
+                    $importedUser['ImportedUser']['username'] = User::MakeUserName($importedUser['ImportedUser']['bca_no']);
+
+                    if (empty($importedUser['ImportedUser']['username'])) {
+
+                        //Save errors to display at end of batch.
+                        $updateErrors[] = array(
+                            'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
+                            'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
+                            'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
+                            'validation_error' => 'Empty username');
+
+                        continue;
+                    }
+
+                    $this->User->create();
+                    if(!$this->User->save($importedUser['ImportedUser'])) {
+
+                        //Save errors to display at end of batch.
+                        $updateErrors[] = array(
+                            'imported_user_id' => $importedUsers[$c2]['ImportedUser']['id'],
+                            'bca_no' =>$importedUsers[$c2]['ImportedUser']['bca_no'],
+                            'id_name' =>$importedUsers[$c2]['ImportedUser']['id_name'],
+                            'validation_error' => $this->User->validationErrors);
+
+                        continue;
+
+                    } else {
+                        //Keep total of records added.
+                        $add_count++;
+                    }
+
+                    // NB no notifying email for new users. User needs to activate account before receiving emails.
+                }
+            }
+
+            //Display any errors and stop processing.
+            if (!empty($updateErrors)) {
+                $this->set('updateErrors', $updateErrors);
+                $this->Session->setFlash(__('Saving of the data failed.'));
+                return $this->render();
+            }
+
+            $c1++; //Do next batch.
+        }
+
+        $this->Session->setFlash("Processed {$process_count}, added {$add_count} and updated {$update_count} records.", 'default', array('class' => 'success'));
+
+        return $this->redirect(array('action' => 'index'));
+    }
+
+
+    /**
+    * admin_report_multiclass_users_iuu
+    *
+    * List those users that are both individual and group members.
+    * Compares the imported users against the master database.
+    *
+    */
+    function admin_report_multiclass_users_iuu() {
+
+        // For each BCA#, find those who are in both Group and Individual classes. It is wrong to be in both.
+
+        $mySQL =
+            'SELECT ImportedUser.id, ImportedUser.bca_no, ImportedUser.forename, ImportedUser.surname, ImportedUser.organisation, ImportedUser.class,
+                User.bca_no, User.forename, User.surname, User.organisation, User.class
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.bca_no = User.bca_no AND
+                ((ImportedUser.class = \'CIM\' AND User.class = \'GRP\') OR
+                (ImportedUser.class = \'DIM\' AND User.class = \'GRP\') OR
+                (ImportedUser.class = \'GRP\' AND User.class = \'CIM\') OR
+                (ImportedUser.class = \'GRP\' AND User.class = \'DIM\'))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $multiclassLines = $db->fetchALL($mySQL);
+
+        $this->set('multiclassLines', $multiclassLines);
+    }
+
+
+    /**
+     * admin_tidy_multiclass_users_iuu
+     *
+     * Deletes the multiclass user records from the Imported Users.
+     */
+    function admin_tidy_multiclass_users_iuu() {
+
+        $this->request->onlyAllow('post');
+
+        $mySQL =
+            'SELECT ImportedUser.id
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.bca_no = User.bca_no AND
+                ((ImportedUser.class = \'CIM\' AND User.class = \'GRP\') OR
+                (ImportedUser.class = \'DIM\' AND User.class = \'GRP\') OR
+                (ImportedUser.class = \'GRP\' AND User.class = \'CIM\') OR
+                (ImportedUser.class = \'GRP\' AND User.class = \'DIM\'))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        if ($multiclassLines = $db->fetchALL($mySQL)) {
+
+            $line_count = count($multiclassLines);
+
+            for ($c1 = 0; $c1 < $line_count; $c1++) {
+                $this->ImportedUser->delete($multiclassLines[$c1]['ImportedUser']['id']);
+            }
+
+            $this->Session->setFlash(__($line_count .' mismatched records have has been deleted.'), 'default', array('class' => 'success'));
+
+        } else {
+            $this->Session->setFlash(__('There was no data to delete.'));
+        }
+
+        return $this->redirect(array('action' => 'report_multiclass_users_iuu'));
+    }
+
+
+    /**
+     * admin_delete_multiclass_users_iuu
+     *
+     * Deletes a multiclass user records from the Imported User.
+     * All the records with the same BCA# are deleted.
+     *
+     */
+    function admin_delete_multiclass_users_iuu($bca_no = null) {
+
+        $this->request->onlyAllow('post');
+
+        // Make sure it is numeric.
+        if (!is_numeric($bca_no)) throw new NotFoundException(__('Not a valid BCA No.'));
+
+        $conditions = array('bca_no =' => $bca_no);
+
+        if ($this->ImportedUser->deleteAll($conditions, false)) {
+            $this->Session->setFlash(__('The records have been deleted.'), 'default', array('class' => 'success'));
+        } else {
+            $this->Session->setFlash(__('Failed to delete the records.'));
+        }
+
+        return $this->redirect(array('action' => 'report_multiclass_users_iuu'));
+    }
+
+
+    /**
+    * admin_email_multiclass_users_iuu
+    *
+    * Email the multiclass users report to the current operator.
+    *
+    */
+    function admin_email_multiclass_users_iuu() {
+
+        //Get data.
+        $mySQL =
+            'SELECT ImportedUser.id, ImportedUser.bca_no, ImportedUser.forename, ImportedUser.surname, ImportedUser.organisation, ImportedUser.class,
+                User.bca_no, User.forename, User.surname, User.organisation, User.class
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.bca_no = User.bca_no AND
+                ((ImportedUser.class = \'CIM\' AND User.class = \'GRP\') OR
+                (ImportedUser.class = \'DIM\' AND User.class = \'GRP\') OR
+                (ImportedUser.class = \'GRP\' AND User.class = \'CIM\') OR
+                (ImportedUser.class = \'GRP\' AND User.class = \'DIM\'))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $multiclassLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'multiclassLines' => $multiclassLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'subject' => 'BCA Online Multiclass Users (IUU) Report.',
+            'template' => 'imported_users-admin_email_multiclass_users_iuu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'report_multiclass_users_iuu'));
+    }
+
+
+    /**
+     * admin_report_ind_repeated_lines
      *
      * Lists repeated records in the import file.
      */
-
-    function admin_report_repeated_lines() {
+    function admin_report_ind_repeated_lines() {
 
         $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class', 'COUNT(*) as row_count',
             'GROUP_CONCAT(ImportedUser.forename) as forenames', 'GROUP_CONCAT(ImportedUser.surname) as surnames');
@@ -532,10 +939,13 @@ public function admin_testxls() {
         //A condition on an aggregate function must use HAVING.
         $group = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class HAVING COUNT(*) > 1');
 
+        $conditions = array('ImportedUser.class' => array('CIM', 'DIM'));
+
         $order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
 
         $repeatedLines = $this->ImportedUser->find('all', array(
             'fields' => $fields,
+            'conditions' => $conditions,
             'group' => $group,
             'order' => $order,
             //'limit' => 10,
@@ -544,13 +954,13 @@ public function admin_testxls() {
         $this->set('repeatedLines', $repeatedLines);
     }
 
-    /**
-     * admin_tidy_repeats
-     *
-     * Deletes the records records from the Import.
-     */
 
-    function admin_tidy_repeats() {
+    /**
+     * admin_tidy_ind_repeated_lines
+     *
+     * Deletes the repeated records from the Import.
+     */
+    function admin_tidy_ind_repeated_lines() {
 
         $this->request->onlyAllow('post');
 
@@ -559,8 +969,11 @@ public function admin_testxls() {
         //A condition on an aggregate function must use HAVING.
         $group = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class HAVING COUNT(*) > 1');
 
+        $conditions = array('ImportedUser.class' => array('CIM', 'DIM'));
+
         if ($repeatedLines = $this->ImportedUser->find('all', array(
             'fields' => $fields,
+            'conditions' => $conditions,
             'group' => $group,
             )))
         {
@@ -581,71 +994,87 @@ public function admin_testxls() {
             $this->Session->setFlash(__('There was no data to delete.'));
         }
 
-        return $this->redirect(array('action' => 'report_repeats'));
+        return $this->redirect(array('action' => 'report_ind_repeated_lines'));
     }
 
+
     /**
-     * admin_report_new_mismatched_names
-     *
-     * Lists records in the import file that have different names from the master database
-     * and are not already in the master database.
-     */
-
-     /* SELECT DISTINCT u1.bca_no, u2.bca_no, u2.forename, u2.surname, u2.organisation, u2.class, u1.forename, u1.surname, u1.organisation, u1.class
-      * FROM imported_users AS u1, users AS u2
-      * WHERE (((u1.bca_no)=[u2].[bca_no]) AND
-      * ((Exists (SELECT *
-      * FROM users  AS u3
-      * WHERE u1.bca_no=u3.bca_no AND u1.forename=u3.forename AND u1.surname=u3.surname))=False) AND
-      * ((Exists (SELECT *
-      * FROM users  AS u4
-      * WHERE u1.bca_no=u4.bca_no AND (u1.forename<>u4.forename or u1.surname<>u4.surname)))<>False))
-      * ORDER BY u1.bca_no;
+    * admin_email_ind_repeated_lines
+    *
+    * Email the repeated records report to the current operator.
+    *
     */
-    function admin_report_new_mismatched_names() {
+    function admin_email_ind_repeated_lines() {
 
-        $mySQL = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname, User.organisation,
-            User.class, ImportedUser.forename, ImportedUser.surname, ImportedUser.organisation, ImportedUser.class
-            FROM imported_users AS ImportedUser, users AS User
-            WHERE
-            (((ImportedUser.bca_no)=[User].[bca_no])
-            AND ((Exists (SELECT *
-            FROM users  AS u3
-            WHERE ImportedUser.bca_no=u3.bca_no AND ImportedUser.forename=u3.forename AND ImportedUser.surname=u3.surname))=False)
-            AND ((Exists (SELECT *
-            FROM users  AS u4
-            WHERE ImportedUser.bca_no=u4.bca_no AND (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname)))<>False))
-            LIMIT 10
-            ORDER BY ImportedUser.bca_no;';
+        //Get data.
+        $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class', 'COUNT(*) as row_count',
+            'GROUP_CONCAT(ImportedUser.forename) as forenames', 'GROUP_CONCAT(ImportedUser.surname) as surnames');
 
-        $mySQL2 = 'SELECT ImportedUser.bca_no FROM imported_users AS ImportedUser,
-        users AS User WHERE ImportedUser.bca_no = User.bca_no LIMIT 10';
+        //A condition on an aggregate function must use HAVING.
+        $group = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class HAVING COUNT(*) > 1');
 
-        $mySQL3 = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname, User.organisation,
-            User.class, ImportedUser.forename, ImportedUser.surname, ImportedUser.organisation, ImportedUser.class
-            FROM imported_users AS ImportedUser, users AS User
-            WHERE
-            ImportedUser.bca_no=User.bca_no
-            AND Exists (SELECT *
-                FROM users AS u3
-                WHERE ImportedUser.bca_no=u3.bca_no AND
-                    ImportedUser.forename=u3.forename AND
-                    ImportedUser.surname=u3.surname)
-            AND Exists (SELECT *
-                FROM users AS u4
-                WHERE ImportedUser.bca_no=u4.bca_no AND
-                    (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname))
-            LIMIT 10
-            ORDER BY ImportedUser.bca_no;';
+        $conditions = array('ImportedUser.class' => array('CIM', 'DIM'));
 
-        $mySQL4 = 'SELECT DISTINCT ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
+        $order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
+
+        $repeatedLines = $this->ImportedUser->find('all', array(
+            'fields' => $fields,
+            'conditions' => $conditions,
+            'group' => $group,
+            'order' => $order,
+            //'limit' => 10,
+        ));
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'repeatedLines' => $repeatedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'subject' => 'BCA Online Repeated Lines Report of Individual Members.',
+            'template' => 'imported_users-admin_email_ind_repeated_lines',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'report_ind_repeated_lines'));
+    }
+
+
+    /**
+     * admin_report_ind_mismatched_names_iuu
+     *
+     * For individual members, lists records in the import file that have different names from the master database
+     * and are not already in the master database.
+     *
+     * Names for the given BCA no. already in the database will not be reported. I.e. we assumption that names already in the database are
+     * correct. This means only new variations in the current import are reported. This reduces the length of the report considerably.
+     * For example if 23/David Smith/WCC and 23/Dave Smith/BEC are existing records in the database.
+     * Importing 23/David Smith/WCC would be not reported despite there being a mis-match with the BEC entry.
+     * Importing 23/David Smithson/WCC would be reported as a mis-match.
+     */
+    function admin_report_ind_mismatched_names_iuu() {
+
+        $mySQL = 'SELECT ImportedUser.id, ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
                 User.organisation, User.class, User.address1, User.address2, User.email,
                 ImportedUser.forename, ImportedUser.surname,
                 ImportedUser.organisation, ImportedUser.class, ImportedUser.address1,
                 ImportedUser.address2, ImportedUser.email
             FROM imported_users AS ImportedUser, users AS User
             WHERE
-                ImportedUser.bca_no=User.bca_no
+                ImportedUser.bca_no=User.bca_no AND
+                (ImportedUser.class = \'CIM\' OR ImportedUser.class = \'DIM\')
             AND Not Exists (SELECT u3.bca_no
                 FROM users AS u3
                 WHERE ImportedUser.bca_no=u3.bca_no AND
@@ -660,90 +1089,41 @@ public function admin_testxls() {
 
         $db = $this->ImportedUser->getDataSource();
 
-        $mismatchedLines = $db->fetchALL($mySQL4);
-
-    /*
-        $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class',
-            'ImportedUser.forename', 'ImportedUser.surname', 'ImportedUser.address1', 'ImportedUser.address2',
-            'User.bca_no', 'User.organisation', 'User.class', 'User.forename', 'User.surname',
-            'User.address1', 'User.address2');
-
-        $joins = array(array('table' => 'users', 'alias' => 'User',
-            'type' => 'inner', 'conditions' => array('ImportedUser.bca_no = User.bca_no')));
-
-        //$order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
-        $order = array('ImportedUser.bca_no');
-
-        $conditions = array('or' => array('ImportedUser.forename <> User.forename', 'ImportedUser.surname <> User.surname'));
-
-        $mismatchedLines = $this->ImportedUser->find('all', array(
-            'joins' => $joins,
-            'fields' => $fields,
-            'conditions' => $conditions,
-            'order' => $order,
-            //'limit' => 10,
-        ));
-*/
-        $this->set('mismatchedLines', $mismatchedLines);
-
-    }
-
-    /**
-     * admin_report_mismatched_names
-     *
-     * Lists records in the import file that have different names from the master database.
-     */
-
-    function admin_report_mismatched_names() {
-
-        $fields = array('ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class',
-            'ImportedUser.forename', 'ImportedUser.surname', 'ImportedUser.address1', 'ImportedUser.address2',
-            'User.bca_no', 'User.organisation', 'User.class', 'User.forename', 'User.surname',
-            'User.address1', 'User.address2');
-
-        $joins = array(array('table' => 'users', 'alias' => 'User',
-            'type' => 'inner', 'conditions' => array('ImportedUser.bca_no = User.bca_no')));
-
-        //$order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
-        $order = array('ImportedUser.bca_no');
-
-        $conditions = array('or' => array('ImportedUser.forename <> User.forename', 'ImportedUser.surname <> User.surname'));
-
-        $mismatchedLines = $this->ImportedUser->find('all', array(
-            'joins' => $joins,
-            'fields' => $fields,
-            'conditions' => $conditions,
-            'order' => $order,
-            //'limit' => 10,
-        ));
+        $mismatchedLines = $db->fetchALL($mySQL);
 
         $this->set('mismatchedLines', $mismatchedLines);
-
     }
 
-    /**
-     * admin_tidy_mismatched_names
-     *
-     * Deletes the mismatching name records from the Import.
-     */
 
-    function admin_tidy_mismatched_names() {
+    /**
+     * admin_tidy_ind_mismatched_names_iuu
+     *
+     * For individual members, deletes the mismatching name records from the Imported Users.
+     */
+    function admin_tidy_ind_mismatched_names_iuu() {
 
         $this->request->onlyAllow('post');
 
-        $fields = array('ImportedUser.id');
+        $mySQL =
+            'SELECT ImportedUser.id
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.bca_no=User.bca_no AND
+                (ImportedUser.class = \'CIM\' OR ImportedUser.class = \'DIM\')
+            AND Not Exists (SELECT u3.bca_no
+                FROM users AS u3
+                WHERE ImportedUser.bca_no=u3.bca_no AND
+                    ImportedUser.forename=u3.forename AND
+                    ImportedUser.surname=u3.surname)
+            AND Exists (SELECT u4.bca_no
+                FROM users AS u4
+                WHERE ImportedUser.bca_no=u4.bca_no AND
+                    (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname))';
 
-        $joins = array(array('table' => 'users', 'alias' => 'User',
-            'type' => 'inner', 'conditions' => array('ImportedUser.bca_no = User.bca_no')));
+        $db = $this->ImportedUser->getDataSource();
 
-        $conditions = array('ImportedUser.forename <> User.forename', 'ImportedUser.surname <> User.surname');
+        if ($mismatchedLines = $db->fetchALL($mySQL)) {
 
-        if ($mismatchedLines = $this->ImportedUser->find('all', array(
-            'joins' => $joins,
-            'fields' => $fields,
-            'conditions' => $conditions,
-            )))
-        {
             $line_count = count($mismatchedLines);
 
             for ($c1 = 0; $c1 < $line_count; $c1++) {
@@ -756,28 +1136,299 @@ public function admin_testxls() {
             $this->Session->setFlash(__('There was no data to delete.'));
         }
 
-        return $this->redirect(array('action' => 'report_mismatched_names'));
+        return $this->redirect(array('action' => 'report_ind_mismatched_names_iuu'));
     }
 
-    /*
-     * admin_report_users_to_be_updated
-     *
-     * Shows the users that will be updated by the import.
-     */
 
-    function admin_report_users_to_be_updated() {
+    /**
+     * admin_delete_ind_mismatched_iuu
+     *
+     * For individual members, deletes a mismatching name record from the Imported User.
+     *
+     * The records with the given record id is deleted because we can identify the specific record that is troublesome.
+     * Only 1 record will be deleted. This is different from admin_delete_mismatched_iuiu.
+     */
+    function admin_delete_ind_mismatched_iuu($id = null) {
+
+        $this->request->onlyAllow('post');
+
+        // Make sure it is numeric.
+        if (!is_numeric($id)) throw new NotFoundException(__('Not a valid ID No.'));
+
+        if ($this->ImportedUser->delete($id)) {
+            $this->Session->setFlash(__('The record has been deleted.'), 'default', array('class' => 'success'));
+        } else {
+            $this->Session->setFlash(__('Failed to delete record.'));
+        }
+
+        return $this->redirect(array('action' => 'report_ind_mismatched_names_iuu'));
+    }
+
+
+    /**
+    * admin_email_ind_mismatched_names_iuu
+    *
+    * For individual members, email the Mismatching Names report to the current operator.
+    *
+    */
+    function admin_email_ind_mismatched_names_iuu() {
+
+        //Get data.
+        $mySQL = 'SELECT ImportedUser.id, ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
+                User.organisation, User.class, User.address1, User.address2, User.email,
+                ImportedUser.forename, ImportedUser.surname,
+                ImportedUser.organisation, ImportedUser.class, ImportedUser.address1,
+                ImportedUser.address2, ImportedUser.email
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.bca_no=User.bca_no AND
+                (ImportedUser.class = \'CIM\' OR ImportedUser.class = \'DIM\')
+            AND Not Exists (SELECT u3.bca_no
+                FROM users AS u3
+                WHERE ImportedUser.bca_no=u3.bca_no AND
+                    ImportedUser.forename=u3.forename AND
+                    ImportedUser.surname=u3.surname)
+            AND Exists (SELECT u4.bca_no
+                FROM users AS u4
+                WHERE ImportedUser.bca_no=u4.bca_no AND
+                    (ImportedUser.forename<>u4.forename or ImportedUser.surname<>u4.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'mismatchedLines' => $mismatchedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'subject' => 'BCA Online Mismatch User Name (IUU) Report.',
+            'template' => 'imported_users-admin_email_ind_mismatched_names_iuu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'report_ind_mismatched_names_iuu'));
+    }
+
+
+    /**
+    * admin_report_ind_mismatched_names_iuiu
+    *
+    * For individual members, compares Imported User records against the other Imported User records with the same BCA No. and
+    * lists those where the name doesn't match.
+    */
+    function admin_report_ind_mismatched_names_iuiu() {
+
+        // For each BCA#, find the imported user records where there are other imported user records with a different name.
+
+        $mySQL =
+            'SELECT ImportedUser.id, ImportedUser.bca_no, ImportedUser.forename, ImportedUser.surname,
+                    ImportedUser.organisation, ImportedUser.class, ImportedUser.email, ImportedUser.address1, ImportedUser.address2
+            FROM imported_users AS ImportedUser
+            WHERE
+                EXISTS (SELECT u2.bca_no
+                FROM imported_users AS u2
+                WHERE ImportedUser.bca_no = u2.bca_no AND
+                    (ImportedUser.class = \'CIM\' OR ImportedUser.class = \'DIM\') AND
+                    (ImportedUser.forename <> u2.forename OR ImportedUser.surname <> u2.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        $this->set('mismatchedLines', $mismatchedLines);
+    }
+
+
+    /**
+     * admin_tidy_ind_mismatched_names_iuiu
+     *
+     * For individual members, deletes the mismatching name records from the Imported Users.
+     */
+    function admin_tidy_ind_mismatched_names_iuiu() {
+
+        $this->request->onlyAllow('post');
+
+        $mySQL =
+            'SELECT  ImportedUser.id
+            FROM imported_users AS ImportedUser
+            WHERE
+                EXISTS (SELECT u2.bca_no
+                FROM imported_users AS u2
+                WHERE ImportedUser.bca_no = u2.bca_no AND
+                    (ImportedUser.class = \'CIM\' OR ImportedUser.class = \'DIM\') AND
+                    (ImportedUser.forename <> u2.forename OR ImportedUser.surname <> u2.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        if ($mismatchedLines = $db->fetchALL($mySQL)) {
+
+            $line_count = count($mismatchedLines);
+
+            for ($c1 = 0; $c1 < $line_count; $c1++) {
+                $this->ImportedUser->delete($mismatchedLines[$c1]['ImportedUser']['id']);
+            }
+
+            $this->Session->setFlash(__($line_count .' mismatched records have has been deleted.'), 'default', array('class' => 'success'));
+
+        } else {
+            $this->Session->setFlash(__('There was no data to delete.'));
+        }
+
+        return $this->redirect(array('action' => 'report_ind_mismatched_names_iuiu'));
+    }
+
+
+    /**
+     * admin_delete_ind_mismatched_iuiu
+     *
+     * For individual members, deletes a mismatching name record from the Imported User.
+     *
+     * All the records with the same BCA# are deleted, since they are all new and we don't know which is error.
+     * A minimum of 2 records will be deleted. This is different from admin_delete_mismatched_iuu.
+     */
+    function admin_delete_ind_mismatched_iuiu($bca_no = null) {
+
+        $this->request->onlyAllow('post');
+
+        // Make sure it is numeric.
+        if (!is_numeric($bca_no)) throw new NotFoundException(__('Not a valid BCA No.'));
+
+        $conditions = array('bca_no =' => $bca_no);
+
+        if ($this->ImportedUser->deleteAll($conditions, false)) {
+            $this->Session->setFlash(__('The records have been deleted.'), 'default', array('class' => 'success'));
+        } else {
+            $this->Session->setFlash(__('Failed to delete the records.'));
+        }
+
+        return $this->redirect(array('action' => 'report_ind_mismatched_names_iuiu'));
+    }
+
+
+    /**
+    * admin_email_ind_mismatched_names_iuiu
+    *
+    * For individual members, email the Mismatching Names report to the current operator.
+    *
+    */
+    function admin_email_ind_mismatched_names_iuiu() {
+
+        //Get data.
+        $mySQL =
+            'SELECT ImportedUser.id, ImportedUser.bca_no, ImportedUser.forename, ImportedUser.surname,
+                    ImportedUser.organisation, ImportedUser.class, ImportedUser.email, ImportedUser.address1, ImportedUser.address2
+            FROM imported_users AS ImportedUser
+            WHERE
+                EXISTS (SELECT u2.bca_no
+                FROM imported_users AS u2
+                WHERE ImportedUser.bca_no = u2.bca_no AND
+                    (ImportedUser.class = \'CIM\' OR ImportedUser.class = \'DIM\') AND
+                    (ImportedUser.forename <> u2.forename OR ImportedUser.surname <> u2.surname))
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'mismatchedLines' => $mismatchedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'subject' => 'BCA Online Mismatch User Name (IUIU) Report for Individual Members.',
+            'template' => 'imported_users-admin_email_ind_mismatched_names_iuiu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'report_ind_mismatched_names_iuiu'));
+    }
+
+
+    /*
+     * admin_report_ind_to_be_updated
+     *
+     * Shows the individuals that will be updated by the import.
+     */
+    function admin_report_ind_to_be_updated() {
 
         $fields = array(
-            'ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class',
-            'ImportedUser.class_code', 'ImportedUser.bca_status', 'ImportedUser.insurance_status',
+            'ImportedUser.class',
+            'ImportedUser.bca_no',
+            'ImportedUser.organisation',
+            'ImportedUser.forename',
+            'ImportedUser.surname',
+            'ImportedUser.class_code',
+            'ImportedUser.bca_status',
+            'ImportedUser.insurance_status',
             'ImportedUser.date_of_expiry',
-            'ImportedUser.email', 'ImportedUser.forename', 'ImportedUser.surname',
-            'ImportedUser.address1', 'ImportedUser.address2', 'ImportedUser.address3', 'ImportedUser.town',
-            'ImportedUser.county', 'ImportedUser.postcode', 'ImportedUser.country',
-            'User.bca_no', 'User.organisation', 'User.class', 'User.class_code', 'User.bca_status',
+            'ImportedUser.email',
+            'ImportedUser.address1',
+            'ImportedUser.address2',
+            'ImportedUser.address3',
+            'ImportedUser.town',
+            'ImportedUser.county',
+            'ImportedUser.postcode',
+            'ImportedUser.country',
+            'ImportedUser.gender',
+            'ImportedUser.year_of_birth',
+            'ImportedUser.bcra_member',
+            'ImportedUser.address_ok',
+            'User.class',
+            'User.bca_no',
+            'User.organisation',
+            'User.forename',
+            'User.surname',
+            'User.position',
+            'User.class_code',
+            'User.bca_status',
             'User.insurance_status',
-            'User.date_of_expiry', 'User.email', 'User.forename', 'User.surname', 'User.address1',
-            'User.address2', 'User.address3', 'User.town', 'User.county', 'User.postcode', 'User.country',
+            'User.date_of_expiry',
+            'User.email',
+            'User.address1',
+            'User.address2',
+            'User.address3',
+            'User.town',
+            'User.county',
+            'User.postcode',
+            'User.country',
+            'User.gender',
+            'User.year_of_birth',
+            'User.bcra_member',
+            'User.address_ok',
         );
 
         $joins = array(array('table' => 'users', 'alias' => 'User',
@@ -789,21 +1440,28 @@ public function admin_testxls() {
 
         $order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
 
-        $conditions = array('or' => array(
+        $conditions = array(
+            'ImportedUser.class' => array('CIM', 'DIM'),
+            'or' => array(
+            'ImportedUser.forename <> User.forename',
+            'ImportedUser.surname <> User.surname',
             'ImportedUser.class_code <> User.class_code',
             'ImportedUser.bca_status <> User.bca_status',
             'ImportedUser.insurance_status <> User.insurance_status',
             'ImportedUser.date_of_expiry <> User.date_of_expiry',
             'ImportedUser.email <> User.email',
-            'ImportedUser.forename <> User.forename',
-            'ImportedUser.surname <> User.surname',
             'ImportedUser.address1 <> User.address1',
             'ImportedUser.address2 <> User.address2',
             'ImportedUser.address3 <> User.address3',
             'ImportedUser.town <> User.town',
             'ImportedUser.county <> User.county',
             'ImportedUser.postcode <> User.postcode',
-            'ImportedUser.country <> User.country',)
+            'ImportedUser.country <> User.country',
+            'ImportedUser.gender <> User.gender',
+            'ImportedUser.year_of_birth <> User.year_of_birth',
+            'ImportedUser.bcra_member <> User.bcra_member',
+            'ImportedUser.address_ok <> User.address_ok',
+            )
         );
 
         $updatedLines = $this->ImportedUser->find('all', array(
@@ -817,20 +1475,36 @@ public function admin_testxls() {
         $this->set('updatedLines', $updatedLines);
     }
 
-    /*
-     * admin_report_users_to_be_added
-     *
-     * Shows the new users that will be added by the import.
-     */
 
-    function admin_report_users_to_be_added() {
+    /*
+     * admin_report_ind_to_be_added
+     *
+     * Shows the new individuals that will be added by the import.
+     */
+    function admin_report_ind_to_be_added() {
 
         $fields = array(
-            'ImportedUser.bca_no', 'ImportedUser.organisation', 'ImportedUser.class',
-            'ImportedUser.class_code', 'ImportedUser.insurance_status', 'ImportedUser.date_of_expiry',
-            'ImportedUser.email', 'ImportedUser.forename', 'ImportedUser.surname',
-            'ImportedUser.address1', 'ImportedUser.address2', 'ImportedUser.address3', 'ImportedUser.town',
-            'ImportedUser.county', 'ImportedUser.postcode', 'ImportedUser.country',
+            'ImportedUser.class',
+            'ImportedUser.bca_no',
+            'ImportedUser.organisation',
+            'ImportedUser.forename',
+            'ImportedUser.surname',
+            'ImportedUser.class_code',
+            'ImportedUser.bca_status',
+            'ImportedUser.insurance_status',
+            'ImportedUser.date_of_expiry',
+            'ImportedUser.email',
+            'ImportedUser.address1',
+            'ImportedUser.address2',
+            'ImportedUser.address3',
+            'ImportedUser.town',
+            'ImportedUser.county',
+            'ImportedUser.postcode',
+            'ImportedUser.country',
+            'ImportedUser.gender',
+            'ImportedUser.year_of_birth',
+            'ImportedUser.bcra_member',
+            'ImportedUser.address_ok',
             'User.bca_no',
         );
 
@@ -843,8 +1517,455 @@ public function admin_testxls() {
 
         $order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
 
-        $conditions = array('or' => array(
-            'User.bca_no is null')
+        $conditions = array(
+            'User.bca_no is null',
+            'ImportedUser.class' => array('CIM', 'DIM')
+        );
+
+        $addedLines = $this->ImportedUser->find('all', array(
+            'joins' => $joins,
+            'fields' => $fields,
+            'conditions' => $conditions,
+            'order' => $order,
+            'limit' => 250,
+        ));
+
+        $this->set('addedLines', $addedLines);
+    }
+
+
+    /**
+     * admin_report_group_repeated_lines
+     *
+     * Lists repeated records in the import file.
+     */
+    function admin_report_group_repeated_lines() {
+
+        $fields = array('ImportedUser.bca_no', 'ImportedUser.class', 'COUNT(*) as row_count',
+            'GROUP_CONCAT(ImportedUser.organisation) as organisations');
+
+        //A condition on an aggregate function must use HAVING.
+        $group = array('ImportedUser.bca_no', 'ImportedUser.class HAVING COUNT(*) > 1');
+
+        $conditions = array('ImportedUser.class' => 'GRP');
+
+        $order = array('ImportedUser.class', 'ImportedUser.bca_no');
+
+        $repeatedLines = $this->ImportedUser->find('all', array(
+            'fields' => $fields,
+            'conditions' => $conditions,
+            'group' => $group,
+            'order' => $order,
+            //'limit' => 10,
+        ));
+
+        $this->set('repeatedLines', $repeatedLines);
+    }
+
+
+    /**
+     * admin_tidy_group_repeated_lines
+     *
+     * Deletes the repeated records from the Import.
+     */
+    function admin_tidy_group_repeated_lines() {
+
+        $this->request->onlyAllow('post');
+
+        $fields = array('ImportedUser.bca_no', 'COUNT(*) as row_count');
+
+        //A condition on an aggregate function must use HAVING.
+        $group = array('ImportedUser.bca_no HAVING COUNT(*) > 1');
+
+        $conditions = array('ImportedUser.class' => 'GRP');
+
+        if ($repeatedLines = $this->ImportedUser->find('all', array(
+            'fields' => $fields,
+            'conditions' => $conditions,
+            'group' => $group,
+            )))
+        {
+            $line_count = count($repeatedLines);
+
+            for ($c1 = 0; $c1 < $line_count; $c1++) {
+
+                $conditions = array('ImportedUser.bca_no' => $repeatedLines[$c1]['ImportedUser']['bca_no'], 'ImportedUser.class' => 'GRP');
+
+                $this->ImportedUser->deleteAll($conditions);
+            }
+
+            $this->Session->setFlash(__($line_count .' repeated records have has been deleted.'), 'default', array('class' => 'success'));
+
+        } else {
+            $this->Session->setFlash(__('There was no data to delete.'));
+        }
+
+        return $this->redirect(array('action' => 'report_group_repeated_lines'));
+    }
+
+
+    /**
+    * admin_email_group_repeated_lines
+    *
+    * Email the repeated records report to the current operator.
+    *
+    */
+    function admin_email_group_repeated_lines() {
+
+        //Get data.
+        $fields = array('ImportedUser.bca_no', 'COUNT(*) as row_count',
+            'GROUP_CONCAT(ImportedUser.organisation) as organisations');
+
+        //A condition on an aggregate function must use HAVING.
+        $group = array('ImportedUser.bca_no HAVING COUNT(*) > 1');
+
+        $conditions = array('ImportedUser.class' => 'GRP');
+
+        $order = array('ImportedUser.bca_no');
+
+        $repeatedLines = $this->ImportedUser->find('all', array(
+            'fields' => $fields,
+            'conditions' => $conditions,
+            'group' => $group,
+            'order' => $order,
+            //'limit' => 10,
+        ));
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'repeatedLines' => $repeatedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'subject' => 'BCA Online Repeated Lines Report of Group Members.',
+            'template' => 'imported_users-admin_email_group_repeated_lines',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'report_group_repeated_lines'));
+    }
+
+
+    /**
+     * admin_report_group_mismatched_names_iuu
+     *
+     * For group members, lists records in the import file that have different organisation names from the master database.
+     *
+     */
+    function admin_report_group_mismatched_names_iuu() {
+
+        $mySQL = 'SELECT ImportedUser.id, ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
+                User.organisation, User.class, User.address1, User.address2, User.email,
+                ImportedUser.forename, ImportedUser.surname,
+                ImportedUser.organisation, ImportedUser.class, ImportedUser.address1,
+                ImportedUser.address2, ImportedUser.email
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.class = \'GRP\' AND
+                ImportedUser.bca_no=User.bca_no AND
+                ImportedUser.organisation <> User.organisation
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        $this->set('mismatchedLines', $mismatchedLines);
+    }
+
+
+    /**
+     * admin_tidy_group_mismatched_names_iuu
+     *
+     * For group members, deletes the mismatching name records from the Imported Users.
+     */
+    function admin_tidy_group_mismatched_names_iuu() {
+
+        $this->request->onlyAllow('post');
+
+        $mySQL =
+            'SELECT ImportedUser.id
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.class = \'GRP\' AND
+                ImportedUser.bca_no=User.bca_no AND
+                ImportedUser.organisation <> User.organisation
+            ORDER BY ImportedUser.bca_no';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        if ($mismatchedLines = $db->fetchALL($mySQL)) {
+
+            $line_count = count($mismatchedLines);
+
+            for ($c1 = 0; $c1 < $line_count; $c1++) {
+                $this->ImportedUser->delete($mismatchedLines[$c1]['ImportedUser']['id']);
+            }
+
+            $this->Session->setFlash(__($line_count .' mismatched records have has been deleted.'), 'default', array('class' => 'success'));
+
+        } else {
+            $this->Session->setFlash(__('There was no data to delete.'));
+        }
+
+        return $this->redirect(array('action' => 'report_group_mismatched_names_iuu'));
+    }
+
+
+    /**
+     * admin_delete_group_mismatched_iuu
+     *
+     * For group members, deletes a mismatching name record from the Imported User.
+     *
+     */
+    function admin_delete_group_mismatched_iuu($id = null) {
+
+        $this->request->onlyAllow('post');
+
+        // Make sure it is numeric.
+        if (!is_numeric($id)) throw new NotFoundException(__('Not a valid ID No.'));
+
+        if ($this->ImportedUser->delete($id)) {
+            $this->Session->setFlash(__('The record has been deleted.'), 'default', array('class' => 'success'));
+        } else {
+            $this->Session->setFlash(__('Failed to delete record.'));
+        }
+
+        return $this->redirect(array('action' => 'report_group_mismatched_names_iuu'));
+    }
+
+
+    /**
+    * admin_email_group_mismatched_names_iuu
+    *
+    * For group members, email the Mismatching Names report to the current operator.
+    *
+    */
+    function admin_email_group_mismatched_names_iuu() {
+
+        //Get data.
+        $mySQL = 'SELECT ImportedUser.id, ImportedUser.bca_no, User.bca_no, User.forename, User.surname,
+                User.organisation, User.class, User.address1, User.address2, User.email,
+                ImportedUser.forename, ImportedUser.surname,
+                ImportedUser.organisation, ImportedUser.class, ImportedUser.address1,
+                ImportedUser.address2, ImportedUser.email
+            FROM imported_users AS ImportedUser, users AS User
+            WHERE
+                ImportedUser.class = \'GRP\' AND
+                ImportedUser.bca_no=User.bca_no AND
+                ImportedUser.organisation <> User.organisation
+            ORDER BY ImportedUser.bca_no';
+            //LIMIT 10';
+
+        $db = $this->ImportedUser->getDataSource();
+
+        $mismatchedLines = $db->fetchALL($mySQL);
+
+        //Send email.
+        $this->loadmodel('SentEmail');
+
+        $viewVars = array(
+            'full_name' => $this->Auth->user('full_name'),
+            'mismatchedLines' => $mismatchedLines,
+        );
+
+        $email = array(
+            'user_id' => $this->Auth->user('id'),
+            'subject' => 'BCA Online Mismatch User Name (IUU) Report for Group Members.',
+            'template' => 'imported_users-admin_email_group_mismatched_names_iuu',
+            'forceSend' => true,
+            'save' => false,
+            'viewVars' => $viewVars,
+        );
+
+        if(!$this->SentEmail->send($email)) {
+            $this->Session->setFlash(__('The email was not sent.'));
+        } else {
+            $this->Session->setFlash(__('The email was sent.'), 'default', array('class' => 'success'));
+        }
+
+        return $this->redirect(array('action' => 'report_group_mismatched_names_iuu'));
+    }
+
+
+    /*
+     * admin_report_groups_to_be_updated
+     *
+     * Shows the groups that will be updated by the import.
+     */
+    function admin_report_groups_to_be_updated() {
+
+        $fields = array(
+            'ImportedUser.class',
+            'ImportedUser.bca_no',
+            'ImportedUser.organisation',
+            'ImportedUser.forename',
+            'ImportedUser.surname',
+            'ImportedUser.position',
+            'ImportedUser.class_code',
+            'ImportedUser.bca_status',
+            'ImportedUser.insurance_status',
+            'ImportedUser.date_of_expiry',
+            'ImportedUser.email',
+            'ImportedUser.address1',
+            'ImportedUser.address2',
+            'ImportedUser.address3',
+            'ImportedUser.town',
+            'ImportedUser.county',
+            'ImportedUser.postcode',
+            'ImportedUser.country',
+            'ImportedUser.telephone',
+            'ImportedUser.website',
+            'ImportedUser.bcra_member',
+            'ImportedUser.ccc_member',
+            'ImportedUser.cncc_member',
+            'ImportedUser.cscc_member',
+            'ImportedUser.dca_member',
+            'ImportedUser.dcuc_member',
+            'ImportedUser.address_ok',
+            'User.class',
+            'User.bca_no',
+            'User.organisation',
+            'User.forename',
+            'User.surname',
+            'User.position',
+            'User.class_code',
+            'User.bca_status',
+            'User.insurance_status',
+            'User.date_of_expiry',
+            'User.email',
+            'User.address1',
+            'User.address2',
+            'User.address3',
+            'User.town',
+            'User.county',
+            'User.postcode',
+            'User.country',
+            'User.telephone',
+            'User.website',
+            'User.bcra_member',
+            'User.ccc_member',
+            'User.cncc_member',
+            'User.cscc_member',
+            'User.dca_member',
+            'User.dcuc_member',
+            'User.address_ok',
+        );
+
+        $joins = array(array('table' => 'users', 'alias' => 'User',
+            'type' => 'inner', 'conditions' => array(
+                'ImportedUser.class = User.class',
+                'ImportedUser.bca_no = User.bca_no'))
+        );
+
+        $order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
+
+        $conditions = array(
+            'ImportedUser.class' => 'GRP',
+            'or' => array(
+            'ImportedUser.forename <> User.forename',
+            'ImportedUser.surname <> User.surname',
+            'ImportedUser.position <> User.position',
+            'ImportedUser.class_code <> User.class_code',
+            'ImportedUser.bca_status <> User.bca_status',
+            'ImportedUser.insurance_status <> User.insurance_status',
+            'ImportedUser.date_of_expiry <> User.date_of_expiry',
+            'ImportedUser.email <> User.email',
+            'ImportedUser.address1 <> User.address1',
+            'ImportedUser.address2 <> User.address2',
+            'ImportedUser.address3 <> User.address3',
+            'ImportedUser.town <> User.town',
+            'ImportedUser.county <> User.county',
+            'ImportedUser.postcode <> User.postcode',
+            'ImportedUser.country <> User.country',
+            'ImportedUser.telephone <> User.telephone',
+            'ImportedUser.website <> User.website',
+            'ImportedUser.bcra_member <> User.bcra_member',
+            'ImportedUser.ccc_member <> User.ccc_member',
+            'ImportedUser.cncc_member <> User.cncc_member',
+            'ImportedUser.cscc_member <> User.cscc_member',
+            'ImportedUser.dca_member <> User.dca_member',
+            'ImportedUser.dcuc_member <> User.dcuc_member',
+            'ImportedUser.address_ok <> User.address_ok',
+            )
+        );
+
+        $updatedLines = $this->ImportedUser->find('all', array(
+            'joins' => $joins,
+            'fields' => $fields,
+            'conditions' => $conditions,
+            'order' => $order,
+            'limit' => 1000,
+        ));
+
+        $this->set('updatedLines', $updatedLines);
+    }
+
+
+    /*
+     * admin_report_groups_to_be_added
+     *
+     * Shows the new groups that will be added by the import.
+     */
+    function admin_report_groups_to_be_added() {
+
+        $fields = array(
+            'ImportedUser.class',
+            'ImportedUser.bca_no',
+            'ImportedUser.organisation',
+            'ImportedUser.forename',
+            'ImportedUser.surname',
+            'ImportedUser.position',
+            'ImportedUser.class_code',
+            'ImportedUser.bca_status',
+            'ImportedUser.insurance_status',
+            'ImportedUser.date_of_expiry',
+            'ImportedUser.email',
+            'ImportedUser.address1',
+            'ImportedUser.address2',
+            'ImportedUser.address3',
+            'ImportedUser.town',
+            'ImportedUser.county',
+            'ImportedUser.postcode',
+            'ImportedUser.country',
+            'ImportedUser.telephone',
+            'ImportedUser.website',
+            'ImportedUser.bcra_member',
+            'ImportedUser.ccc_member',
+            'ImportedUser.cncc_member',
+            'ImportedUser.cscc_member',
+            'ImportedUser.dca_member',
+            'ImportedUser.dcuc_member',
+            'ImportedUser.bca_email_ok',
+            'ImportedUser.bcra_email_ok',
+            'ImportedUser.address_ok',
+            'User.bca_no',
+        );
+
+        $joins = array(array('table' => 'users', 'alias' => 'User',
+            'type' => 'left', 'conditions' => array(
+                'ImportedUser.class = User.class',
+                'ImportedUser.bca_no = User.bca_no'))
+        );
+
+        $order = array('ImportedUser.class', 'ImportedUser.organisation', 'ImportedUser.bca_no');
+
+        $conditions = array(
+            'User.bca_no is null',
+            'ImportedUser.class' => 'GRP'
         );
 
         $addedLines = $this->ImportedUser->find('all', array(

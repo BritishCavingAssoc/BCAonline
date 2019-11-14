@@ -18,6 +18,10 @@
         <dd>
             <?php echo h($user['User']['email']); ?> &nbsp;
         </dd>
+        <dt><?php echo __('Email Status'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['email_status']); ?> &nbsp;
+        </dd>
         <dt><?php echo __('Active?'); ?></dt>
         <dd>
             <?php echo h($user['User']['active']); ?> &nbsp;
@@ -40,14 +44,6 @@
         <dd>
             <?php echo h($user['User']['surname']); ?> &nbsp;
         </dd>
-        <dt><?php echo __('Full Name'); ?></dt>
-        <dd>
-            <?php echo h($user['User']['full_name']); ?> &nbsp;
-        </dd>
-        <dt><?php echo __('Organisation'); ?></dt>
-        <dd>
-            <?php echo h($user['User']['organisation']); ?> &nbsp;
-        </dd>
         <dt><?php echo __('Short Name'); ?></dt>
         <dd>
             <?php echo h($user['User']['short_name']); ?> &nbsp;
@@ -55,6 +51,10 @@
         <dt><?php echo __('Position'); ?></dt>
         <dd>
             <?php echo h($user['User']['position']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('Organisation'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['organisation']); ?> &nbsp;
         </dd>
         <dt>&nbsp;</dt>
         <dd>&nbsp;</dd>
@@ -118,6 +118,16 @@
         </dd>
         <dt>&nbsp;</dt>
         <dd>&nbsp;</dd>
+        <dt><?php echo __('Gender'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['gender']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('Year of Birth'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['year_of_birth']); ?> &nbsp;
+        </dd>
+        <dt>&nbsp;</dt>
+        <dd>&nbsp;</dd>
         <dt><?php echo __('Addr OK?'); ?></dt>
         <dd>
             <?php echo h($user['User']['address_ok']); ?> &nbsp;
@@ -142,6 +152,38 @@
         <dd>
             <?php echo h($user['User']['roles']); ?> &nbsp;
         </dd>
+        <dt><?php echo __('Same Person?'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['same_person']); ?> &nbsp;
+        </dd>
+        <dt>&nbsp;</dt>
+        <dd>&nbsp;</dd>
+        <dt><?php echo __('BCRA Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['bcra_member']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('CCC Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['ccc_member']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('CNCC Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['cncc_member']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('CSCC Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['cscc_member']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('DCA Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['dca_member']); ?> &nbsp;
+        </dd>
+        <dt><?php echo __('DCUC Member'); ?></dt>
+        <dd>
+            <?php echo h($user['User']['dcuc_member']); ?> &nbsp;
+        </dd>
+        <dt>&nbsp;</dt>
+        <dd>&nbsp;</dd>
         <dt><?php echo __('Created'); ?></dt>
         <dd>
             <?php echo h($user['User']['created']); ?> &nbsp;
@@ -156,11 +198,13 @@
 <div class="actions">
     <h3><?php echo __('BCA Online'); ?></h3>
     <ul>
-        <?php echo $this->Menu->item(null, $this->Html->link(__('Edit User'), array('action' => 'edit', $user['User']['id']))); ?> 
-        <?php echo $this->Menu->item(null, $this->Form->postLink(__('Delete User'), array('action' => 'delete', $user['User']['id']), null, __('Are you sure you want to delete # %s?', $user['User']['id']))); ?> 
-        <?php echo $this->Menu->item('UserAdmin', $this->Form->postLink(__('Sync User'), array('action' => 'sync_duplicates', $user['User']['id']), null, __('Are you sure you want to sync duplicate users?'))); ?> 
-        <?php echo $this->Menu->item('UserAdmin', $this->Form->postLink(__('Email Update To Admin'), array('action' => 'send_email_update_to_admin', $user['User']['id']), null, __('Are you sure you want to send an email update instruction to the Administrator?'))); ?> 
-        <?php echo $this->Menu->item(null, $this->Form->postLink(__('Mark Deceased'), array('action' => 'mark_deceased', $user['User']['id']), null, __('Are you sure %s (%s) has died?', $user['User']['full_name'], $user['User']['id']))); ?> 
-        <?php echo $this->Menu->item(null, $this->Html->link(__('Return'), array('action' => 'index'))); ?> 
+        <?php echo $this->Menu->item(null, $this->Html->link(__('Edit User'), array('action' => 'edit', $user['User']['id']))); ?>
+        <?php echo $this->Menu->item(null, $this->Form->postLink(__('Delete User'), array('action' => 'delete', $user['User']['id']), null, __('Are you sure you want to delete # %s?', $user['User']['id']))); ?>
+        <?php echo $this->Menu->item('UserAdmin', $this->Form->postLink(__('Sync User'), array('action' => 'sync_duplicates', $user['User']['id']), null, __('Are you sure you want to sync duplicate users?'))); ?>
+        <?php echo $this->Menu->item('UserAdmin', $this->Form->postLink(__('Email Update To Admin'), array('action' => 'send_email_update_to_admin', $user['User']['id']), null, __('Are you sure you want to send an email update request to the BCA Membership Admin?'))); ?>
+        <?php echo $this->Menu->item('UserAdmin', $this->Form->postLink(__('Address Update To Admin'), array('action' => 'send_address_update_to_admin', $user['User']['id']), null, __('Are sure you want to send an address update request to the BCA Membership Admin?'))); ?>
+        <?php echo $this->Menu->item(null, $this->Form->postLink(__('Mark Deceased'), array('action' => 'mark_deceased', $user['User']['id']), null, __('Are you sure %s (%s) has died?', $user['User']['full_name'], $user['User']['id']))); ?>
+        <?php echo $this->Menu->item('Admin', $this->Html->link(__('Become User'), array('action'=>'become_user', $user['User']['id']))); ?>
+        <?php echo $this->Menu->item(null, $this->Html->link(__('Return'), array('action' => 'index'))); ?>
      </ul>
 </div>

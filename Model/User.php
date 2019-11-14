@@ -10,7 +10,8 @@ class User extends AppModel
     public $actsAs = array('Containable');
 
     public $virtualFields = array(
-        'full_name' => 'TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,"")))'
+        'full_name' => 'TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,"")))',
+        'id_name' => 'IF(User.class = "GRP", TRIM(IFNULL(User.organisation,"")), TRIM(CONCAT(IFNULL(User.forename,""), " ", IFNULL(User.surname,""))))'
     );
 
     public function beforeSave($options = array()) {
@@ -53,14 +54,14 @@ class User extends AppModel
             'message' => 'Forename can not be longer than 25 characters.'
         ),
         'surname' => array(
-            'rule' => array('maxlength', 25),
+            'rule' => array('maxlength', 30),
             'allowEmpty' => true,
-            'message' => 'Surname can not be longer than 25 characters.'
+            'message' => 'Surname can not be longer than 30 characters.'
         ),
         'organisation' => array(
             'rule' => array('maxlength', 50),
             'allowEmpty' => false,
-            'message' => 'Organisation is required and can not be longer than 50 characters.'
+            'message' => 'Organisation can not be missing or longer than 50 characters.'
         ),
         'short_name' => array(
             'rule' => array('maxlength', 20),
@@ -68,9 +69,9 @@ class User extends AppModel
             'message' => 'Short Name can not be longer than 20 characters.'
         ),
         'position' => array(
-            'rule' => array('maxlength', 25),
+            'rule' => array('maxlength', 50),
             'allowEmpty' => true,
-            'message' => 'Position can not be longer than 25 characters.'
+            'message' => 'Position can not be longer than 50 characters.'
         ),
         'bca_status' => array(
             'rule' => array('inList', array('Current', 'Overdue', 'Lapsed', 'Resigned', 'Expelled', 'Deceased')),
@@ -84,15 +85,15 @@ class User extends AppModel
             'message' => 'BCA No. must be a number.'
         ),
         'class' => array(
-            'rule' => array('inList', array('CIM','DIM','GRP')),
+            'rule' => array('inList', array('CIM','DIM','GRP','STAFF')),
             'required' => 'create',
             'allowEmpty' => false,
-            'message' => 'Class must be CIM, DIM or GRP.'
+            'message' => 'Class must be CIM, DIM, GRP or STAFF.'
         ),
         'class_code' => array(
             'rule' => array('maxlength', 10),
             'allowEmpty' => false,
-            'message' => 'Class Code is required and can not be longer than 10 characters.'
+            'message' => 'Class Code can not be missing or longer than 10 characters.'
         ),
         'insurance_status' => array(
             'rule_valid_insurance_status' => array('rule' => 'ruleValidInsuranceStatus'),
@@ -103,9 +104,9 @@ class User extends AppModel
             'message' => 'Invalid date.'
         ),
         'address1' => array(
-            'rule' => array('maxlength', 40),
+            'rule' => array('maxlength', 60),
             'allowEmpty' => true,
-            'message' => 'Address line 1 can not be longer than 40 characters.'
+            'message' => 'Address line 1 can not be longer than 60 characters.'
         ),
         'address2' => array(
             'rule' => array('maxlength', 40),
@@ -154,6 +155,17 @@ class User extends AppModel
                 'message' => 'Website can not be longer than 100 characters.'
             )
         ),
+        'gender' => array(
+            'rule' => array('inList', array('M','F','T','')),
+            'required' => 'create',
+            'allowEmpty' => true,
+            'message' => 'Gender must be M, F, T or blank.'
+        ),
+        'year_of_birth' => array(
+            'rule' => array('range', 1900, 2020),
+            'allowEmpty' => true,
+            'message' => 'Year of Birth must be after 1900.'
+        ),
         'address_ok' => array(
             'rule' => array('maxlength', 25),
             'allowEmpty' => true,
@@ -163,6 +175,12 @@ class User extends AppModel
             'rule' => 'boolean',
             'allowEmpty' => true,
             'message' => 'Allow Club Updates? must be yes, no or blank.'
+        ),
+        'email_status' => array(
+            'rule' => array('inList', array('OK','HB','SB','BL','')),
+            'required' => 'create',
+            'allowEmpty' => true,
+            'message' => 'Email Status must be OK, HB, SB, BL or blank.'
         ),
         'admin_email_ok' => array(
             'rule' => 'boolean',
@@ -178,6 +196,36 @@ class User extends AppModel
             'rule' => 'boolean',
             'allowEmpty' => true,
             'message' => 'BCRA Email OK? must be yes, no or blank.'
+        ),
+        'bcra_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'BCRA Member? must be yes, no or blank.'
+        ),
+        'ccc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CCC Member? must be yes, no or blank.'
+        ),
+        'cscc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CSCC Member? must be yes, no or blank.'
+        ),
+        'cncc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'CNCC Member? must be yes, no or blank.'
+        ),
+        'dca_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCA Member? must be yes, no or blank.'
+        ),
+        'dcuc_member' => array(
+            'rule' => 'boolean',
+            'allowEmpty' => true,
+            'message' => 'DCUC Member? must be yes, no or blank.'
         ),
         'forename2' => array(
             'rule' => array('maxlength', 25),
@@ -291,9 +339,10 @@ class User extends AppModel
     //Class is required but insurance_status(2) is not.
     public function ruleValidInsuranceStatus($data) {
 
-    if (!isset($this->data[$this->alias]['class'])) return 'Class must be CIM, DIM or GRP.';
-        
-        if ($this->data[$this->alias]['class'] == 'GRP') { //If GRP.
+        if (!isset($this->data[$this->alias]['class'])) return 'Class must be CIM, DIM, GRP or STAFF.';
+
+        //If GRP.
+        if ($this->data[$this->alias]['class'] == 'GRP') {
             if (isset($this->data[$this->alias]['insurance_status']) &&
                 !in_array($this->data[$this->alias]['insurance_status'], array('Y', 'N', '')))
             {
@@ -305,16 +354,16 @@ class User extends AppModel
                 return 'Insurance Status 2 for group members must be either Y, N or blank.';
             }
         }
-        else { //else CIM or DIM.
+        else { //CIM or DIM.
             if (isset($this->data[$this->alias]['insurance_status']) &&
-                !in_array($this->data[$this->alias]['insurance_status'], array('C','NC','STU','AN', '')))
+                !in_array($this->data[$this->alias]['insurance_status'], array('C','NC','STU','U18','AN','')))
             {
-                return 'Insurance Status for individual members must be either C, NC, STU, AN or blank.';
+                return 'Insurance Status for individual members must be either C, NC, STU, U18, AN or blank.';
             }
             if (isset($this->data[$this->alias]['insurance_status2']) &&
-                !in_array($this->data[$this->alias]['insurance_status2'], array('C','NC','STU','AN', '')))
+                !in_array($this->data[$this->alias]['insurance_status2'], array('C','NC','STU','U18','AN','')))
             {
-                return 'Insurance Status 2 for individual members must be either C, NC, STU, AN or blank.';
+                return 'Insurance Status 2 for individual members must be either C, NC, STU, U18, AN or blank.';
             }
         }
 
@@ -324,7 +373,7 @@ class User extends AppModel
     /**
     * syncDuplicates method
     *
-    * Make password, email & email preferences the same for all user records with the same bca_no and email
+    * Make password, email & email preferences the same for all user records with the same bca_no
     * as the primary id user.
     * Send one notifying email to each unique email address.
     *
@@ -342,7 +391,7 @@ class User extends AppModel
 
         //Get the up to date primary user.
         if (!$primary_user = $this->find('first', array(
-            'fields' => array('id', 'bca_no', 'username', 'full_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
+            'fields' => array('id', 'bca_no', 'username', 'id_name', 'active', 'email', 'email_status', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
             'conditions' => array('User.id' => $id),
             'contain' => false))
         ) {
@@ -350,12 +399,12 @@ class User extends AppModel
         }
 
         //Pick out the fields, given by the second array, to check against.
-        $check_values = array_intersect_key($primary_user['User'], array('active' => null, 'email' => null,
+        $check_values = array_intersect_key($primary_user['User'], array('active' => null, 'email' => null, 'email_status' => null,
             'admin_email_ok' => null, 'bca_email_ok' => null, 'bcra_email_ok' => null));
 
         //Find the other users with the same bca_no.
         if(!$users = $this->find('all', array(
-            'fields' => array('id', 'bca_no', 'username', 'full_name', 'active', 'email', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
+            'fields' => array('id', 'bca_no', 'username', 'id_name', 'active', 'email', 'email_status', 'admin_email_ok', 'bca_email_ok', 'bcra_email_ok'),
             'conditions' => array('User.bca_no' => $primary_user['User']['bca_no']),
             'contain' => false))
         ) {
@@ -393,7 +442,7 @@ class User extends AppModel
                         'id' => $users[$i]['User']['id'],
                         'bca_no' => $users[$i]['User']['bca_no'],
                         'email' => $users[$i]['User']['email'],
-                        'full_name' => $users[$i]['User']['full_name'],
+                        'id_name' => $users[$i]['User']['id_name'],
                     );
                 }
 
@@ -434,6 +483,28 @@ class User extends AppModel
     }
 
     /*
+    * Marks all the individual user records with the same BCA as the same person.
+    *
+    * Returns true on success, false on failure.
+    */
+
+    public function MarkSamePerson($bca_no = null) {
+
+        // Make sure it is a number.
+        if (empty($bca_no) || !is_numeric($bca_no)) {
+            throw new InternalErrorException(__('Not a valid BCA No.'));
+        }
+
+        $fields = array('User.same_person' => true);
+
+        //Don't bother to update records where same_person is already true - saves space in the audit table.
+        $conditions = array('User.bca_no =' => $bca_no, 'User.class' => array('CIM', 'DIM'),  'User.same_person !=' => true);
+
+        return $this->updateALL($fields, $conditions);
+    }
+
+
+    /*
     * Creates a new user name from bca_no.
     */
     public static function MakeUserName($bca_no) {
@@ -443,6 +514,59 @@ class User extends AppModel
             return str_pad($bca_no, 5, "0", STR_PAD_LEFT);
         } else {
             return null;
+        }
+    }
+
+    /*
+    * Sets the email status flag for the all occurances of the given email address.
+    *
+    * $email_list (string) - string of emails separated by \r\n
+    * $status (string) - OK, HB-Hard Bounce, SB-Soft Bounce, BL-Black Listed (By Mailing provider)
+    *
+    * returns an empty string if all emails processed ok.
+    */
+    public function SetEmailStatus($email_list, $status) {
+
+        // Check a valid status.
+        if (!in_array($status, array('OK', 'HB', 'SB', 'BL'))) {
+            throw new InternalErrorException(__('Invalid email status')." ($status).");
+        }
+
+        //Convert to an array.
+        if(!$emails = preg_split("/[\s,]+/", $email_list)) {
+            return $email_list; //Failed to process the list. Return as is.
+        }
+
+        $modified = date("Y-m-d H:i:s");
+
+        foreach ($emails as $k => $email) {
+
+            //Skip empty emails.
+            if (empty(trim($email))) {
+                unset($emails[$k]); //Remove empty email address.
+                continue;
+            }
+
+            //Check is an email address.
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+                //Check that there are records that matches the email.
+                $conditions = array('User.email' => $email);
+                if ($count = $this->find('count', array('conditions' => $conditions))) {
+
+                    $fields = array('User.email_status' => "'$status'", 'modified' => "'$modified'"); //NB Note the necessity to quote strings. NB need to upddate modifed.
+                    $this->updateAll($fields, $conditions);
+
+                    unset($emails[$k]); //Remove processed email address.
+                }
+            }
+        }
+
+        //Return any unprocessed/bad emails as a string.
+        if (count($emails) > 0) {
+            return implode("\r\n", $emails);
+        } else {
+            return "";
         }
     }
 }

@@ -97,9 +97,24 @@
 			<?php echo h($importedUser['ImportedUser']['country']); ?>
 			&nbsp;
 		</dd>
+		<dt><?php echo __('Telephone'); ?></dt>
+		<dd>
+			<?php echo h($importedUser['ImportedUser']['telephone']); ?>
+			&nbsp;
+		</dd>
 		<dt><?php echo __('Website'); ?></dt>
 		<dd>
 			<?php echo h($importedUser['ImportedUser']['website']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Gender'); ?></dt>
+		<dd>
+			<?php echo h($importedUser['ImportedUser']['gender']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('Year of Birth'); ?></dt>
+		<dd>
+			<?php echo h($importedUser['ImportedUser']['year_of_birth']); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Address Ok'); ?></dt>
@@ -115,6 +130,36 @@
 		<dt><?php echo __('BCRA Email Ok'); ?></dt>
 		<dd>
 			<?php echo h($importedUser['ImportedUser']['bcra_email_ok']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('BCRA Member'); ?></dt>
+		<dd>
+			<?php echo h($importedUser['ImportedUser']['bcra_member']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('CCC Member'); ?></dt>
+		<dd>
+			<?php echo h($importedUser['ImportedUser']['ccc_member']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('CNCC Member'); ?></dt>
+		<dd>
+			<?php echo h($importedUser['ImportedUser']['cncc_member']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('CSCC Member'); ?></dt>
+		<dd>
+			<?php echo h($importedUser['ImportedUser']['cscc_member']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('DCA Member'); ?></dt>
+		<dd>
+			<?php echo h($importedUser['ImportedUser']['dca_member']); ?>
+			&nbsp;
+		</dd>
+		<dt><?php echo __('DCUC Member'); ?></dt>
+		<dd>
+			<?php echo h($importedUser['ImportedUser']['dcuc_member']); ?>
 			&nbsp;
 		</dd>
 		<dt><?php echo __('Forename2'); ?></dt>

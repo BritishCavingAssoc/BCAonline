@@ -6,7 +6,7 @@
 	<p><strong>FOR BCA MEMBERS ONLY</strong></p>
 	<p>Please enter the email address you have previously given to the BCA (possibly via your club).</p>
 	<p>Then press the 'Submit' button to have your login details emailed to you.</>
-	<p>If you have any problems please contact the <?php echo $this->Html->link('BCA Online Administrator', 'http://british-caving.org.uk/wiki3/doku.php?id=about:contact_bca'); ?>.</p>  
+	<p>If BCA doesn't have your email address please <?php echo $this->Html->link(__('click here'), array('action' => 'details_not_found')); ?>.</p>
 	<?php
 		echo $this->Form->input('email', array('label'=> 'Enter your email address:'));
 	?>

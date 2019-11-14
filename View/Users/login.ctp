@@ -16,7 +16,7 @@
 		<li><?php echo $this->Html->link(__('Request Login Details'), array('action' => 'request_login_details')); ?> </li>
 		<li><?php echo $this->Html->link(__('Main Website'), 'http://british-caving.org.uk'); ?> </li>
 		<p>&nbsp;</p>
-		<p><strong>Welcome to the new members' area.</strong></p>
+		<p><strong>Welcome to the members' area.</strong></p>
 		<p>Within you can update your contact details.</p>
 		<p>You can also check your details held by BCA.</p>
         <p>New user? Forgotten your password? Click on the Request button above.</p>
